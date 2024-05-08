@@ -1,0 +1,69 @@
+.main{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%; /* Tamaño de la pantalla */
+    background-color: #334550;
+    border-radius: 2ch;
+}
+.box{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    background-color: #009dff;
+    border-radius: 2ch;
+    align-items: center;
+}
+.taskconteiner{
+    @apply flex w-full;
+    border-radius: 2ch;
+    width: 100%;
+    height: 100%;
+}
+.bento{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    padding: 2%;
+}
+.tasks{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding: 2%;
+    border-left: #1e272d 2px solid;
+}
+.taskTitle{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1%;
+}
+.icons{
+    width: 100%;
+    height: 100%;
+}
+
+.botones{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 1%;
+    margin-top: 8%;
+}
+.success{
+    width: 68%;
+    background-color: #038de2d5;
+    height: 3vi;
+}
+.save{
+    width: 30%;
+    background-color: #03c53dd5;
+    height: 3vi;
+}
