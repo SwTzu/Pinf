@@ -14,7 +14,7 @@ router.post("/validar",validarUsuario);             // {token, tipoUsuario}
 router.post("/crear",crearUsuario);                 // {rut, password, telefono, correo, direccion, planEstudio, ingreso, tipoUsuario, nombre1, nombre2, apellido1, apellido2}
 
 router.post("/verDatos",verDatosUsuario);           // {rut}
-router.post("/login",login);                        // {rut, password}
+router.post("/login",login);                        // {rut, password, "userType"} ('est','coo','adm','boss')
 router.post("/logout",logout);                      // {token}
 
 module.exports = router;
