@@ -35,7 +35,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true
       },
       telefono: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(10),
         allowNull: true
       },
       correo: {
