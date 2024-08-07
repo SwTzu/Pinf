@@ -1,7 +1,4 @@
-const db = require("../models");
-const puppeteer = require("puppeteer");
 const convertHTMLtoPDF = require('../helpers/conversion.helpers.js');
-const Op = db.Sequelize.Op;
 const { readFileSync } = require('fs');
 const path = require('path');
 const imagePath = path.join(__dirname, '../public/uv.jpg');
