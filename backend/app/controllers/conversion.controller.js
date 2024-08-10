@@ -1,6 +1,7 @@
 const convertHTMLtoPDF = require('../helpers/conversion.helpers.js');
 const { readFileSync } = require('fs');
 const path = require('path');
+
 const imagePath = path.join(__dirname, '../public/uv.jpg');
 const imageBase64 = readFileSync(imagePath).toString('base64');
 exports.conversion = async (req,res) => {
@@ -66,16 +67,16 @@ exports.conversion = async (req,res) => {
          </div>
       </body>
       </html>`;
-  
+        
       const pdfBuffer = await convertHTMLtoPDF(html, datos);
 
-        // Asegúrate de que el contenido del PDF es un buffer y se devuelve correctamente.
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Length': pdfBuffer.length
-        });
+      // Asegúrate de que el contenido del PDF es un buffer y se devuelve correctamente.
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Length', pdfBuffer.length);
 
-        res.send(pdfBuffer);
+      // res.end en lugar de .send para enviar el buffer del PDF
+      // Por que? Quien sabe :/
+      res.end(pdfBuffer);
 
 
    } catch (error) {
