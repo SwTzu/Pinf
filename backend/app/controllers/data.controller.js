@@ -8,39 +8,39 @@ exports.unirDatos = async (req,res) => {
     const { token, rutEmpresa, asignatura} = req.body;
 
     try { 
-        const rutUsuario = jwt.verify(token, key).rut;
+        // Remove the declaration of rutUsuario and directly use the value in the query
+        const usuario = await db.usuario.findOne({where:{rut: jwt.verify(token, key).rut}});
+    
+        const empresa = await db.empresa.findOne({where:{rutEmpresa:rutEmpresa}});
+        
+        let numeroP;
+        switch (asignatura) {
+            case "1":
+                numeroP= "primera";
+                break;
+            case "2":
+                numeroP= "segunda";
+                break;
+            default:
+                numeroP= "desconocida";
+                break;
+        }
+        const datosFormatoJSON = {
+              count: 3,
+              razonSocial: empresa.razonSocial,
+              direccion: empresa.direccion,
+              region : empresa.region,
+              rut: usuario.rut,
+              semestre: 2,
+              horas: 320,
+              numeroPractica: numeroP,
+              nombre1: usuario.nombre1,
+              nombre2: usuario.nombre2,
+              apellido1: usuario.apellido1,
+              apellido2: usuario.apellido2,
+          };
+          await conversion({ body: datosFormatoJSON }, res);
     } catch (error) {
-        return res.status(401).send({message: 'Token inválido'});
+        return res.status(401).send({"error": error});
     }
-    
-    const usuario = await db.usuario.findOne({where:{rut:rutUsuario}});
-    const empresa = await db.empresa.findOne({where:{rutEmpresa:rutEmpresa}});
-    
-    let numeroP;
-    switch (asignatura) {
-        case "1":
-            numeroP= "primera";
-            break;
-        case "2":
-            numeroP= "segunda";
-            break;
-        default:
-            numeroP= "desconocida";
-            break;
-    }
-    const datosFormatoJSON = {
-          count: 3,
-          razonSocial: empresa.razonSocial,
-          direccion: empresa.direccion,
-          region : empresa.region,
-          rut: usuario.rut,
-          semestre: 2,
-          horas: 320,
-          numeroPractica: numeroP,
-          nombre1: usuario.nombre1,
-          nombre2: usuario.nombre2,
-          apellido1: usuario.apellido1,
-          apellido2: usuario.apellido2,
-      };
-      await conversion({ body: datosFormatoJSON }, res);
 };
