@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { EyeFilledIcon } from "../../components/EyeFilledIcon";
-import { EyeSlashFilledIcon } from "../../components/EyeSlashFilledIcon";
+import { Eye, EyeOff} from "lucide-react";
 import { Input, Button, Spinner } from "@nextui-org/react";
 import { useRut } from "react-rut-formatter";
 import { useRouter} from "next/navigation"; // Importa el router de Next.js
@@ -18,11 +17,11 @@ export default function Login() {
   const router = useRouter();
   // seteo de userType
   const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : null;
-  const isEmailValid = (email) => {
+  const isEmailValid = (email:any) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event:any) => {
     if (event.key === "Enter") {
       if(userType === "sup"){
         funcionloginSup(email, password,userType,isValid,setIsLoading,router);
@@ -133,9 +132,9 @@ export default function Login() {
         endContent={
           <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
             {isVisible ? (
-              <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              <EyeOff className="text-2xl text-default-400 pointer-events-none" />
             ) : (
-              <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              <Eye className="text-2xl text-default-400 pointer-events-none" />
             )}
           </button>}
       />

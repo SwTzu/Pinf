@@ -16,13 +16,8 @@ import {
   Spinner,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
-import { ChevronDownIcon } from "./ChevronDownIcon";
-import { SearchIcon } from "./SearchIcon";
-import { EditIcon } from "./EditIcon";
-import { DeleteIcon } from "./DeleteIcon";
-import { EyeIcon } from "./EyeIcon";
-import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { backendUrl } from "@/config/config";
+import { Trash2, Eye ,Pencil, EllipsisVertical, Search,ChevronDown} from "lucide-react";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -90,18 +85,14 @@ export default function TablaSolicitudes({ token }: { token: string }) {
         <Dropdown>
           <DropdownTrigger>
             <Button isIconOnly size="lg" variant="light">
-              <VerticalDotsIcon
-                className="text-default-300"
-                style={{ color: "black" }}
-                width={16}
-                height={16}
+              <EllipsisVertical
               />
             </Button>
           </DropdownTrigger>
           <DropdownMenu style={{ width: "100%", textAlign: "center" }}>
-            <DropdownItem startContent={<EyeIcon />}>View</DropdownItem>
-            <DropdownItem startContent={<EditIcon />}>Edit</DropdownItem>
-            <DropdownItem startContent={<DeleteIcon />} color="danger">
+            <DropdownItem startContent={<Eye />}>View</DropdownItem>
+            <DropdownItem startContent={<Pencil />}>Edit</DropdownItem>
+            <DropdownItem startContent={<Trash2 />} color="danger">
               Delete
             </DropdownItem>
           </DropdownMenu>
@@ -123,14 +114,14 @@ export default function TablaSolicitudes({ token }: { token: string }) {
       <div className="flex justify-between items-center mb-4 p-2 gap-4">
         <Input
           placeholder="Buscar por RUT o empresa..."
-          startContent={<SearchIcon />}
+          startContent={<Search />}
           value={filterValue}
           onValueChange={onSearchChange}
           variant="bordered"
         />
         <Dropdown>
           <DropdownTrigger>
-            <Button endContent={<ChevronDownIcon />}>Fase</Button>
+            <Button endContent={<ChevronDown />}>Fase</Button>
           </DropdownTrigger>
           <DropdownMenu
             aria-label="Filtrar por fase"
@@ -239,7 +230,17 @@ export default function TablaSolicitudes({ token }: { token: string }) {
                 {new Date(item.fechaSolicitud).toLocaleDateString()}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
-                {item.fase === 1 ? "Solicitado" : item.fase === 2 ? "Revisado" : "Aceptado"}
+                {item.fase === 0 ? "Rechazado" :
+                item.fase === 1 ? "Solicitado" :
+                item.fase === 2 ? "Revisado" :
+                item.fase === 3 ? "Firmado" :
+                item.fase === 4 ? "Formularios" :
+                item.fase === 5 ? "Coordinacion" :
+                item.fase === 6 ? "Iniciada" :
+                item.fase === 7 ? "Memoria" :
+                item.fase === 8 ? "Revision evaluacion" :
+                item.fase === 9 ? "Finalizado" :
+                ""}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
                 {renderActions(item)}

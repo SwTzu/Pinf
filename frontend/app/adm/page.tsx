@@ -1,82 +1,84 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Button, Image } from "@nextui-org/react";
-import { useRouter, useSearchParams } from "next/navigation"; // Importa el router de Next.js
-import styles from "../../styles/styleop.module.css";
-import { motion } from "framer-motion";
-import NextLink from "next/link";
-import { AllSoli } from "../../api/adm/solicitudes";
-import TAB from "../../components/Tablas/TabADM/fulltab";
-
-export default function Admin() {
-  //ejemplo de los datos
-  const [data, setData] = useState([]);
-  const statusOptions = [
-    { name: "Presentacion", uid: "1" },
-    { name: "Aceptacion", uid: "2" },
-  ];
-  const columns = [
-    { name: "ID", uid: "idSolicitud", sortable: true },
-    { name: "RUT Estudiante", uid: "rut", sortable: true },
-    { name: "RUT Empresa", uid: "rutEmpresa", sortable: true },
-    { name: "Fecha", uid: "fechaSolicitud", sortable: true },
-    { name: "N Practica", uid: "numeroPractica", sortable: true },
-    { name: "Estado", uid: "fase", sortable: false },
-    { name: "Acciones", uid: "acciones", sortable: false },
-  ];
-  const INITIAL_VISIBLE_COLUMNS = [
-    "idSolicitud",
-    "rut",
-    "rutEmpresa",
-    "numeroPractica",
-    "acciones",
-  ];
-  const statusColorMap = {
-    active: "success",
-    paused: "danger",
-    vacation: "warning",
+import React, { useState, useRef} from "react";
+import {
+  Card
+} from "@nextui-org/react";
+import styles from "@/styles/est.module.css";
+import {Home, User} from "lucide-react";
+import TablaAdm from "@/components/Tablas/TabADM/TablaAdm";
+export default function HomeAdm() {
+  const resumenRef = useRef<HTMLDivElement>(null);
+  const [a_resumen, setA_resumen] = useState(false);
+  const Token =
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const redireccion = (ref: React.RefObject<HTMLDivElement>, funcion: (arg: boolean) => void) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+    funcion(true);
+    setTimeout(() => {
+      funcion(false);
+    }, 2000);
   };
   return (
-    <div className={styles.AdminDiv}>
-      <div className={styles.boxp10}>
-        <NextLink href="https://informatica.uv.cl/" className={styles.boxc11}>
-        <Image
-            radius="none"
-            src="../UV.svg"
-            alt="Descripción del SVG"
-            width={"100%"}
-            height={"50%"}
-          />
-          <Image
-            radius="none"
-            src="../Logo_Practica_Blanco.svg"
-            alt="Descripción del SVG"
-            width={"100%"}
-            height={"50%"}
-          />
-        </NextLink>
-        <div className={styles.boxe12}>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>Logout</Button>
-        </div>
+    <div className={styles.body}>
+      <div className={styles.navbar}>
+        <a
+          className={`${styles.btn_nav}`}
+          onClick={() => redireccion(resumenRef, setA_resumen)}
+        >
+          <Home className="w-5 h-5 mr-2" />
+          Inicio
+        </a>
+        <a className={styles.btn_nav}>
+          <User className="w-5 h-5 mr-2" />
+          Cerrar Sesión
+        </a>
       </div>
-      <div className={styles.boxp20}>
-        <div className={styles.boxp21}>ICONOUSER</div>
-        <div className={styles.boxp22}>
-          <div className={styles.boxp220}>Panel de administración</div>
-          <div className={styles.boxp221}>
-            <div className={styles.boxp2211}>
-              <TAB
-                columns={columns}
-                statusOptions={statusOptions}
-                INITIAL_VISIBLE_COLUMNS={INITIAL_VISIBLE_COLUMNS}
-                FASE={1}
-                FuncionDatos={AllSoli}
-              />
-            </div>
+      <div className={styles.EstDiv}>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Solicitudes</h1>
+        </div>
+        <Card ref={resumenRef} className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}>
+          <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+            Resumen de solicitudes
+          </h1>
+          <h2 className="text-1xl text-gray-400 pl-[2rem]">
+            Vista general de solicitudes recibidas
+          </h2>
+          <div className={styles.divtable}>
+            <TablaAdm/>
           </div>
+        </Card>
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card>
+            <div className="grid grid-row-2">
+              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+                Nueva solicitud
+              </h1>
+              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
+                Ingrese los datos para generar una nueva solicitud
+              </h2>
+            </div>
+          </Card>
+          <Card>
+            <div className="grid grid-row-2">
+              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+                Nueva solicitud
+              </h1>
+              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
+                Ingrese los datos para generar una nueva solicitud
+              </h2>
+            </div>
+          </Card>
+          <Card>
+            <div className="grid grid-row-2">
+              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+                Nueva solicitud
+              </h1>
+              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
+                Ingrese los datos para generar una nueva solicitud
+              </h2>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

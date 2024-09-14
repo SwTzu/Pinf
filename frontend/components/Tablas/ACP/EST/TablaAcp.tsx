@@ -19,13 +19,8 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
-import { SearchIcon } from "./SearchIcon";
-import { EditIcon } from "./EditIcon";
-import { DeleteIcon } from "./DeleteIcon";
-import { EyeIcon } from "./EyeIcon";
-import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { backendUrl } from "@/config/config";
-import { MailIcon } from "./MailIcon";
+import {Mail, Search } from "lucide-react";
 import styles from "@/styles/est.module.css";
 interface Solicitud {
   idSolicitud: number;
@@ -133,7 +128,7 @@ export default function TablaAcp({ token }: { token: string }) {
       <div className="flex justify-between items-center mb-4 p-2 gap-4">
         <Input
           placeholder="Buscar por RUT o empresa..."
-          startContent={<SearchIcon />}
+          startContent={<Search />}
           value={filterValue}
           onValueChange={onSearchChange}
           variant="bordered"
@@ -315,11 +310,11 @@ export default function TablaAcp({ token }: { token: string }) {
                   labelPlacement="outside"
                   variant="bordered"
                   startContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <Mail className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
                   className="p-[1rem]"
                 />
-                <p className="m-[1rem] text-center text-sm text-gray-500">
+                <p className="m-[1rem] text-justify text-sm text-gray-500">
                   Si cancela la operacion se perderan los datos ingresados pero
                   se mantendra la firma de la solicitud.
                 </p>
