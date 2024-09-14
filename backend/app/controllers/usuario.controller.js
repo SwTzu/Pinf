@@ -149,20 +149,24 @@ const getdata = async (req, res) => {
 };
 
 
-const verDatosUsuario = async (req,res) => {
-    const {token} = req.body;
-    const {rut} = await jwt.verify(token, key);
-    const usuario = await db.usuario.findOne({where:{rut:rut}});
-    if(!usuario){
-        return res.status(404).json({
-            message:"Usuario no encontrado."
-        });
-    }
+const verDatosUsuario = async (req, res) => {
+  const { token } = req.body;
+  const { rut } = await jwt.verify(token, key);
+  const usuario = await db.usuario.findOne({ where: { rut: rut } });
 
-    return res.status(200).json({
-        message:"Usuario encontrado.",
-        usuario:usuario
-    });
+  if (!usuario) {
+      return res.status(404).json({
+          message: "Usuario no encontrado."
+      });
+  }
+
+  // Destructure the user object and exclude the password field
+  const { password, ...usuarioSinPassword } = usuario.dataValues;
+
+  return res.status(200).json({
+      message: "Usuario encontrado.",
+      usuario: usuarioSinPassword
+  });
 };
 
 const updateUsuario = async (req, res) => {
