@@ -165,12 +165,51 @@ const verDatosUsuario = async (req,res) => {
     });
 };
 
+const updateUsuario = async (req, res) => {
+  const { rut } = req.body;
+
+  try {
+    const usuario = await db.usuario.findOne({ where: { rut } });
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado."
+      });
+    }
+
+    // Actualiza solo los campos que han cambiado
+    usuario.nombre1 = req.body.nombre1 || usuario.nombre1;
+    usuario.nombre2 = req.body.nombre2 || usuario.nombre2;
+    usuario.apellido1 = req.body.apellido1 || usuario.apellido1;
+    usuario.apellido2 = req.body.apellido2 || usuario.apellido2;
+    usuario.telefono = req.body.telefono || usuario.telefono;
+    usuario.correo = req.body.correo || usuario.correo;
+    usuario.direccion = req.body.direccion || usuario.direccion;
+    usuario.planEstudio = req.body.planEstudio || usuario.planEstudio;
+    usuario.ingreso = req.body.ingreso || usuario.ingreso;
+
+    // Este método solo actualiza los campos que han sido modificados
+    await usuario.save();
+
+    return res.status(200).json({
+      message: "Usuario actualizado exitosamente.",
+      usuario: usuario
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al actualizar usuario.",
+      error: error.message
+    });
+  }
+};
+
+
 
 
 module.exports = {
     validarUsuario,
     crearUsuario,
     verDatosUsuario,
+    updateUsuario,
     login,
     logout
 };

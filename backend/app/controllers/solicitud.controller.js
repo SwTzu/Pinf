@@ -480,7 +480,7 @@ const agregarSup = async (req, res) => {
     where: { correoSupervisor: correoSupervisor },
   });
   if (!supervisor) {
-    const pass= TOKEN.passSUP(correoSupervisor);
+    const pass = await TOKEN.passSUP(correoSupervisor);
     const supervisor = await db.supervisor.create({
       correoSupervisor,
       rutEmpresa: solicitud.rutEmpresa,
