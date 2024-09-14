@@ -123,7 +123,7 @@ export default function TablaAcp({ token }: { token: string }) {
   if (!isLoading && filteredItems.length === 0) {
     return (
       <p className="m-[1rem] text-gray-500 font-bold">
-        Aun no tienes cartas de aceptacion disponibles.
+        Aun no tienes cartas de aceptación disponibles.
       </p>
     );
   }
@@ -232,10 +232,10 @@ export default function TablaAcp({ token }: { token: string }) {
       {showCardFormulario && (
         <Card ref={cardFormularioRef} id="card_formulario" className={`${styles.new_solicitud} ${isActive ? styles.active : ""}`}>
           <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-            Formulario de carta de aceptacion
+            Formulario de carta de aceptación
           </h1>
           <h2 className="text-1xl text-gray-400 pl-[2rem]">
-            En este apartado puede visualizar el contenido de la carta de aceptacion que debe rellenar el supervisor de la empresa.
+            En este apartado puede visualizar el contenido de la carta de aceptación que debe rellenar el supervisor de la empresa.
           </h2>
           <div className="grid grid-cols-2 pt-[2rem] pl-[2rem] gap-[0.8rem] mb-[2rem]">
             <Input
