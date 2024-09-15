@@ -81,8 +81,11 @@ const listarEmpresas = async (req,res) => {
             where: { verificado: true }
         });
 
+        const count = empresas.length;
+
         return res.status(200).json({
             message:"Empresas listadas exitosamente.",
+            count,
             empresas
         });
     } catch(err){
@@ -185,10 +188,13 @@ const getEmpresas = async (req,res) => {
     const {token} = req.body;
     const response = await tokenfunc.validarToken(token, 4);
     console.log(response);
+
     if(response.Boolean){
         const empresas = await db.empresa.findAll();
+        count = empresas.length;
         return res.status(200).json({
             message:"Empresas encontradas.",
+            count,
             empresas
         });
     }else{
