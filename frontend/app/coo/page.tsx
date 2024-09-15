@@ -15,6 +15,7 @@ import {
   BarChart2,
   ArrowUpToLine,
 } from "lucide-react";
+import { Empresas} from "@/api/coo/solicitudes";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -54,6 +55,11 @@ export default function HomeCoo() {
   const [s_evaluaciones, setS_evaluaciones] = useState(false);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const [empresas, setEmpresas] = useState<empresa[]>([]);
+  console.log(Token);
+  Empresas(Token).then((res) => {
+    setEmpresas(res);
+  });
   const redireccion = (
     ref: React.RefObject<HTMLDivElement>,
     funcion: (arg: boolean) => void
