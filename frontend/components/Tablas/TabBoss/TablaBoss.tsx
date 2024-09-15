@@ -65,7 +65,6 @@ const actualizarFaseSolicitud = async (
     }
 
     const data = await response.json();
-    console.log(data.message);
   } catch (error) {
     console.error("Error al actualizar la fase", error);
     alert("Error al actualizar. Intente de nuevo más tarde.");

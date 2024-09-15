@@ -2,24 +2,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
-  Input,
   Card,
-  Checkbox,
-  Select,
-  SelectItem,
-  Divider,
 } from "@nextui-org/react";
-import styles from "@/styles/est.module.css";
+import styles from "@/styles/coo.module.css";
 import TablaCoo from "@/components/Tablas/TabCoo/TablaCoo";
-import { PlusIcon } from "@/public/icons/PlusIcon";
 import {
-  datosEst,
-  actualizarDatosUsuario,
-  All_EMP,
-} from "@/api/est/solicitudes";
-import CardMisDatos from "@/components/Cards/CardMisDatos"; // Importa el nuevo componente
-import CardACP from "@/components/Cards/CardACP";
-import { FileText, Home, Settings, User, Mail } from "lucide-react";
+  Building2,
+  UserRound,
+  FileInput,
+  ChartPie,
+  FileCheck2,
+  BarChart2,
+  ArrowUpToLine,
+} from "lucide-react";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -44,160 +39,213 @@ type empresa = {
 };
 
 export default function HomeCoo() {
-  const nuevaSolicitudRef = useRef<HTMLDivElement>(null);
-  const resumenRef = useRef<HTMLDivElement>(null);
-  const misDatosRef = useRef<HTMLDivElement>(null);
-  const ac = useRef<HTMLDivElement>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [a_resumen, setA_resumen] = useState(false);
-  const [a_misDatos, setA_misDatos] = useState(false);
-  const [a_ac, setA_ac] = useState(false);
+  const solicitudRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const empresasRef = useRef<HTMLDivElement>(null);
+  const usersRef = useRef<HTMLDivElement>(null);
+  const evaluacionesRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null); // Ref para el div que contiene el scroll
+  const [isvisible, setIsvisible] = useState(false);
+  const [s_empresas, setS_empresas] = useState(false);
+  const [s_resumen, setS_resumen] = useState(false);
+  const [st_resumen, setSt_resumen] = useState(false);
+  const [s_users, setS_users] = useState(false);
+  const [s_evaluaciones, setS_evaluaciones] = useState(false);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
-  const [new_empresa, setNew_empresa] = useState(true);
-  const [datos_est, setDatos_est] = useState<estudiante>({
-    rut: "",
-    nombre1: "",
-    nombre2: "",
-    apellido1: "",
-    apellido2: "",
-    planEstudio: "",
-    correo: "",
-    telefono: "",
-    ingreso: "",
-  });
-  const [datos_emp, setDatos_emp] = useState<empresa[]>([]);
-  const [mod_est, setMod_est] = useState(false);
-  const [value, setValue] = React.useState("");
-  const [emp_selected, setEmp_selected] = useState<empresa>();
-  useEffect(() => {
-    datosEst(Token).then((res) => {
-      setDatos_est(res);
-    });
-    All_EMP().then((res) => {
-      setDatos_emp(res.empresas);
-    });
-  }, [Token]);
-
-  const redireccion = (ref: React.RefObject<HTMLDivElement>, funcion: (arg: boolean) => void) => {
+  const redireccion = (
+    ref: React.RefObject<HTMLDivElement>,
+    funcion: (arg: boolean) => void
+  ) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
     funcion(true);
     setTimeout(() => {
       funcion(false);
     }, 2000);
   };
-
-  const click_save = () => {
-    actualizarDatosUsuario(Token, datos_est);
-    setMod_est(false);
+// Detectar el scroll dentro del contenedor específico
+useEffect(() => {
+  const handleScroll = () => {
+    const position = containerRef.current?.scrollTop || 0;
+    if (position > 200) {
+      setIsvisible(true);
+    } else {
+      setIsvisible(false);
+    }
   };
 
-  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue(e.target.value);
-    setEmp_selected(datos_emp.find((emp) => emp.rutEmpresa === e.target.value));
+  const container = containerRef.current;
+  if (container) {
+    container.addEventListener("scroll", handleScroll);
+  }
+
+  return () => {
+    if (container) {
+      container.removeEventListener("scroll", handleScroll);
+    }
   };
+}, []);
 
   return (
-      <div className={styles.EstDiv}>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Solicitudes</h1>
-        </div>
-        <Card ref={resumenRef} className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}>
-          <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-            Resumen de solicitudes
-          </h1>
-          <h2 className="text-1xl text-gray-400 pl-[2rem]">
-            Vista general de solicitudes.
-          </h2>
-          <div className={styles.divtable}>
-            <TablaCoo />
-          </div>
-        </Card>
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card
-            id="nueva_solicitud"
-            className={`${styles.new_solicitud} ${
-              isActive ? styles.active : ""
-            }`}
-          >
-
-            <div className="p-[0.8rem] bg-red">
-              {!new_empresa && (
-                <Select
-                  variant="faded"
-                  label="Selecciona una empresa verificada"
-                  className="max-w-xs mb-[1rem]"
-                  selectedKeys={[value]}
-                  onChange={handleSelectionChange}
-                >
-                  {datos_emp.map((empresa) => (
-                    <SelectItem key={empresa.rutEmpresa}>
-                      {empresa.razonSocial}
-                    </SelectItem>
-                  ))}
-                </Select>
-              )}
-              {!new_empresa && <Divider className="mb-[1rem]" />}
-              <div className="grid grid-cols-2 gap-[0.8rem] mb-[0.8rem]">
-                <Input
-                  variant="faded"
-                  label="Rut empresa"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.rutEmpresa}
-                />
-                <Input
-                  variant="faded"
-                  label="numero de practica"
-                  isRequired
-                  color={!new_empresa ? "primary" : "default"}
-                />
-                <Input
-                  variant="faded"
-                  label="Razon social"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.razonSocial}
-                />
-                <Input
-                  variant="faded"
-                  label="Region"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.region}
-                />
-                <Input
-                  variant="faded"
-                  label="Direccion"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.direccion}
-                />
-                <Input
-                  variant="faded"
-                  label="Ciudad"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.ciudad}
-                />
-                <Input
-                  variant="faded"
-                  label="Rubro"
-                  isDisabled={!new_empresa}
-                  value={emp_selected?.rubro}
-                />
-              </div>
-              <Button color="primary">Enviar solicitud</Button>
-            </div>
+    <div className={styles.CooDiv} ref={containerRef}>
+      {isvisible && (
+        <Button
+          id='reset'
+          variant="bordered"
+          className={styles.reset}
+          color="secondary"
+          onClick={() => {
+            panelRef.current?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <ArrowUpToLine />
+        </Button>
+      )}
+      <div className="flex justify-between items-center mb-6" ref={panelRef}>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Panel de coordinación
+        </h1>
+      </div>
+      <div className="grid gap-[2rem] md:grid-cols-5 mb-[1rem]">
+        <div onClick={() => redireccion(empresasRef, setS_empresas)}>
+          <Card id="res_empresas" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de empresas</h1>
+            <h2 className={styles.card_h2}>
+              Vista general empresas en sistema
+            </h2>
+            <Building2 className={styles.card_icon} />
           </Card>
-          <div ref={misDatosRef} className={`${styles.box} ${a_misDatos ? styles.active : ""}`}>
-            <CardMisDatos
-              datos_est={datos_est}
-              setDatos_est={setDatos_est}
-              mod_est={mod_est}
-              setMod_est={setMod_est}
-              click_save={click_save}
-            />
-          </div>
         </div>
-        <div ref={ac} className={`${styles.box} ${a_ac ? styles.active : ""}`}>
-        <CardACP/>
+        <div onClick={() => redireccion(statsRef, setSt_resumen)}>
+          <Card id="res_stats" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen estadístico</h1>
+            <h2 className={styles.card_h2}>
+              Muestreo de estadisticas relevantes
+            </h2>
+            <ChartPie className={styles.card_icon} />
+          </Card>
+        </div>
+        <div onClick={() => redireccion(solicitudRef, setS_resumen)}>
+          <Card id="res_solicitudes" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de solicitudes</h1>
+            <h2 className={styles.card_h2}>Vista general de solicitudes</h2>
+            <FileInput className={styles.card_icon} />
+          </Card>
+        </div>
+        <div onClick={() => redireccion(usersRef, setS_users)}>
+          <Card id="res_Users" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Usuarios administrativos</h1>
+            <h2 className={styles.card_h2}>
+              Vista general de usuarios administrativos
+            </h2>
+            <UserRound className={styles.card_icon} />
+          </Card>
+        </div>
+        <div onClick={() => redireccion(evaluacionesRef, setS_evaluaciones)}>
+          <Card id="res_evaluaciones" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Evaluaciones</h1>
+            <h2 className={styles.card_h2}>
+              Vista general de evaluaciones pendientes
+            </h2>
+            <FileCheck2 className={styles.card_icon} />
+          </Card>
         </div>
       </div>
+      <Card
+        ref={solicitudRef}
+        className={`mb-6 ${styles.box} ${s_resumen ? styles.active : ""}`}
+      >
+        <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Resumen de solicitudes
+        </h1>
+        <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
+          Vista general de solicitudes.
+        </h2>
+        <div className={styles.divtable}>
+          <TablaCoo />
+        </div>
+      </Card>
+      <div
+        className={`p-[1.5rem] bg-white ${styles.box} ${
+          st_resumen ? styles.active : ""
+        }`}
+        ref={statsRef}
+      >
+        <h1 className="text-xl font-semibold mb-4">Reportes Personalizados</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button variant="bordered" className="w-full justify-start">
+            <BarChart2 className="h-5 w-5 mr-2" />
+            Análisis de Tendencias Tecnológicas
+          </Button>
+          <Button variant="bordered" className="w-full justify-start">
+            <BarChart2 className="h-5 w-5 mr-2" />
+            Evaluación de Impacto de Proyectos
+          </Button>
+          <Button variant="bordered" className="w-full justify-start">
+            <BarChart2 className="h-5 w-5 mr-2" />
+            Reporte de Brecha de Habilidades
+          </Button>
+        </div>
+      </div>
+      <div
+        id='resumenempresas'
+        className="grid gap-[2rem] md:grid-cols-3 mb-[1rem]"
+        ref={empresasRef}
+      >
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Empresas verificadas
+          </h1>
+        </Card>
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Empresas no verificadas
+          </h1>
+        </Card>
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Total
+          </h1>
+          <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
+            Total de empresas en sistema
+          </h2>
+        </Card>
+      </div>
+      <Card
+        ref={usersRef}
+        className={`mb-6 ${styles.box} ${s_users ? styles.active : ""}`}
+      >
+        <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Usuarios administrativos
+        </h1>
+        <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
+          Lista de usuarios administrativos.
+        </h2>
+        <div className={styles.divtable}>
+          <TablaCoo />
+        </div>
+      </Card>
+      <Card
+        ref={evaluacionesRef}
+        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active : ""}`}
+      >
+        <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Evaluaciones
+        </h1>
+        <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
+          Lista de evaluaciones pendientes.
+        </h2>
+        <div className={styles.divtable}>
+          <TablaCoo />
+        </div>
+      </Card>
+    </div>
   );
 }

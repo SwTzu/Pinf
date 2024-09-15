@@ -65,7 +65,6 @@ const actualizarFaseSolicitud = async (
     }
 
     const data = await response.json();
-    console.log(data.message);
   } catch (error) {
     console.error("Error al actualizar la fase", error);
     alert("Error al actualizar. Intente de nuevo más tarde.");
@@ -89,7 +88,6 @@ export default function TablaCoo() {
       });
 
       let json = await res.json();
-      console.log('json',json);
       setItems(json.solicitudes);
       setIsLoading(false);
     } catch (error) {
