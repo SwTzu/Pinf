@@ -28,7 +28,7 @@ export const actualizarDatosUsuario = async (token, nuevosDatos) => {
 
 export const Empresas = async (token) => {
   try {
-    const response = await fetch(`${backendUrl}/empresa/getEmpresas`, {
+    const response = await fetch(`${backendUrl}/stats/getNumerosEmpresas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,6 @@ export const Empresas = async (token) => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
       return data; // Puedes devolver la respuesta del servidor si es necesario
     } else {
       throw new Error('Error al obtener datos del usuario');
