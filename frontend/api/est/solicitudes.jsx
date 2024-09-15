@@ -1,3 +1,4 @@
+"use client";
 import { backendUrl } from '../../config/config';
 export const solicitudes = async (token, datos) => {
   const Data = {
@@ -149,6 +150,7 @@ export const datosEMP = async (idSolicitud) => {
   }
 };
 export const actualizarDatosUsuario = async (token, nuevosDatos) => {
+  console.log('nuevos datos',nuevosDatos);
   try {
     const response = await fetch(`${backendUrl}/usuario/update`, {
       method: 'PUT',

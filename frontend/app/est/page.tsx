@@ -1,117 +1,256 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { Button, Image } from '@nextui-org/react';
-import NextLink from 'next/link';
-// import { useRouter } from 'next/router'; // Importa el router de Next.js
-import styles from '../../styles/styleop.module.css';
-import Datosest from '../../components/Tablas/datosest';
-import { useRouter } from 'next/navigation';
-import TAB from '../../components/Tablas/TabEST/fulltab';
-import {All_EMP } from '../../api/est/solicitudes';
-import TAB_EMP from '../../components/Tablas/TabEMP/fulltab';
-export default function Est() {
-  const router= useRouter();
-  const Token =typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const [data_emp, setData_emp] = useState([]);
-  const statusOptions = [
-    { name: "Presentacion", uid: "1" },
-    { name: "Aceptacion", uid: "2" },
-  ];
-  const columns = [
-    { name: "ID", uid: "idSolicitud", sortable: true },
-    { name: "RUT Empresa", uid: "rutEmpresa", sortable: true },
-    { name: "Fecha", uid: "fechaSolicitud", sortable: true },
-    { name: "N Practica", uid: "numeroPractica", sortable: true },
-    { name: "Estado", uid: "fase", sortable: false },
-    { name: "Acciones", uid: "acciones", sortable: false },
-  ];
-  const INITIAL_VISIBLE_COLUMNS = [
-    "idSolicitud",
-    "rutEmpresa",
-    "numeroPractica",
-    "fase",
-    "acciones",
-    "fechaSolicitud"
-  ];
-  const INITIAL_VISIBLE_COLUMNS_EMP = [
-    "razonSocial",
-    "rutEmpresa",
-    "region",
-  ];
-  const columns_emp = [
-    { name: "Razon Social", uid: "razonSocial", sortable: true },
-    { name: "Rut Empresa", uid: "rutEmpresa", sortable: true },
-    { name: "Region", uid: "region", sortable: false },
-  ];
-  useEffect(() => {
-    const fetchDataEMP = async () => {
-      try {
-        const Data = await All_EMP(Token);
-        const rawData= Data.empresas;
-        const transformedData = rawData.map((item) => ({
-          rutEmpresa: item.rutEmpresa,
-          razonSocial: item.razonSocial,
-          region: item.region
-        }));
-        setData_emp(transformedData);
-      } catch (error) {
-        console.error("Error al obtener datos del usuario:", error);
-      }
-    };
-    fetchDataEMP();
-  }, []);
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Button,
+  Input,
+  Card,
+  Checkbox,
+  Select,
+  SelectItem,
+  Divider,
+} from "@nextui-org/react";
+import styles from "@/styles/est.module.css";
+import TablaSolicitudes from "@/components/Tablas/EST/TablaSolicitudes";
+import { PlusIcon } from "@/public/icons/PlusIcon";
+import {
+  datosEst,
+  actualizarDatosUsuario,
+  All_EMP,
+} from "@/api/est/solicitudes";
+import CardMisDatos from "@/components/Cards/CardMisDatos"; // Importa el nuevo componente
+import CardACP from "@/components/Cards/CardACP";
+import { FileText, Home, Settings, User, Mail } from "lucide-react";
+type estudiante = {
+  rut: string;
+  nombre1: string;
+  nombre2: string;
+  apellido1: string;
+  apellido2: string;
+  planEstudio: string;
+  correo: string;
+  telefono: string;
+  ingreso: string;
+};
 
+type empresa = {
+  rutEmpresa: string;
+  razonSocial: string;
+  correo: string;
+  telefono: string;
+  direccion: string;
+  region: string;
+  ciudad: string;
+  rubro: string;
+};
+
+export default function HomeEst() {
+  const nuevaSolicitudRef = useRef<HTMLDivElement>(null);
+  const resumenRef = useRef<HTMLDivElement>(null);
+  const misDatosRef = useRef<HTMLDivElement>(null);
+  const ac = useRef<HTMLDivElement>(null);
+  const [isActive, setIsActive] = useState(false);
+  const [a_resumen, setA_resumen] = useState(false);
+  const [a_misDatos, setA_misDatos] = useState(false);
+  const [a_ac, setA_ac] = useState(false);
+  const Token =
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const [new_empresa, setNew_empresa] = useState(true);
+  const [datos_est, setDatos_est] = useState<estudiante>({
+    rut: "",
+    nombre1: "",
+    nombre2: "",
+    apellido1: "",
+    apellido2: "",
+    planEstudio: "",
+    correo: "",
+    telefono: "",
+    ingreso: "",
+  });
+  const [datos_emp, setDatos_emp] = useState<empresa[]>([]);
+  const [mod_est, setMod_est] = useState(false);
+  const [value, setValue] = React.useState("");
+  const [emp_selected, setEmp_selected] = useState<empresa>();
+  useEffect(() => {
+    datosEst(Token).then((res) => {
+      setDatos_est(res);
+    });
+    All_EMP().then((res) => {
+      setDatos_emp(res.empresas);
+    });
+  }, [Token]);
+
+  const redireccion = (ref: React.RefObject<HTMLDivElement>, funcion: (arg: boolean) => void) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+    funcion(true);
+    setTimeout(() => {
+      funcion(false);
+    }, 2000);
+  };
+
+  const click_save = () => {
+    actualizarDatosUsuario(Token, datos_est);
+    setMod_est(false);
+  };
+
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue(e.target.value);
+    setEmp_selected(datos_emp.find((emp) => emp.rutEmpresa === e.target.value));
+  };
 
   return (
-    <div className={styles.EstDiv}>
-      <div className={styles.boxe10}>
-        <NextLink href='https://informatica.uv.cl/' className={styles.boxe13}>
-        <Image
-            radius="none"
-            src="../UV.svg"
-            alt="Descripción del SVG"
-            width={"100%"}
-            height={"50%"}
-          />
-        <Image
-            radius='none'
-            src='../Logo_Practica_Blanco.svg'
-            alt='Descripción del SVG'
-            width={'100%'}
-            height={'50%'}
-          />
-        </NextLink>
-        <div className={styles.boxe12}>
-          <Button className={styles.botEst} variant='light'>
-            Logout
+    <div className={styles.body}>
+      <div className={styles.navbar}>
+        <a
+          className={`${styles.btn_nav}`}
+          onClick={() => redireccion(resumenRef, setA_resumen)}
+        >
+          <Home className="w-5 h-5 mr-2" />
+          Inicio
+        </a>
+        <a className={styles.btn_nav}
+        onClick={() => redireccion(misDatosRef, setA_misDatos)}
+        >
+          <User className="w-5 h-5 mr-2" />
+          Mis datos
+        </a>
+        <a className={styles.btn_nav}
+        onClick={() => redireccion(ac, setA_ac)}
+        >
+          <Mail className="w-5 h-5 mr-2" />
+          Aceptación
+        </a>
+        <a className={styles.btn_nav}>
+          <User className="w-5 h-5 mr-2" />
+          Cerrar Sesión
+        </a>
+      </div>
+      <div className={styles.EstDiv}>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Mis Solicitudes</h1>
+          <Button color="secondary" onClick={()=>redireccion(nuevaSolicitudRef,setIsActive)}>
+            Nueva solicitud
           </Button>
         </div>
-      </div>
-      <div className={styles.boxe20}>
-        <div className={styles.boxe21}> iconos notificaciones, usuario</div>
-        <div className={styles.boxe22}>
-          <div className={styles.boxe220}>Panel principal Estudiante</div>
-          <div className={styles.boxe221}>
-            <div className={styles.boxe2211}>
-                <TAB
-                columns={columns}
-                statusOptions={statusOptions}
-                INITIAL_VISIBLE_COLUMNS={INITIAL_VISIBLE_COLUMNS}
-              />
-            </div>
-            <div className={styles.boxe2210}>
-              <div className={styles.boxe22100}>
-                <Datosest token={Token}/> 
-              </div>
-              <div className={styles.boxe22101}>
-              <TAB_EMP
-                columns={columns_emp}
-                datos={data_emp}
-                INITIAL_VISIBLE_COLUMNS={INITIAL_VISIBLE_COLUMNS_EMP}
-              />
-              </div>
-            </div>
+        <Card ref={resumenRef} className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}>
+          <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+            Resumen de solicitudes
+          </h1>
+          <h2 className="text-1xl text-gray-400 pl-[2rem]">
+            Vista general de solicitudes realizadas
+          </h2>
+          <div className={styles.divtable}>
+            <TablaSolicitudes token={Token} />
           </div>
+        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card
+            id="nueva_solicitud"
+            ref={nuevaSolicitudRef}
+            className={`${styles.new_solicitud} ${
+              isActive ? styles.active : ""
+            }`}
+          >
+            <div className="grid grid-cols-2">
+              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+                Nueva solicitud
+              </h1>
+
+              <Checkbox
+                defaultSelected
+                icon={<PlusIcon size={23} height={23} width={23} />}
+                color="warning"
+                style={{
+                  justifySelf: "end",
+                  marginRight: "1rem",
+                  marginTop: "2rem",
+                }}
+                value={new_empresa.toString()}
+                isSelected={new_empresa}
+                onValueChange={setNew_empresa}
+              >
+                Nueva empresa
+              </Checkbox>
+              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
+                Ingrese los datos para generar una nueva solicitud
+              </h2>
+            </div>
+
+            <div className="p-[0.8rem] bg-red">
+              {!new_empresa && (
+                <Select
+                  variant="faded"
+                  label="Selecciona una empresa verificada"
+                  className="max-w-xs mb-[1rem]"
+                  selectedKeys={[value]}
+                  onChange={handleSelectionChange}
+                >
+                  {datos_emp.map((empresa) => (
+                    <SelectItem key={empresa.rutEmpresa}>
+                      {empresa.razonSocial}
+                    </SelectItem>
+                  ))}
+                </Select>
+              )}
+              {!new_empresa && <Divider className="mb-[1rem]" />}
+              <div className="grid grid-cols-2 gap-[0.8rem] mb-[0.8rem]">
+                <Input
+                  variant="faded"
+                  label="Rut empresa"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.rutEmpresa}
+                />
+                <Input
+                  variant="faded"
+                  label="numero de practica"
+                  isRequired
+                  color={!new_empresa ? "primary" : "default"}
+                />
+                <Input
+                  variant="faded"
+                  label="Razon social"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.razonSocial}
+                />
+                <Input
+                  variant="faded"
+                  label="Region"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.region}
+                />
+                <Input
+                  variant="faded"
+                  label="Direccion"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.direccion}
+                />
+                <Input
+                  variant="faded"
+                  label="Ciudad"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.ciudad}
+                />
+                <Input
+                  variant="faded"
+                  label="Rubro"
+                  isDisabled={!new_empresa}
+                  value={emp_selected?.rubro}
+                />
+              </div>
+              <Button color="primary">Enviar solicitud</Button>
+            </div>
+          </Card>
+          <div ref={misDatosRef} className={`${styles.box} ${a_misDatos ? styles.active : ""}`}>
+            <CardMisDatos
+              datos_est={datos_est}
+              setDatos_est={setDatos_est}
+              mod_est={mod_est}
+              setMod_est={setMod_est}
+              click_save={click_save}
+            />
+          </div>
+        </div>
+        <div ref={ac} className={`${styles.box} ${a_ac ? styles.active : ""}`}>
+        <CardACP/>
         </div>
       </div>
     </div>
