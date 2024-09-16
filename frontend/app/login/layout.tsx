@@ -1,4 +1,5 @@
-import styles from '../../styles/styleop.module.css';
+"use client";
+import styles from '../../styles/body.module.css';
 export default function LoginLayout({
 	children,
 }: {

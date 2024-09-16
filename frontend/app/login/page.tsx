@@ -1,168 +1,130 @@
 "use client";
-import React, { useState } from "react";
-import { Eye, EyeOff} from "lucide-react";
-import { Input, Button, Spinner } from "@nextui-org/react";
+import React, { useState, useEffect } from "react";
+import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
+import { Input, Button } from "@nextui-org/react";
 import { useRut } from "react-rut-formatter";
-import { useRouter} from "next/navigation"; // Importa el router de Next.js
-import styles from '../../styles/styleop.module.css';
-import {funcionlogin,funcionloginSup} from '../../api/standar';
+import { useRouter } from "next/navigation"; // Importa el router de Next.js
+import { funcionlogin, funcionloginSup } from "../../api/standar";
+
 export default function Login() {
-  const [isVisible, setIsVisible] = useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState(null);
   const { rut, updateRut, isValid } = useRut();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [userType, setUserType] = useState<string | null>(null); // Estado local para userType
   const router = useRouter();
-  // seteo de userType
-  const userType = typeof window !== "undefined" ? localStorage.getItem("userType") : null;
-  const isEmailValid = (email:any) => {
+
+  // useEffect para sincronizar userType con localStorage solo en el cliente
+  useEffect(() => {
+    const storedUserType = localStorage.getItem("userType");
+    if (storedUserType) {
+      setUserType(storedUserType);
+    }
+  }, []);
+
+  const isEmailValid = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  const handleKeyDown = (event:any) => {
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
-      if(userType === "sup"){
-        funcionloginSup(email, password,userType,isValid,setIsLoading,router);
-      }
-      else{
-        funcionlogin(rut, password,userType,isValid,setIsLoading,router);
-      }
+      handleSubmit(event);
     }
   };
-  const reg=()=>{
-    router.push(`/register`);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    if (userType === "sup") {
+      funcionloginSup(email, password, userType, isValid, setIsLoading, router);
+    } else {
+      funcionlogin(rut, password, userType, isValid, setIsLoading, router);
+    }
+  };
+
+  if (!userType) {
+    return null; // Evitar renderizar hasta que el userType esté definido
   }
+
   return (
-    <div className={styles.logincontainer}>
-      <span id='span1'></span>
-      <span id='span2'></span>
-      <span id='span3'></span>
-      <form id="singinForm" className={styles.form}>
-        <h2> Login</h2>
-        {userType === "sup" ? (
-          <Input
-            classNames={{
-              label: "text-black/50 dark:text-white/90",
-              input: [
-                "bg-transparent",
-                "text-black/90 dark:text-white/90",
-                "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-              ],
-              innerWrapper: "bg-transparent",
-              inputWrapper: [
-                "shadow-xl",
-                "bg-default-200/50",
-                "dark:bg-default/60",
-                "backdrop-blur-xl",
-                "backdrop-saturate-200",
-                "hover:bg-default-200/70",
-                "dark:hover:bg-default/70",
-                "group-data-[focused=true]:bg-default-200/50",
-                "dark:group-data-[focused=true]:bg-default/60",
-                "!cursor-text",
-              ],
-            }}
-            className={styles.loginInput}
-            label='Correo electrónico'
-            labelPlacement='outside'
-            size="lg"
-            value={email}
-            errorMessage={!isEmailValid(email) && email && "Please enter a valid email"}
-            onValueChange={(newValue) => setEmail(newValue)}
-            color={!isEmailValid(email) && email ? "danger" : "default"}
-            maxLength={50}
-            onKeyDown={handleKeyDown}
-          />
-        ) : (
-        <Input classNames={{
-          label: "text-black/50 dark:text-white/90",
-          input: [
-            "bg-transparent",
-            "text-black/90 dark:text-white/90",
-            "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-          ],
-          innerWrapper: "bg-transparent",
-          inputWrapper: [
-            "shadow-xl",
-            "bg-default-200/50",
-            "dark:bg-default/60",
-            "backdrop-blur-xl",
-            "backdrop-saturate-200",
-            "hover:bg-default-200/70",
-            "dark:hover:bg-default/70",
-            "group-data-[focused=true]:bg-default-200/50",
-            "dark:group-data-[focused=true]:bg-default/60",
-            "!cursor-text",
-          ],
-        }} className={styles.loginInput} label='Rut' labelPlacement='outside' size="lg" 
-        value={rut.formatted}
-          errorMessage={!isValid && rut.formatted && "Please enter a valid Rut"}
-          onValueChange={(newValue) => updateRut(newValue)}
-          color={(!isValid && rut.formatted) ? "danger" : "default"}
-          maxLength={12}
-          onKeyDown={handleKeyDown}
-        ></Input>)}
-        <Input classNames={{
-          label: "text-black/50 dark:text-white/90",
-          input: [
-            "bg-transparent",
-            "text-black/90 dark:text-white/90",
-            "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-          ],
-          innerWrapper: "bg-transparent",
-          inputWrapper: [
-            "shadow-xl",
-            "bg-default-200/50",
-            "dark:bg-default/60",
-            "backdrop-blur-xl",
-            "backdrop-saturate-200",
-            "hover:bg-default-200/70",
-            "dark:hover:bg-default/70",
-            "group-data-[focused=true]:bg-default-200/50",
-            "dark:group-data-[focused=true]:bg-default/60",
-            "!cursor-text",
-          ],
-        }} className={styles.loginInput} label='Contraseña' labelPlacement='outside'size="lg" type={isVisible ? "text" : "password"}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        maxLength={24}
+    <div className="max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="text-center backdrop-blur-md bg-white bg-opacity-70 rounded-xl shadow-2xl p-8 space-y-6 transition-all duration-500 ease-in-out w-[500px]"
         onKeyDown={handleKeyDown}
-        endContent={
-          <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-            {isVisible ? (
-              <EyeOff className="text-2xl text-default-400 pointer-events-none" />
-            ) : (
-              <Eye className="text-2xl text-default-400 pointer-events-none" />
-            )}
-          </button>}
-      />
-        <a className={styles.logina} href="#">Olvidaste tu contraseña?</a>
-        <a className={styles.logina} href="#" id='signup' onClick={reg}>Registrarse</a>
-        <div className={styles.bloqueboton}>
-          {loginError && (
-            <div className="text-danger">{loginError}</div>
-          )}
-          {isLoading ? (
-            <Spinner color="secondary" size="lg"/>
+      >
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-black mb-2">Bienvenido</h1>
+          <p className="text-black">Inicia sesión en tu cuenta</p>
+        </div>
+
+        <div className="space-y-4 text-white">
+          {userType === "sup" ? (
+            <Input
+              size="lg"
+              className="dark"
+              id="email"
+              type="email"
+              placeholder="Email"
+              variant="flat"
+              isInvalid={!isEmailValid(email)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              startContent={<User className="text-blue-200" size={20} />}
+            />
           ) : (
-            <Button className={styles.loginBoton} 
-              onClick={() => {
-                if(userType === "sup"){
-                  funcionloginSup(email, password,userType,isValid,setIsLoading,router);
-                }
-                else{
-                  funcionlogin(rut, password,userType,isValid,setIsLoading,router);
-                }
-              }} 
-              disabled={isLoading} >
-              {isLoading ? 'Ingresando...' : 'Ingresar'}
-            </Button>
+            <Input
+              size="lg"
+              className="dark"
+              id="rut"
+              type="text"
+              placeholder="RUT"
+              value={rut.formatted}
+              onChange={(e) => updateRut(e.target.value)}
+              disableAnimation={true}
+              startContent={<User className="text-blue-200" size={20} />}
+            />
           )}
+          <Input
+            size="lg"
+            className="dark"
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            endContent={
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors duration-300"
+              >
+                {showPassword ? <EyeOff size={18} className="text-blue-200" /> : <Eye size={18} className="text-blue-200" />}
+              </button>
+            }
+            startContent={<Lock className="text-blue-200" size={20} />}
+          />
+        </div>
+
+        <Button onClick={handleSubmit} type="submit" color="secondary" size="lg">
+          <LogIn size={18} />
+          Iniciar Sesión
+        </Button>
+
+        <div className="text-center flex flex-col gap-1">
+          <a href="#" className="text-sm text-black hover:text-blue-100 transition-colors duration-300">
+            ¿Olvidaste tu contraseña?
+          </a>
+          <a href="#" className="text-sm text-black hover:text-blue-100 transition-colors duration-300">
+            Registrarse
+          </a>
         </div>
       </form>
     </div>
-    
   );
 }

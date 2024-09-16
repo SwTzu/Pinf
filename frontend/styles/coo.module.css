@@ -69,6 +69,9 @@
   border-bottom: #c5c5c5 0.2em solid;
   border-radius: 0.2rem;
 }
+.active_box {
+  animation: highlight 1.8s ease-out;
+}
 .card_icon {
   width: 5rem;
   height: 5rem;

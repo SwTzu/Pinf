@@ -175,7 +175,7 @@ export default function HomeCoo() {
       </div>
       <Card
         ref={solicitudRef}
-        className={`mb-6 ${styles.box} ${s_resumen ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_resumen ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Resumen de solicitudes
@@ -189,7 +189,7 @@ export default function HomeCoo() {
       </Card>
       <div
         className={`p-[1.5rem] bg-white ${styles.box} ${
-          st_resumen ? styles.active : ""
+          st_resumen ? styles.active_box : ""
         }`}
         ref={statsRef}
       >
@@ -233,7 +233,7 @@ export default function HomeCoo() {
       
       <Card
         ref={usersRef}
-        className={`mb-6 ${styles.box} ${s_users ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_users ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Usuarios administrativos
@@ -251,7 +251,7 @@ export default function HomeCoo() {
         ref={empresasRef}
       >
         <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
         >
           <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
             Empresas verificadas
@@ -262,7 +262,7 @@ export default function HomeCoo() {
           </div>
         </Card>
         <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
         >
           <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
             Empresas no verificadas
@@ -275,7 +275,7 @@ export default function HomeCoo() {
           </div>
         </Card>
         <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
         >
           <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
             Total empresas
@@ -292,7 +292,7 @@ export default function HomeCoo() {
       </div>
       <Card
         ref={evaluacionesRef}
-        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Evaluaciones
