@@ -1,8 +1,13 @@
 .body {
-  display: grid;
-  grid-template-columns: 8vw 92vw;
+  display: flex;
+  background-color: #ececec;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  height:100vh;
+  width:100vw;
 }
-.navbar {
+.navbar{
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -10,15 +15,15 @@
   height: 100vh;
   width: 8vw;
   background-color: #ffffff;
-  gap: 3rem;
+  gap: 1rem;
   border-right: 0.12rem solid rgb(143, 143, 143);
 }
-.btn_nav:last-child {
+.btn:last-child{
   border-top: 0.1em solid rgb(185, 185, 185);
   margin-top: auto;
   border-radius: 0.5rem;
 }
-.btn_nav:first-child {
+.btn:first-child{
   margin-top: 2rem;
 }
 .btn_nav {
@@ -45,17 +50,27 @@
   height: 100%;
   padding: 1.5rem;
 }
-.btn {
-  display: block;
-  background-color: #ffffff;
-  width: 100%;
-  min-height: 20%;
+.btn{
+  display: flex;
   color: #000000;
+  justify-content:flex-start;
+  padding: 0.8rem;
+  align-items: center;
+  height: 2.5rem;
+  width: 100%;
+  font-size: 1rem;
+  text-align: center;
   cursor: pointer;
-  border-radius: 12px;
-  border-width: 2px;
-  border-color: #f1f1f1;
-  font-size: 100%;
+  border-color: #b8b8b8;
+}
+.active {
+  background-color: #c5c5c5;
+  border-top: #c5c5c5 0.2em solid;
+  border-bottom: #c5c5c5 0.2em solid;
+  border-radius: 0.2rem;
+}
+.active_box {
+  animation: highlight 1.8s ease-out;
 }
 .card_icon {
   width: 5rem;
@@ -108,13 +123,20 @@
     box-shadow: none;
   }
 }
-.active {
-  animation: highlight 1.8s ease-out;
-}
 .reset{
   background-color: #ffffff;
   position: absolute;
   top: 2rem;
   right: 2rem;
   z-index: 100;
+}
+.stats_btn{
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  border: #d5d5d5 2px solid;
+  border-radius: 0.5rem;
+  align-items: center;
+  padding: 0.4rem;
+  color:#858585;
 }

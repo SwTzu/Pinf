@@ -19,7 +19,7 @@ import {
 } from "@/api/est/solicitudes";
 import CardMisDatos from "@/components/Cards/CardMisDatos"; // Importa el nuevo componente
 import CardACP from "@/components/Cards/CardACP";
-import { FileText, Home, Settings, User, Mail } from "lucide-react";
+import { Home, User, Mail } from "lucide-react";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -178,8 +178,9 @@ export default function HomeEst() {
             <div className="p-[0.8rem] bg-red">
               {!new_empresa && (
                 <Select
+                  aria-label="Selecciona una empresa verificada"
                   variant="faded"
-                  label="Selecciona una empresa verificada"
+                  placeholder="Selecciona una empresa verificada"
                   className="max-w-xs mb-[1rem]"
                   selectedKeys={[value]}
                   onChange={handleSelectionChange}
@@ -195,43 +196,43 @@ export default function HomeEst() {
               <div className="grid grid-cols-2 gap-[0.8rem] mb-[0.8rem]">
                 <Input
                   variant="faded"
-                  label="Rut empresa"
+                  placeholder="Rut empresa"
                   isDisabled={!new_empresa}
                   value={emp_selected?.rutEmpresa}
                 />
                 <Input
                   variant="faded"
-                  label="numero de practica"
+                  placeholder="numero de practica"
                   isRequired
                   color={!new_empresa ? "primary" : "default"}
                 />
                 <Input
                   variant="faded"
-                  label="Razon social"
+                  placeholder="Razon social"
                   isDisabled={!new_empresa}
                   value={emp_selected?.razonSocial}
                 />
                 <Input
                   variant="faded"
-                  label="Region"
+                  placeholder="Region"
                   isDisabled={!new_empresa}
                   value={emp_selected?.region}
                 />
                 <Input
                   variant="faded"
-                  label="Direccion"
+                  placeholder="Direccion"
                   isDisabled={!new_empresa}
                   value={emp_selected?.direccion}
                 />
                 <Input
                   variant="faded"
-                  label="Ciudad"
+                  placeholder="Ciudad"
                   isDisabled={!new_empresa}
                   value={emp_selected?.ciudad}
                 />
                 <Input
                   variant="faded"
-                  label="Rubro"
+                  placeholder="Rubro"
                   isDisabled={!new_empresa}
                   value={emp_selected?.rubro}
                 />

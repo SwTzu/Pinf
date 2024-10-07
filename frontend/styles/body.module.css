@@ -45,3 +45,16 @@
   border-bottom: #c5c5c5 0.2em solid;
   border-radius: 0.2rem;
 }
+.BaseLogin{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width:100vw;
+  background-image: url("../public/Fondos/P3.jpg");
+  background-size: contain; /* o background-size: contain; */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1e272d;
+}

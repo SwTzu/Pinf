@@ -1,11 +1,9 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Button,
-  Card,
-} from "@nextui-org/react";
+import { Button, Card } from "@nextui-org/react";
 import styles from "@/styles/coo.module.css";
 import TablaCoo from "@/components/Tablas/TabCoo/TablaCoo";
+import * as echarts from "echarts";
 import {
   Building2,
   UserRound,
@@ -15,31 +13,13 @@ import {
   BarChart2,
   ArrowUpToLine,
 } from "lucide-react";
-import { Empresas} from "@/api/coo/solicitudes";
-type estudiante = {
-  rut: string;
-  nombre1: string;
-  nombre2: string;
-  apellido1: string;
-  apellido2: string;
-  planEstudio: string;
-  correo: string;
-  telefono: string;
-  ingreso: string;
-};
-
+import { Empresas } from "@/api/coo/solicitudes";
 type empresa = {
-  rutEmpresa: string;
-  razonSocial: string;
-  correo: string;
-  telefono: string;
-  direccion: string;
-  region: string;
-  ciudad: string;
-  rubro: string;
+  verificadas: number;
+  total: number;
 };
-
 export default function HomeCoo() {
+  const chartRef = useRef<HTMLDivElement>(null);
   const solicitudRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const empresasRef = useRef<HTMLDivElement>(null);
@@ -55,10 +35,9 @@ export default function HomeCoo() {
   const [s_evaluaciones, setS_evaluaciones] = useState(false);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
-  const [empresas, setEmpresas] = useState<empresa[]>([]);
-  console.log(Token);
-  Empresas(Token).then((res) => {
-    setEmpresas(res);
+  const [empresas, setEmpresas] = useState<empresa>({
+    verificadas: 0,
+    total: 0,
   });
   const redireccion = (
     ref: React.RefObject<HTMLDivElement>,
@@ -70,34 +49,70 @@ export default function HomeCoo() {
       funcion(false);
     }, 2000);
   };
-// Detectar el scroll dentro del contenedor específico
-useEffect(() => {
-  const handleScroll = () => {
-    const position = containerRef.current?.scrollTop || 0;
-    if (position > 200) {
-      setIsvisible(true);
-    } else {
-      setIsvisible(false);
-    }
-  };
+  // Detectar el scroll dentro del contenedor específico
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = containerRef.current?.scrollTop || 0;
+      if (position > 200) {
+        setIsvisible(true);
+      } else {
+        setIsvisible(false);
+      }
+    };
 
-  const container = containerRef.current;
-  if (container) {
-    container.addEventListener("scroll", handleScroll);
-  }
-
-  return () => {
+    const container = containerRef.current;
     if (container) {
-      container.removeEventListener("scroll", handleScroll);
+      container.addEventListener("scroll", handleScroll);
     }
-  };
-}, []);
 
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+  useEffect(() => {
+    Empresas(Token).then((res) => {
+      setEmpresas(res);
+      if (chartRef.current) {
+        const chart = echarts.init(chartRef.current);
+        chart.setOption({
+          tooltip: {
+            trigger: "item",
+          },
+          series: [
+            {
+              name: "Empresas",
+              type: "pie",
+              radius: ["40%", "90%"],
+              avoidLabelOverlap: false,
+              data: [
+                { value: res.verificadas, name: "Verificadas" },
+                { value: res.total - res.verificadas, name: "No Verificadas" },
+              ],
+              label: {
+                show: false,
+                position: "center",
+              },
+              labelLine: {
+                show: false,
+              },
+              itemStyle: {
+                borderRadius: 10,
+                borderColor: "#fff",
+                borderWidth: 2,
+              },
+            },
+          ],
+        });
+      }
+    });
+  }, [Token]);
   return (
     <div className={styles.CooDiv} ref={containerRef}>
       {isvisible && (
         <Button
-          id='reset'
+          id="reset"
           variant="bordered"
           className={styles.reset}
           color="secondary"
@@ -160,7 +175,7 @@ useEffect(() => {
       </div>
       <Card
         ref={solicitudRef}
-        className={`mb-6 ${styles.box} ${s_resumen ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_resumen ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Resumen de solicitudes
@@ -174,59 +189,51 @@ useEffect(() => {
       </Card>
       <div
         className={`p-[1.5rem] bg-white ${styles.box} ${
-          st_resumen ? styles.active : ""
+          st_resumen ? styles.active_box : ""
         }`}
         ref={statsRef}
       >
         <h1 className="text-xl font-semibold mb-4">Reportes Personalizados</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button variant="bordered" className="w-full justify-start">
-            <BarChart2 className="h-5 w-5 mr-2" />
-            Análisis de Tendencias Tecnológicas
-          </Button>
-          <Button variant="bordered" className="w-full justify-start">
+          <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
             Evaluación de Impacto de Proyectos
-          </Button>
-          <Button variant="bordered" className="w-full justify-start">
+          </div>
+          <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Reporte de Brecha de Habilidades
-          </Button>
+            Evaluación de Impacto de Proyectos
+          </div>
+          <div className={styles.stats_btn}>
+            <BarChart2 className="h-5 w-5 mr-2" />
+            Evaluación de Impacto de Proyectos
+          </div>
+          <Card id="res_empresas" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de empresas</h1>
+            <h2 className={styles.card_h2}>
+              Vista general empresas en sistema
+            </h2>
+            <Building2 className={styles.card_icon} />
+          </Card>
+          <Card id="res_empresas" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de empresas</h1>
+            <h2 className={styles.card_h2}>
+              Vista general empresas en sistema
+            </h2>
+            <Building2 className={styles.card_icon} />
+          </Card>
+          <Card id="res_empresas" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de empresas</h1>
+            <h2 className={styles.card_h2}>
+              Vista general empresas en sistema
+            </h2>
+            <Building2 className={styles.card_icon} />
+          </Card>
         </div>
       </div>
-      <div
-        id='resumenempresas'
-        className="grid gap-[2rem] md:grid-cols-3 mb-[1rem]"
-        ref={empresasRef}
-      >
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-            Empresas verificadas
-          </h1>
-        </Card>
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-          Empresas no verificadas
-          </h1>
-        </Card>
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-          Total
-          </h1>
-          <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
-            Total de empresas en sistema
-          </h2>
-        </Card>
-      </div>
+      
       <Card
         ref={usersRef}
-        className={`mb-6 ${styles.box} ${s_users ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_users ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Usuarios administrativos
@@ -238,9 +245,54 @@ useEffect(() => {
           <TablaCoo />
         </div>
       </Card>
+      <div
+        id="resumenempresas"
+        className="grid gap-[2rem] md:grid-cols-3 mb-[1rem]"
+        ref={empresasRef}
+      >
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Empresas verificadas
+          </h1>
+          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
+            <p className="text-[7rem] font-bold">{empresas.verificadas}</p>
+            <Building2 className="h-[7rem] w-[7rem] self-center" />
+          </div>
+        </Card>
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Empresas no verificadas
+          </h1>
+          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
+            <p className="text-[7rem] font-bold">
+              {empresas.total - empresas.verificadas}
+            </p>
+            <Building2 className="h-[7rem] w-[7rem] self-center" />
+          </div>
+        </Card>
+        <Card
+          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Total empresas
+          </h1>
+          <div className="grid  md:grid-cols-2 self-center mb-[2rem]">
+            <p className="text-[7rem] font-bold">{empresas.total}</p>
+            <div
+              id="chart"
+              ref={chartRef}
+              style={{ width: "7rem", height: "7rem", alignSelf: "center" }}
+            />
+          </div>
+        </Card>
+      </div>
       <Card
         ref={evaluacionesRef}
-        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active : ""}`}
+        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active_box : ""}`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
           Evaluaciones

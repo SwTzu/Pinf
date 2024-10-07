@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useMemo, useCallback } from "react";
 import {
   Table,
@@ -17,7 +16,8 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Trash2, Eye ,Pencil, EllipsisVertical, Search,ChevronDown} from "lucide-react";
+import { Trash2, Eye, Pencil, EllipsisVertical, Search, ChevronDown } from "lucide-react";
+
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -66,14 +66,14 @@ export default function TablaSolicitudes({ token }: { token: string }) {
     if (filterValue) {
       filtered = filtered.filter(
         (item) =>
+          item.idSolicitud.toString().includes(filterValue) || // Check against idSolicitud
           item.rut.toLowerCase().includes(filterValue.toLowerCase()) ||
           item.rutEmpresa.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
+
     if (statusFilter !== "all") {
-      filtered = filtered.filter(
-        (item) => item.fase === parseInt(statusFilter)
-      );
+      filtered = filtered.filter((item) => item.fase === parseInt(statusFilter));
     }
 
     return filtered;
@@ -85,8 +85,7 @@ export default function TablaSolicitudes({ token }: { token: string }) {
         <Dropdown>
           <DropdownTrigger>
             <Button isIconOnly size="lg" variant="light">
-              <EllipsisVertical
-              />
+              <EllipsisVertical />
             </Button>
           </DropdownTrigger>
           <DropdownMenu style={{ width: "100%", textAlign: "center" }}>
@@ -113,7 +112,7 @@ export default function TablaSolicitudes({ token }: { token: string }) {
     <>
       <div className="flex justify-between items-center mb-4 p-2 gap-4">
         <Input
-          placeholder="Buscar por RUT o empresa..."
+          placeholder="Buscar por ID de solicitud o RUT de empresa..."
           startContent={<Search />}
           value={filterValue}
           onValueChange={onSearchChange}
@@ -146,7 +145,6 @@ export default function TablaSolicitudes({ token }: { token: string }) {
       <Table
         aria-label="Tabla de solicitudes con búsqueda y filtro"
         classNames={{
-          //"base" | "table" | "tbody" | "td" | "tfoot" | "th" | "thead" | "tr" | "wrapper" | "sortIcon" | "emptyWrapper"
           table: "min-h-[400px] max-h-[93.5vh]",
           wrapper: "bg-[transparent]",
           th: "bg-[#656565] text-white font-bold  text-md",
@@ -230,17 +228,27 @@ export default function TablaSolicitudes({ token }: { token: string }) {
                 {new Date(item.fechaSolicitud).toLocaleDateString()}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
-                {item.fase === 0 ? "Rechazado" :
-                item.fase === 1 ? "Solicitado" :
-                item.fase === 2 ? "Revisado" :
-                item.fase === 3 ? "Firmado" :
-                item.fase === 4 ? "Formularios" :
-                item.fase === 5 ? "Coordinacion" :
-                item.fase === 6 ? "Iniciada" :
-                item.fase === 7 ? "Memoria" :
-                item.fase === 8 ? "Revision evaluacion" :
-                item.fase === 9 ? "Finalizado" :
-                ""}
+                {item.fase === 0
+                  ? "Rechazado"
+                  : item.fase === 1
+                  ? "Solicitado"
+                  : item.fase === 2
+                  ? "Revisado"
+                  : item.fase === 3
+                  ? "Firmado"
+                  : item.fase === 4
+                  ? "Formularios"
+                  : item.fase === 5
+                  ? "Coordinacion"
+                  : item.fase === 6
+                  ? "Iniciada"
+                  : item.fase === 7
+                  ? "Memoria"
+                  : item.fase === 8
+                  ? "Revision evaluacion"
+                  : item.fase === 9
+                  ? "Finalizado"
+                  : ""}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
                 {renderActions(item)}

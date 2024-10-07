@@ -7,6 +7,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Tooltip,
   Input,
   Button,
   Spinner,
@@ -17,11 +18,13 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Checkbox,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import {Mail, Search } from "lucide-react";
+import { Mail, Search, CircleHelp } from "lucide-react";
 import styles from "@/styles/est.module.css";
+import { addSup } from "@/api/est/solicitudes";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -31,20 +34,20 @@ interface Solicitud {
   numeroPractica: number;
   descripcionRechazo: string | null;
   fase: number;
-  supervisorCheck: boolean;
-  alumnoCheck: boolean;
   calificacion: number | null;
   correoSupervisor: string;
   notasCOO: string | null;
   createdAt: string;
   updatedAt: string;
 }
-interface carta{
+interface carta {
   idSolicitud: number;
   correoSupervisor: string;
   tareas: string;
   fechaInicio: string;
   fechaTermino: string;
+  supervisorCheck: boolean;
+  alumnoCheck: boolean;
 }
 export default function TablaAcp({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +57,12 @@ export default function TablaAcp({ token }: { token: string }) {
   const cardFormularioRef = useRef<HTMLDivElement>(null); // Crear una referencia para el formulario
   const [isActive, setIsActive] = useState(false);
   const [carta, setCarta] = useState<carta | null>(null);
+  const [email, setEmail] = useState("");
+  const [idSolicitud, setIdSolicitud] = useState<number>(0);
+  const isEmailValid = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
   const redireccion = () => {
     cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
     setIsActive(true);
@@ -100,6 +109,7 @@ export default function TablaAcp({ token }: { token: string }) {
   const handleRowClick = (item: Solicitud) => {
     if (item.fase === 3) {
       // Abrir el modal si la fase es 3
+      setIdSolicitud(item.idSolicitud);
       onOpen();
     } else if (item.fase === 4) {
       // Mostrar la card de formulario si la fase es 4 y desplazar la vista hacia él
@@ -225,12 +235,17 @@ export default function TablaAcp({ token }: { token: string }) {
         </TableBody>
       </Table>
       {showCardFormulario && (
-        <Card ref={cardFormularioRef} id="card_formulario" className={`${styles.new_solicitud} ${isActive ? styles.active : ""}`}>
+        <Card
+          ref={cardFormularioRef}
+          id="card_formulario"
+          className={`${styles.new_solicitud} ${isActive ? styles.active : ""}`}
+        >
           <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
             Formulario de carta de aceptación
           </h1>
           <h2 className="text-1xl text-gray-400 pl-[2rem]">
-            En este apartado puede visualizar el contenido de la carta de aceptación que debe rellenar el supervisor de la empresa.
+            En este apartado puede visualizar el contenido de la carta de
+            aceptación que debe rellenar el supervisor de la empresa.
           </h2>
           <div className="grid grid-cols-2 pt-[2rem] pl-[2rem] gap-[0.8rem] mb-[2rem]">
             <Input
@@ -263,8 +278,38 @@ export default function TablaAcp({ token }: { token: string }) {
               isDisabled
               value={carta?.fechaTermino}
             />
+            <div className="grid grid-rows-2 gap-2">
+              <div className="flex flex-row gap-2 justify-start items-center">
+                <Checkbox
+                  size="lg"
+                  isSelected={carta?.supervisorCheck}
+                  isDisabled
+                >
+                  Firmado del supervisor
+                </Checkbox>
+                <Tooltip
+                  content="Aqui se indica si el supervisor rellena y el formulario"
+                >
+                  <CircleHelp className="text-2xl text-green-900 flex-shrink-0" />
+                </Tooltip>
+              </div>
+              <div className="flex flex-row gap-2 justify-start items-center">
+                <Checkbox size="lg" isSelected={carta?.alumnoCheck} isDisabled>
+                  Firmado del alumno
+                </Checkbox>
+                <Tooltip
+                  content={
+                  carta?.supervisorCheck
+                    ? "Al palomear aceptas los datos introducidos por el supervisor y darás comienzo a la práctica"
+                    : "Se activará cuando el supervisor termine y firme el formulario"
+                  }
+                >
+                  <CircleHelp className="text-2xl text-green-900 flex-shrink-0" />
+                </Tooltip>
+              </div>
+            </div>
           </div>
-      </Card>
+        </Card>
       )}
       <Modal
         backdrop="opaque"
@@ -306,9 +351,11 @@ export default function TablaAcp({ token }: { token: string }) {
                   size="lg"
                   type="email"
                   placeholder="correo@supervisor.cl"
-                  label="Email"
                   labelPlacement="outside"
                   variant="bordered"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  isInvalid={!isEmailValid(email)}
                   startContent={
                     <Mail className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
@@ -323,7 +370,17 @@ export default function TablaAcp({ token }: { token: string }) {
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancelar
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    addSup(token, idSolicitud, email);
+                    onClose();
+                    alert(
+                      "Se ha enviado el mensaje de confirmacion al correo ingresado"
+                    );
+                  }}
+                  isDisabled={!isEmailValid(email)}
+                >
                   Guardar
                 </Button>
               </ModalFooter>

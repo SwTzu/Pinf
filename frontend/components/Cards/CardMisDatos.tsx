@@ -59,7 +59,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
       <div className="grid grid-cols-2 gap-[0.8rem] p-[0.8rem]">
         <Input
           variant="faded"
-          label="Nombre"
+          placeholder="Nombre"
           value={datos_est.nombre1}
           onChange={(e) =>
             setDatos_est({ ...datos_est, nombre1: e.target.value })
@@ -68,7 +68,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Segundo Nombre"
+          placeholder="Segundo Nombre"
           value={datos_est.nombre2}
           onChange={(e) =>
             setDatos_est({ ...datos_est, nombre2: e.target.value })
@@ -77,7 +77,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Apellido"
+          placeholder="Apellido"
           value={datos_est.apellido1}
           onChange={(e) =>
             setDatos_est({ ...datos_est, apellido1: e.target.value })
@@ -86,17 +86,17 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Segundo Apellido"
+          placeholder="Segundo Apellido"
           value={datos_est.apellido2}
           onChange={(e) =>
             setDatos_est({ ...datos_est, apellido2: e.target.value })
           }
           isDisabled={!mod_est}
         />
-        <Input variant="faded" label="Rut" value={datos_est.rut} isDisabled />
+        <Input variant="faded" placeholder="Rut" value={datos_est.rut} isDisabled />
         <Input
           variant="faded"
-          label="Plan de estudio"
+          placeholder="Plan de estudio"
           value={datos_est.planEstudio}
           onChange={(e) =>
             setDatos_est({ ...datos_est, planEstudio: e.target.value })
@@ -105,7 +105,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Año de ingreso"
+          placeholder="Año de ingreso"
           value={datos_est.ingreso}
           onChange={(e) =>
             setDatos_est({ ...datos_est, ingreso: e.target.value })
@@ -114,7 +114,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Email"
+          placeholder="Email"
           type="email"
           value={datos_est.correo}
           onChange={(e) =>
@@ -124,7 +124,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         <Input
           variant="faded"
-          label="Nº Celular"
+          placeholder="Nº Celular"
           type="number"
           isDisabled={!mod_est}
           startContent={
