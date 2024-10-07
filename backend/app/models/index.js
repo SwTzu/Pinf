@@ -17,6 +17,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.area = require("./area.model.js")(sequelize, Sequelize);
 db.carta = require("./carta.model.js")(sequelize,Sequelize);
 db.empresa = require("./empresa.model.js")(sequelize,Sequelize);
 db.informe = require("./informe.model.js")(sequelize,Sequelize);
