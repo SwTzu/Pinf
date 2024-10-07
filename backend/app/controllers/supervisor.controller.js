@@ -10,7 +10,7 @@ const loginSupervisor = async (req,res,next) => {
 
 		const { correoSupervisor , password} = req.body;
 
-		const supervisor = await db.supervisor.findOne({where:{correoSupervisor:correoSupervisor}}); // Asumiendo que solo hay un supervisor por empresa. Cambiara una vez se implemente el signup y login correspondientes.
+		const supervisor = await db.supervisor.findOne({where:{correoSupervisor:correoSupervisor}});
 
 		if (!supervisor) {
 			return res.status(404).json({ message: "Credenciales incorrectas (No existe)." });

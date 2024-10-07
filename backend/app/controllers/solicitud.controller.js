@@ -458,11 +458,13 @@ const actualizarFase = async (req, res) => {
   }
 };
 
+// Eliminar mail send
 const agregarSup = async (req, res) => {
+
   const { token, idSolicitud, correoSupervisor } = req.body;
   const rut = await jwt.verify(token, key);
   const usuario = await db.usuario.findOne({ where: { rut: rut.rut } });
-  console.log(usuario, rut);
+
   const solicitud = await db.solicitud.findOne({
     where: { idSolicitud: idSolicitud },
   });
@@ -476,16 +478,21 @@ const agregarSup = async (req, res) => {
   solicitud.correoSupervisor = correoSupervisor;
 
   await solicitud.save();
+
   const supervisor = await db.supervisor.findOne({
     where: { correoSupervisor: correoSupervisor },
   });
+
   if (!supervisor) {
     const pass = await TOKEN.passSUP(correoSupervisor);
+    // Revisar si de verdad crea o es una ilusion
     const supervisor = await db.supervisor.create({
       correoSupervisor,
       rutEmpresa: solicitud.rutEmpresa,
       password: pass,
     });
+
+
     const mailOptions = {
       from: MAIL_USER,
       to: correoSupervisor,
@@ -493,7 +500,9 @@ const agregarSup = async (req, res) => {
       text: `Se te ha creado un perfil en el sistema de practica profesional de la Universidad de de valparaiso, 
       su nombre de usuario es su correo de contacto (${correoSupervisor})  y su contraseña es ${pass}`,
     };
+
     transporter.sendMail(mailOptions);
+    
     return res.status(200).json({
       message: 'Supervisor agregado correctamente',
       solicitud,

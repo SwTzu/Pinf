@@ -8,7 +8,7 @@ router.get("/",(req,res)=>{
 });
 
 router.post("/crear",crearSupervisor); // {correo, rutEmpresa, nombre, password, telefono, cargoAdministrativo, titulocargo};
-router.post("/login",loginSupervisor); // {rutEmpresa, password}
+router.post("/login",loginSupervisor); // {correoSupervisor, password}
 router.put("/update",updateSupervisor); // {rutEmpresa, nombre, password, telefono, cargoAdministrativo, titulocargo}
 router.post("/buscar",buscarSupervisor); // {correoSupervisor}
 

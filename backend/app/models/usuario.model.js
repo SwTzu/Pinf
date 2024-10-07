@@ -53,7 +53,7 @@ module.exports = (sequelize, Sequelize) => {
       ingreso: {
         type: Sequelize.INTEGER,
         allowNull: true
-      }
+      },
   }, {
     // Opciones adicionales
     tableName: 'usuario',

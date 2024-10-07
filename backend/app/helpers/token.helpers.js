@@ -28,6 +28,7 @@ async function generateTokenSup(usuario) {
       {
         correoSupervisor: usuario.correoSupervisor,
         tipoUsuario: usuario.tipoUsuario,
+        verificado: usuario.verificadoCheck
       },
       key,
       {
