@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      extension: {
+      extension: {                // Extension de alumno regular
         type: Sequelize.INTEGER,
         allowNull: true,
       },

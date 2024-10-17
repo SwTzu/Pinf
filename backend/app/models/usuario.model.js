@@ -46,7 +46,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING(170),
         allowNull: true
       },
-      planEstudio: {
+      planEstudio: {                        // Codigo de malla. Pedir
         type: Sequelize.INTEGER,
         allowNull: true
       },

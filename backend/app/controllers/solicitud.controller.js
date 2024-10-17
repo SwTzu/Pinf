@@ -35,6 +35,7 @@ const buscarFase = async (req, res) => {
   }
 };
 
+// Al reves 🔃
 const supXest = async (req, res) => {
   try {
     const { token } = req.body;
@@ -345,6 +346,7 @@ const allSolicitudesJefe = async (req, res) => {
 const allSolicitudesSec = async (req, res) => {
   try {
     const solicitudes = await db.solicitud.findAll({ where: { fase: 1 } });
+    
     return res.status(200).json({
       message: 'Solicitudes listadas exitosamente',
       solicitudes,
@@ -502,7 +504,7 @@ const agregarSup = async (req, res) => {
     };
 
     transporter.sendMail(mailOptions);
-    
+
     return res.status(200).json({
       message: 'Supervisor agregado correctamente',
       solicitud,

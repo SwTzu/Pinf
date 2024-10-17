@@ -29,7 +29,8 @@ module.exports = (sequelize, Sequelize) =>{
           fechaTermino: {
             type: Sequelize.DATE,
             allowNull: true
-          }
+          },
+          
     }, {
       // Opciones adicionales
       tableName: 'carta de aceptacion',
