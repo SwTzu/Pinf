@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
       },
       extension: {                // Extension de alumno regular
-        type: Sequelize.INTEGER,
+        type: Sequelize.ENUM("Necesita", "No necesita", "Revisado"),
         allowNull: true,
       },
       numeroPractica: {
@@ -46,17 +46,6 @@ module.exports = (sequelize, Sequelize) => {
             9. Finalizado
             */
         allowNull: true,
-      },
-      supervisorCheck: {
-        // A usar para el cambio de fase.
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
-      },
-      alumnoCheck: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
       },
       calificacion: {
         type: Sequelize.FLOAT,
