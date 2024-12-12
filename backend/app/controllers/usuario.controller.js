@@ -170,10 +170,22 @@ const verDatosUsuario = async (req, res) => {
 };
 
 const updateUsuario = async (req, res) => {
-  const { rut } = req.body;
+  const { token, datos } = req.body;
 
   try {
-    const usuario = await db.usuario.findOne({ where: { rut } });
+
+    const decoded = await jwt.verify(token, key);
+    console.log(decoded); // Muestra la estructura completa del token
+    const { rut } = decoded;
+  
+    // Verifica que rutToken no sea undefined
+    if (!rut) {
+      return res.status(400).json({
+        message: "El token no contiene un rut válido."
+      });
+    }
+
+    const usuario = await db.usuario.findOne({ where: { rut: rut } });
     if (!usuario) {
       return res.status(404).json({
         message: "Usuario no encontrado."
@@ -181,15 +193,15 @@ const updateUsuario = async (req, res) => {
     }
 
     // Actualiza solo los campos que han cambiado
-    usuario.nombre1 = req.body.nombre1 || usuario.nombre1;
-    usuario.nombre2 = req.body.nombre2 || usuario.nombre2;
-    usuario.apellido1 = req.body.apellido1 || usuario.apellido1;
-    usuario.apellido2 = req.body.apellido2 || usuario.apellido2;
-    usuario.telefono = req.body.telefono || usuario.telefono;
-    usuario.correo = req.body.correo || usuario.correo;
-    usuario.direccion = req.body.direccion || usuario.direccion;
-    usuario.planEstudio = req.body.planEstudio || usuario.planEstudio;
-    usuario.ingreso = req.body.ingreso || usuario.ingreso;
+    usuario.nombre1 = datos.nombre1 || usuario.nombre1;
+    usuario.nombre2 = datos.nombre2 || usuario.nombre2;
+    usuario.apellido1 = datos.apellido1 || usuario.apellido1;
+    usuario.apellido2 = datos.apellido2 || usuario.apellido2;
+    usuario.telefono = datos.telefono || usuario.telefono;
+    usuario.correo = datos.correo || usuario.correo;
+    usuario.direccion = datos.direccion || usuario.direccion;
+    usuario.planEstudio = datos.planEstudio || usuario.planEstudio;
+    usuario.ingreso = datos.ingreso || usuario.ingreso;
 
     // Este método solo actualiza los campos que han sido modificados
     await usuario.save();
