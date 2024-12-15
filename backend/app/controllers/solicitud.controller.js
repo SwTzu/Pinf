@@ -37,43 +37,45 @@ const buscarFase = async (req, res) => {
 };
 
 const todasPracticas = async (req, res) => {
-
   try{
-
     token = req.body.token;
-
     const coordinador = await jwt.verify(token, key);
-
     if (coordinador.tipoUsuario !== 2) {
       return res.status(401).json({
         message: 'No tienes permisos para ver las practicas',
       });
     }
-
     const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gte]: 5 } } });
-
     const solicitudesWithDetails = await Promise.all(
       solicitudes.map(async (solicitud) => {
         const usuario = await db.usuario.findOne({ where: { rut: solicitud.rut } });
         const carta = await db.carta.findOne({ where: { idSolicitud: solicitud.idSolicitud } });
         return {
-          solicitud,
-          usuario,
-          carta,
+          id: solicitud.idSolicitud,
+          nombreEstudiante: `${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2}`,
+          empresa: solicitud.rutEmpresa,
+          fase: solicitud.fase,
+          //estado: solicitud.estado,
+          fechaSolicitud: solicitud.fechaSolicitud,
+          //comentarios: solicitud.comentarios,
+          notasCOO: solicitud.notasCOO,
+          correoSupervisor: solicitud.correoSupervisor,
+          //fechaInicio: carta.fechaInicio,
+          //fechaTermino: carta.fechaTermino,
+          //tareas: carta.tareas,
+          //area: carta.area,
+          //informe: carta.informe,
+          //memoria: carta.memoria,
         };
       })
     );
-
     return res.status(200).json({
       message: 'Solicitudes encontradas exitosamente',
       solicitudes: solicitudesWithDetails,
     });
-
   }catch{
-
     return res.status(500).json({
       message: 'Error interno del servidor',
-      err,
     });
 
   };

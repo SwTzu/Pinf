@@ -3,7 +3,7 @@ const Op = db.Sequelize.Op;
 
 const listarAreas = async (req, res) => {
     try {
-        const areas = await db.Area.findAll();
+        const areas = await db.area.findAll();
         return res.status(200).json(areas);
     }
     catch (err) {
@@ -17,7 +17,7 @@ const listarAreas = async (req, res) => {
 const crearArea = async (req, res) => {
     const { nombre} = req.body;
     try {
-        const area = await db.Area.create({
+        const area = await db.area.create({
             nombre: nombre,
         });
         return res.status(200).json(area);
@@ -33,7 +33,7 @@ const crearArea = async (req, res) => {
 const buscarArea = async (req, res) => {
     const { id } = req.body;
     try {
-        const area = await db.Area.findOne({ where: { id: id } });
+        const area = await db.area.findOne({ where: { id: id } });
         if (!area) {
             return res.status(404).json({ message: "El área no existe." });
         }

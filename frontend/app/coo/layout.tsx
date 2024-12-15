@@ -19,9 +19,8 @@ export default function CooLayout({ children }: { children: React.ReactNode }) {
         <a href="/coo/emp" className={`${styles.btn} ${isActive('/coo/emp') ? styles.active : ''}`} >
           <Building2 className='mr-[0.5rem]'/>Empresas
         </a>
-        <a href="/coo/dnd" className={`${styles.btn} ${isActive('/coo/dnd') ? styles.active : ''}`}>
-          <LayoutPanelLeft className='mr-[0.5rem]'/>Espacio
-        </a>
+        <a href="/coo/workspace" className={`${styles.btn} ${isActive('/coo/workspace') ? styles.active : ''}`}>
+          <LayoutPanelLeft className='mr-[0.5rem]'/>Workspace        </a>
         <a href="/coo/logout" className={`${styles.btn} ${styles.logoutBtn}`} >
           <UserX className='mr-[0.5rem]'/>Cerrar Sesión
         </a>

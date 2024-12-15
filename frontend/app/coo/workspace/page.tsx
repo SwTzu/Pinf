@@ -23,347 +23,10 @@ import {
   CheckCircle2,
   CircleX,
 } from "lucide-react";
+import {Solicitudes, crearArea} from "../../../api/coo/solicitudes";
 // Clave para almacenar en localStorage
 const STORAGE_KEY = "notes_positions";
-const initialPracticas = [
-  {
-    id: 1,
-    nombreEstudiante: "Ana belen García Casas",
-    empresa: "TechCorp",
-    fase: 3,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      {
-        title: "weon tonto",
-        content:
-          "Contenido de la nota 1sdfkjashdjklfhkjasdhfkjashdkjfhkljasdhfklhaslkjdhflkahsdkjfhaksjhdfkjhsadkjfhkajshdfkjhaskdjfhlkas",
-      },
-      {
-        title: "weon tonto",
-        content:
-          "Contenido de la nota 1sdfkjashdjklfhkjasdhfkjashdkjfhkljasdhfklhaslkjdhflkahsdkjfhaksjhdfkjhsadkjfhkajshdfkjhaskdjfhlkas",
-      },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: [
-      "1Contenido de la notasdkljfaslkdjhfkjshldkjfhasdkjfh 1sdfkjashdjklfhkjasdhfkjashdkjasdasfhkljasdhfklhaslkjdhflkahsdkjfhaksjhdfkjhsa",
-      "2debe leer todos los capitulos de Jaime Donoso sin participar en actos comunistas  o de ambito zeczual sin concentimiento",
-      "3ser mas vio pa la wea",
-      "242leer todos los capitulos de Jaime Donoso",
-      "4ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "Contenido de la nota 1sdfkjashdjklfhkjasdhfkjashdkjfhkljasdhfklhaslkjdhflkahsdkjfhaksjhdfkjhsadkjfhkajshdfkjhaskdjfhlkas",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-      "ser mas vio pa la wea",
-      "leer todos los capitulos de Jaime Donoso",
-    ],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "",
-  },
-  {
-    id: 2,
-    nombreEstudiante: "Juan Carlos Perez Gomez",
-    empresa: "TechCorp",
-    fase: 2,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 3,
-    nombreEstudiante: "Maria Fernanda Lopez Rodriguez",
-    empresa: "TechCorp",
-    fase: 1,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 4,
-    nombreEstudiante: "Pedro Sanchez",
-    empresa: "TechCorp",
-    fase: 2,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 5,
-    nombreEstudiante: "Laura Martinez",
-    empresa: "TechCorp",
-    fase: 1,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 6,
-    nombreEstudiante: "Carlos Ramirez",
-    empresa: "TechCorp",
-    fase: 3,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 7,
-    nombreEstudiante: "Sofia Fernandez",
-    empresa: "TechCorp",
-    fase: 2,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 8,
-    nombreEstudiante: "Luisa Gomez",
-    empresa: "TechCorp",
-    fase: 1,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 9,
-    nombreEstudiante: "Diego Torres",
-    empresa: "TechCorp",
-    fase: 2,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-  {
-    id: 10,
-    nombreEstudiante: "Mariana Rodriguez",
-    empresa: "TechCorp",
-    fase: 1,
-    estado: "pendiente",
-    fechaSolicitud: "2023-08-01",
-    fechaInicio: "2023-09-01",
-    fechaTermino: "2023-09-30",
-    comentarios: [""],
-    notasCOO: [
-      { title: "Título 1", content: "Contenido de la nota 1" },
-      { title: "Título 2", content: "Contenido de la nota 2" },
-      { title: "Título 3", content: "Contenido de la nota 3" },
-    ],
-    correoSupervisor: "supervisor@gmail.com",
-    tareas: ["tarea1", "tarea2", "tarea3"],
-    area: [
-      "Backend",
-      "Frontend",
-      "Fullstack",
-      "Base de datos",
-      "Redes",
-      "Seguridad",
-      "Simulacion",
-    ],
-    informe: "https://example.com/informe",
-    memoria: "https://example.com/memoria",
-  },
-];
+
 // Simulando las notas obtenidas del servidor (backend)
 const notas_fetch = [
   {
@@ -506,7 +169,7 @@ const DraggableNote = ({
               backgroundColor: "transparent",
             }}
           />
-          <Button size="sm" color="success" onClick={handleSave}>
+          <Button size="sm" color="success" onPress={handleSave}>
             Guardar
           </Button>
         </>
@@ -527,7 +190,7 @@ const DraggableNote = ({
               <Button
                 size="sm"
                 color="danger"
-                onClick={() => onDeleteNote(id)}
+                onPress={() => onDeleteNote(id)}
                 style={{ backgroundColor: "transparent" }}
               >
                 <Trash stroke="red" />
@@ -570,22 +233,29 @@ type Practica = {
   informe: string;
   memoria: string;
 };
-export default function NotesArea() {
+export default function Workspace() {
   const [notes, setNotes] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [active, setActive] = useState(false);
-  const [practicas, setPracticas] = useState(initialPracticas);
+  const [practicas, setPracticas] = useState<Practica>();
   const [newNote, setNewNote] = useState({ title: "", content: "" });
-  const [selectedPractica, setSelectedPractica] = useState<Practica>(
-    practicas[0]
-  );
+  const [selectedPractica, setSelectedPractica] = useState<Practica>( { id: 0, nombreEstudiante: "", empresa: "", fase: 0, estado: "", fechaSolicitud: "", fechaInicio: "", fechaTermino: "", comentarios: [], notasCOO: [], correoSupervisor: "", tareas: [], area: [], informe: "", memoria: "" });
+  const Token =
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
   // Obtener los límites del área visible
   const getScreenLimits = () => {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
     return { screenWidth, screenHeight };
   };
-
+useEffect(() => {
+  Solicitudes(Token).then((res) => {  
+  setPracticas(res);
+  //setSelectedPractica(res[0]);
+  console.log(res);
+  }
+  ).catch((err) => console.log(err));
+}, []);
   // Sincronizar las notas con localStorage y establecer el estado inicial
   useEffect(() => {
     const syncedNotes = syncWithLocalStorage();
@@ -679,6 +349,11 @@ export default function NotesArea() {
   };
   // No renderizamos las notas hasta que estén completamente sincronizadas
 
+  const handlecrearArea = () => {
+    crearArea("Java").then((res) => {
+      console.log(res);
+    }).catch((err) => console.log(err));
+  }//<Button onPress={handlecrearArea}>Crear Area</Button>
   return (
     <main className="flex-1 overflow-auto w-[91.99vw] h-[99.99vh] p-[1.5rem]">
       {active && (
@@ -713,7 +388,7 @@ export default function NotesArea() {
             isDisabled={!active}
             size="sm"
             title="Agregar nota general"
-            onClick={handleAddNote}
+            onPress={handleAddNote}
             style={{ backgroundColor: "white" }}
           >
             Agregar nota
@@ -723,7 +398,7 @@ export default function NotesArea() {
             variant="bordered"
             size="sm"
             title="Agregar nota general"
-            onClick={() => setActive(!active)}
+            onPress={() => setActive(!active)}
             style={{ backgroundColor: "white" }}
           >
             {active && <EyeOff />} {!active && <Eye />}
@@ -740,7 +415,7 @@ export default function NotesArea() {
               pointerEvents: active ? "none" : "auto",
             }}
           >
-            {practicas.map((practica) => (
+            {practicas && Array.isArray(practicas) && practicas.map((practica: Practica) => (
               <div
                 key={practica.id}
                 className={`p-4 mb-4 rounded-lg shadow-sm cursor-pointer transition-all duration-200 ${
@@ -936,7 +611,7 @@ export default function NotesArea() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteNote(index.toString())}
+                          onPress={() => handleDeleteNote(index.toString())}
                         >
                           Eliminar
                         </Button>
@@ -963,11 +638,11 @@ export default function NotesArea() {
                     }
                   />
                   <div className="flex flex-col gap-4">
-                  <Button onClick={handleAddNote}>
+                  <Button onPress={handleAddNote}>
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar Nota
                   </Button>
-                  <Button onClick={handleAddNote}>
+                  <Button onPress={handleAddNote}>
                     <Plus className="h-4 w-4 mr-2" />
                     Aceptar Práctica
                   </Button>

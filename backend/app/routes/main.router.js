@@ -11,11 +11,11 @@ const utilsRouter = require('./utils.router.js');
 const usuarioRouter = require('./usuario.router.js');
 const empresaRouter = require('./empresa.router.js');
 const solicitudRouter = require('./solicitud.router.js');
-
+const areaRouter = require('./area.router.js');
 const supervisorRouter = require('./supervisor.router.js');
 const memoriaRouter = require('./memoria.router.js');
 const informeRouter = require('./informe.router.js');
-
+const cartaRouter = require('./carta.router.js');
 const statsRouter = require('./stats.router.js');
 
 
@@ -29,4 +29,6 @@ module.exports = app => {
     app.use('/memoria',memoriaRouter);
     app.use('/informe',informeRouter);
     app.use('/stats', statsRouter);
+    app.use('/area', areaRouter);
+    app.use('/carta', cartaRouter);
 }

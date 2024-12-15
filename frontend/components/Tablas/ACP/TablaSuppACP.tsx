@@ -1,6 +1,11 @@
 "use client";
-import React, { useState, useMemo, useCallback, useRef } from "react";
-
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import {
   Table,
   TableHeader,
@@ -17,8 +22,10 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Mail, Search, CircleHelp } from "lucide-react";
+import { HelpCircle, Search, CircleHelp } from "lucide-react";
 import styles from "@/styles/est.module.css";
+import TaskForm from "./TaskForm";
+import {crearCarta} from "@/api/supp/solicitudes";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -37,11 +44,21 @@ interface Solicitud {
 interface carta {
   idSolicitud: number;
   correoSupervisor: string;
-  tareas: string;
+  tareas: Task[];
   fechaInicio: string;
   fechaTermino: string;
   supervisorCheck: boolean;
   alumnoCheck: boolean;
+}
+interface Task {
+  id: string;
+  name: string;
+  description: string;
+  areas: area[];
+}
+interface area {
+  idArea: string;
+  nombre: string;
 }
 export default function TablaSuppAcp({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +67,8 @@ export default function TablaSuppAcp({ token }: { token: string }) {
   const cardFormularioRef = useRef<HTMLDivElement>(null); // Crear una referencia para el formulario
   const [isActive, setIsActive] = useState(false);
   const [carta, setCarta] = useState<carta | null>(null);
+  const [value, setValue] = useState<{ start: any; end: any } | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const redireccion = () => {
     cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
     setIsActive(true);
@@ -89,7 +108,6 @@ export default function TablaSuppAcp({ token }: { token: string }) {
       }
     },
   });
-
   const filteredItems = useMemo(() => {
     let filtered = list.items;
 
@@ -135,9 +153,44 @@ export default function TablaSuppAcp({ token }: { token: string }) {
       </p>
     );
   }
+  const handleSubmitForum = () => {
+    if (value&&tasks.length>0) {
+      const startDate = new Date(value.start);
+      const endDate = new Date(value.end);
 
+      // Sumar 1 día a cada fecha
+      startDate.setDate(startDate.getDate() + 1);
+      endDate.setDate(endDate.getDate() + 1);
+
+      const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      setCarta((prevCarta) => {
+        if (!prevCarta) return null;
+        const updatedCarta = {
+          ...prevCarta,
+          fechaInicio: dateFormatter.format(startDate),
+          fechaTermino: dateFormatter.format(endDate),
+          tareas: tasks,
+          supervisorCheck: true,
+        };
+        setTimeout(() => {
+          crearCarta(updatedCarta);
+        }, 0);
+        return updatedCarta;
+
+      }
+    );
+    }
+    else{
+      alert("Debe completar todos los campos del formulario");
+    }
+  }
   return (
-    <div id='tabla' className="w-full p-4">
+    <div id="tabla" className="w-full p-4">
       <div className="flex justify-between items-center">
         <Input
           id="filter-input"
@@ -249,11 +302,14 @@ export default function TablaSuppAcp({ token }: { token: string }) {
             Formulario de carta de aceptación
           </h1>
           <h2 className="text-1xl text-gray-400 pl-[2rem]">
-            En este apartado el supervisor debe llenar cada apartado para
+            En este espacio el supervisor debe llenar cada apartado para
             proceder con la firma de la carta de aceptación.
           </h2>
-          <div className="grid grid-cols-2 pt-[2rem] pl-[2rem] gap-[0.8rem] mb-[2rem]">
-            <div className="flex flex-col gap-2">
+          <div
+            className="grid grid-cols-2 pt-[2rem] p-[2rem] gap-[0.8rem] mb-[2rem]"
+            style={{ gridTemplateColumns: "35% 65%" }}
+          >
+            <div className="flex flex-col gap-2 ">
               <Input
                 variant="bordered"
                 aria-label="idSolicitud"
@@ -281,37 +337,39 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                 label="Fecha Inicio/Fin"
                 labelPlacement="inside"
                 placeholder="Fecha Inicio/Fin"
+                startContent={<Tooltip content='Seleccione el rango de fechas, se debe seleccionar la celda correspondiente a cada fecha'><HelpCircle size={30} color='gray'/></Tooltip>}
+                value={value||null} 
+                onChange={(value) => value && setValue(value)}
+                
               />
+              <div className="grid grid-rows-2 gap-2">
+                <div className="flex flex-row gap-2 justify-start items-center">
+                  <Checkbox size="lg" isSelected={carta?.supervisorCheck} onValueChange={()=>handleSubmitForum()}>
+                    Firmado del supervisor
+                  </Checkbox>
+                  <Tooltip content="Se habilita al completar el formulario">
+                  <CircleHelp size={20} color="grey"/>
+                  </Tooltip>
+                </div>
+                <div className="flex flex-row gap-2 justify-start items-center">
+                  <Checkbox size="lg" isSelected={carta?.alumnoCheck} isDisabled>
+                    Firmado del alumno
+                  </Checkbox>
+                  <Tooltip
+                    content={
+                      carta?.supervisorCheck
+                        ? "Al palomear aceptas los datos introducidos por el supervisor y darás comienzo a la práctica"
+                        : "Se activará cuando el supervisor termine y firme el formulario"
+                    }
+                  >
+                    <CircleHelp size={20} color="grey"/>
+                  </Tooltip>
+                </div>
+              </div>
             </div>
 
-            <div>
-              Componente tareas
-              <Input variant="bordered" label="tareas" value={carta?.tareas} />
-            </div>
-
-            <div className="grid grid-rows-2 gap-2">
-              <div className="flex flex-row gap-2 justify-start items-center">
-                <Checkbox size="lg" isSelected={carta?.supervisorCheck}>
-                  Firmado del supervisor
-                </Checkbox>
-                <Tooltip content="Se habilita al completar el formulario">
-                  <CircleHelp className="text-2xl text-green-900 flex-shrink-0" />
-                </Tooltip>
-              </div>
-              <div className="flex flex-row gap-2 justify-start items-center">
-                <Checkbox size="lg" isSelected={carta?.alumnoCheck} disabled>
-                  Firmado del alumno
-                </Checkbox>
-                <Tooltip
-                  content={
-                    carta?.supervisorCheck
-                      ? "Al palomear aceptas los datos introducidos por el supervisor y darás comienzo a la práctica"
-                      : "Se activará cuando el supervisor termine y firme el formulario"
-                  }
-                >
-                  <CircleHelp className="text-2xl text-green-900 flex-shrink-0" />
-                </Tooltip>
-              </div>
+            <div className="flex flex-col gap-4">
+            <TaskForm tasks={tasks} setTasks={setTasks} />
             </div>
           </div>
         </Card>

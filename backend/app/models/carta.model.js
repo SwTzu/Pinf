@@ -1,3 +1,5 @@
+const { informe, memoria } = require(".");
+
 module.exports = (sequelize, Sequelize) =>{
 
     const carta = sequelize.define('carta de aceptacion', {
@@ -40,7 +42,15 @@ module.exports = (sequelize, Sequelize) =>{
           type: Sequelize.BOOLEAN,
           allowNull: true,
           defaultValue: false,
-        },      
+        },
+        informe: {
+          type: Sequelize.STRING(50),
+          allowNull: true,
+        },
+        memoria: {
+          type: Sequelize.STRING(50),
+          allowNull: true,
+        },
     }, 
     {
       // Opciones adicionales
