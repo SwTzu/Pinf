@@ -46,7 +46,7 @@ router.post('/eliminar', eliminarSolicitud); // {idSolicitud}
 router.get('/fechaauto', fechaauto);
 router.post('/addSup', agregarSup); // { token, idSolicitud, correoSupervisor }
 router.post('/searchFase',buscarFase); // {fase}
-router.get('/todasPracticas', todasPracticas);
+router.post('/todasPracticas', todasPracticas);
 
 // Rutas de Notas de Coordinador
 router.get('/notasCoo', mostrarNotasCoo);
