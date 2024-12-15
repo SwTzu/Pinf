@@ -1,5 +1,5 @@
 import { backendUrl } from '../../config/config';
-export const PDF = async (Token, selectedEmpresaId, asignatura) => {
+export const PDF = async (Token, selectedEmpresaId, numeroPractica) => {
   // Configurar los datos para la solicitud a la API
   if (!selectedEmpresaId) {
     alert('Selecciona una empresa antes de solicitar');
@@ -9,7 +9,7 @@ export const PDF = async (Token, selectedEmpresaId, asignatura) => {
   const Data = {
     token: Token,
     rutEmpresa: selectedEmpresaId,
-    asignatura: asignatura,
+    numeroPractica: numeroPractica,
   };
   // Realiza la solicitud a la API
   try {
@@ -35,40 +35,7 @@ export const PDF = async (Token, selectedEmpresaId, asignatura) => {
     alert('Error.');
   }
 };
-export const funcionSave = async (dataToSave) => {
-  // Configurar los datos para la solicitud a la API
-  const Data = {
-    rutEmpresa: dataToSave.rutEmpresa,
-    razonSocial: dataToSave.razonsocial,
-    direccion: dataToSave.direccion,
-    ciudad: dataToSave.ciudad,
-    region: dataToSave.region,
-    rubro: dataToSave.rubro,
-  };
-  // Realiza la solicitud a la API
-  try {
-    const response = await fetch(`${backendUrl}/empresa/crear`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(Data),
-    });
-
-    if (response.ok) {
-      alert('Empresa creada correctamente');
-    } else {
-      // Maneja el caso de credenciales incorrectas
-      alert('Error al recibir respuesta.');
-    }
-  } catch (error) {
-    // Maneja errores de red o de servidor
-    console.error('No funciono fetch:', error);
-    alert('Error.');
-  }
-};
 export const actualizarDatosUsuario = async (token, nuevosDatos) => {
-  console.log('nuevos datos',nuevosDatos);
   try {
     const response = await fetch(`${backendUrl}/usuario/update`, {
       method: 'PUT',
@@ -241,3 +208,75 @@ export const addSup = async (token, idSolicitud, correoSupervisor) => {
     alert('Se produjo un error al intentar de nuevo mas tarde');
   }
 };
+export const crearSolicitud = async (token,rutEmpresa, numeroPractica) => {
+  const datos = {
+    numeroPractica: numeroPractica,
+    rutEmpresa: rutEmpresa
+  };
+  try {
+    const response = await fetch(`${backendUrl}/solicitud/crear`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({token,datos}),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      alert('Solicitud creada con exito');
+      return data;
+    } else {
+      // Maneja el caso de credenciales incorrectas
+      alert('Error al crear solicitud');
+    }
+  } catch (error) {
+    // Maneja errores de red o de servidor
+    console.error('Error de request', error);
+    alert('Se produjo un error al intentar de nuevo mas tarde');
+  }
+}
+export const newEmpresaCreate= async (token,empresa,numeroPractica) => {
+  const estudiante={token:token,numeroPractica:numeroPractica}
+  try {
+    const response = await fetch(`${backendUrl}/solicitud/SolicitudyEmpresa`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({estudiante,empresa}),
+    });
+    if (response.ok) {
+      alert('Solicitud creada con exito');
+    } else {
+      // Maneja el caso de credenciales incorrectas
+      if(response.status===500){
+        alert('La empresa ya existe, por favor verifique que la empresa este en la lista de empresas verificadas');
+      }
+    }
+  } catch (error) {
+    // Maneja errores de red o de servidor
+    console.error('Error de request', error);
+    alert('Se produjo un error al intentar de nuevo mas tarde', error);
+  }
+}
+export const deleteSolicitud = async (data) => {
+  try {
+    const response = await fetch(`${backendUrl}/solicitud/eliminar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (response.ok) {
+      alert('Solicitud eliminada con exito');
+    } else {
+      // Maneja el caso de credenciales incorrectas
+      alert('Error al crear empresa');
+    }
+  } catch (error) {
+    // Maneja errores de red o de servidor
+    console.error('Error de request', error);
+    alert('Se produjo un error al intentar de nuevo mas tarde');
+  }
+}

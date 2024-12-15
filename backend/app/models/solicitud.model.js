@@ -38,7 +38,7 @@ module.exports = (sequelize, Sequelize) => {
             1. Solicitado
             2. Revisado
             3. Firmado
-            4. Formularios
+            4. Formularios//manufacturar carta de aceptacion junto a supervisor
             5. Coordinacion
             6. Iniciada
             7. Memoria

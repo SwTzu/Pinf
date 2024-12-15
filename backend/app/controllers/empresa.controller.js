@@ -39,7 +39,7 @@ const crearEmpresa = async (req,res) => {
     try{
 
         empresa = await db.empresa.findOne({where:{rutEmpresa:rutEmpresa}});
-
+        
         if (empresa){
             return res.status(409).json({                           // 409: Revisar codigo HTTP. Sharp 🤨 
                 message:"La empresa ya existe."

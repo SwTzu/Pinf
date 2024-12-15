@@ -8,6 +8,7 @@ import {
   Select,
   SelectItem,
   Divider,
+  CheckboxGroup,
 } from "@nextui-org/react";
 import styles from "@/styles/est.module.css";
 import TablaSolicitudes from "@/components/Tablas/EST/TablaSolicitudes";
@@ -18,8 +19,9 @@ import {
   All_EMP,
 } from "@/api/est/solicitudes";
 import CardMisDatos from "@/components/Cards/CardMisDatos"; // Importa el nuevo componente
-import CardACP from "@/components/Cards/CardACP";
+import TablaAcp from "@/components/Tablas/ACP/TablaAcp";
 import { Home, User, Mail } from "lucide-react";
+import { crearSolicitud,newEmpresaCreate} from "@/api/est/solicitudes";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -35,16 +37,14 @@ type estudiante = {
 type empresa = {
   rutEmpresa: string;
   razonSocial: string;
-  correo: string;
-  telefono: string;
   direccion: string;
   region: string;
   ciudad: string;
   rubro: string;
 };
-
 export default function HomeEst() {
   const nuevaSolicitudRef = useRef<HTMLDivElement>(null);
+  const tablaRef = useRef<{ reload: () => void }>(null);
   const resumenRef = useRef<HTMLDivElement>(null);
   const misDatosRef = useRef<HTMLDivElement>(null);
   const ac = useRef<HTMLDivElement>(null);
@@ -54,7 +54,11 @@ export default function HomeEst() {
   const [a_ac, setA_ac] = useState(false);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const userType =
+    typeof window !== "undefined" ? localStorage.getItem("userType") || "" : "";
   const [new_empresa, setNew_empresa] = useState(true);
+  const [new_empresa_data, setNew_empresa_data] = useState<empresa>({ rutEmpresa: "", razonSocial: "", direccion: "", region: "", ciudad: "", rubro: ""});
+  const [numeroPractica, setNumeroPractica] = useState(1);
   const [datos_est, setDatos_est] = useState<estudiante>({
     rut: "",
     nombre1: "",
@@ -96,7 +100,27 @@ export default function HomeEst() {
     setValue(e.target.value);
     setEmp_selected(datos_emp.find((emp) => emp.rutEmpresa === e.target.value));
   };
-
+  const NewRequest = () => {
+    if(new_empresa){
+      if(new_empresa_data.rutEmpresa===""||new_empresa_data.razonSocial===""||new_empresa_data.direccion===""||new_empresa_data.region===""||new_empresa_data.ciudad===""||new_empresa_data.rubro===""){
+        alert("Complete todos los campos");
+      }
+      else{
+        newEmpresaCreate(Token,new_empresa_data,numeroPractica).then(() => {
+          tablaRef.current?.reload();
+        });
+      }
+    }else{
+      if (emp_selected) {
+      crearSolicitud(Token, emp_selected.rutEmpresa, numeroPractica).then(() => {
+        tablaRef.current?.reload();
+      });
+        }
+      else{
+        alert("Seleccione una empresa");
+      }
+    }
+  }
   return (
     <div className={styles.body}>
       <div className={styles.navbar}>
@@ -139,7 +163,7 @@ export default function HomeEst() {
             Vista general de solicitudes realizadas
           </h2>
           <div className={styles.divtable}>
-            <TablaSolicitudes token={Token} />
+            <TablaSolicitudes token={Token} ref={tablaRef}/>
           </div>
         </Card>
         <div className="grid gap-6 md:grid-cols-2">
@@ -166,7 +190,14 @@ export default function HomeEst() {
                 }}
                 value={new_empresa.toString()}
                 isSelected={new_empresa}
-                onValueChange={setNew_empresa}
+                onValueChange={(e) => {
+                  setNew_empresa(e);
+                  if (e) {
+                    setEmp_selected(undefined); // Limpia la empresa seleccionada
+                    setValue(""); // Limpia el valor del select
+                    setNew_empresa_data({ rutEmpresa: "", razonSocial: "", direccion: "", region: "", ciudad: "", rubro: "" }); // Limpia los inputs
+                  }
+                }}
               >
                 Nueva empresa
               </Checkbox>
@@ -199,45 +230,91 @@ export default function HomeEst() {
                   placeholder="Rut empresa"
                   isDisabled={!new_empresa}
                   value={emp_selected?.rutEmpresa}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      rutEmpresa: e.target.value,
+                    })
+                  }
                 />
-                <Input
-                  variant="faded"
-                  placeholder="numero de practica"
-                  isRequired
-                  color={!new_empresa ? "primary" : "default"}
-                />
+                
                 <Input
                   variant="faded"
                   placeholder="Razon social"
                   isDisabled={!new_empresa}
                   value={emp_selected?.razonSocial}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      razonSocial: e.target.value,
+                    })
+                  }
                 />
                 <Input
                   variant="faded"
                   placeholder="Region"
                   isDisabled={!new_empresa}
                   value={emp_selected?.region}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      region: e.target.value,
+                    })
+                  }
                 />
                 <Input
                   variant="faded"
                   placeholder="Direccion"
                   isDisabled={!new_empresa}
                   value={emp_selected?.direccion}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      direccion: e.target.value,
+                    })
+                  }
                 />
                 <Input
                   variant="faded"
                   placeholder="Ciudad"
                   isDisabled={!new_empresa}
                   value={emp_selected?.ciudad}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      ciudad: e.target.value,
+                    })
+                  }
                 />
                 <Input
                   variant="faded"
                   placeholder="Rubro"
                   isDisabled={!new_empresa}
                   value={emp_selected?.rubro}
+                  onChange={(e) =>
+                    setNew_empresa_data({
+                      ...new_empresa_data,
+                      rubro: e.target.value,
+                    })
+                  }
                 />
+                <>
+                  <CheckboxGroup
+                  label="Numero de practica"
+                  orientation="horizontal"
+                  className="pl-[1rem]"
+                  value={[numeroPractica.toString()]}
+                  >
+                  <Checkbox value="1" onChange={()=>setNumeroPractica(1)}>
+                    I
+                  </Checkbox>
+                  <Checkbox value="2" onChange={()=>setNumeroPractica(2)}>
+                    II
+                  </Checkbox>
+                  </CheckboxGroup>
+                </>
               </div>
-              <Button color="primary">Enviar solicitud</Button>
+              <Button color="primary" onClick={()=>NewRequest()}>Enviar solicitud</Button>
             </div>
           </Card>
           <div ref={misDatosRef} className={`${styles.box} ${a_misDatos ? styles.active : ""}`}>
@@ -251,7 +328,15 @@ export default function HomeEst() {
           </div>
         </div>
         <div ref={ac} className={`${styles.box} ${a_ac ? styles.active : ""}`}>
-        <CardACP/>
+        <Card className="mb-6 mt-[1rem]">
+        <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+          Cartas de aceptacion
+        </h1>
+        <h2 className="text-1xl text-gray-400 pl-[2rem]">
+          Vista general para cartas de aceptacion
+        </h2>
+        <TablaAcp token={Token} />
+      </Card>
         </div>
       </div>
     </div>

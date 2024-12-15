@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const { loginSupervisor, crearSupervisor, updateSupervisor,buscarSupervisor } = require('../controllers/supervisor.controller.js');
+const { loginSupervisor, crearSupervisor, updateSupervisor,buscarSupervisor ,AllSolicitudes} = require('../controllers/supervisor.controller.js');
 
 //Ruta de prueba
 router.get("/",(req,res)=>{
@@ -11,5 +11,6 @@ router.post("/crear",crearSupervisor); // {correo, rutEmpresa, nombre, password,
 router.post("/login",loginSupervisor); // {correoSupervisor, password}
 router.put("/update",updateSupervisor); // {rutEmpresa, nombre, password, telefono, cargoAdministrativo, titulocargo}
 router.post("/buscar",buscarSupervisor); // {correoSupervisor}
+router.post("/AllSolicitudes",AllSolicitudes); // {token}
 
 module.exports = router;

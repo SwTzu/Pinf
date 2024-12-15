@@ -1,96 +1,49 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Button, Image } from "@nextui-org/react";
-import styles from "../../styles/styleop.module.css";
-import NextLink from "next/link";
-import { AllSoli } from "../../api/sup/solicitudes";
-import TAB from "../../components/Tablas/TabSUP/fulltab";
-export default function Sup() {
-  const [data, setData] = useState([]);
+import React, { useState, useRef } from "react";
+import { Card, user } from "@nextui-org/react";
+import styles from "@/styles/est.module.css";
+import { Home, User } from "lucide-react";
+import TablaSuppAcp from "@/components/Tablas/ACP/TablaSuppACP";
+export default function HomeSupp() {
   const Token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const rawData = await AllSoli(Token);
-        const transformedData = rawData.map((item) => ({
-          idSolicitud: item.idSolicitud,
-          rut: item.rut,
-          rutEmpresa: item.rutEmpresa,
-          fechaSolicitud: item.fechaSolicitud,
-          numeroPractica: item.numeroPractica,
-        }));
-        setData(transformedData);
-      } catch (error) {
-        console.error("Error al obtener datos del usuario:", error);
-      }
-    };
-    fetchData();
-    const intervalId = setInterval(fetchData, 5 * 60 * 1000);
-    return () => clearInterval(intervalId);
-  }, []);
-  const statusOptions = [
-    { name: "Presentacion", uid: "1" },
-    { name: "Aceptacion", uid: "2" },
-  ];
-  const columns = [
-    { name: "RUT Estudiante", uid: "rut", sortable: true },
-    { name: "Fecha", uid: "fechaSolicitud", sortable: true },
-    { name: "Estado", uid: "fase", sortable: false },
-    { name: "Acciones", uid: "acciones", sortable: false },
-  ];
-  const INITIAL_VISIBLE_COLUMNS = ["rut", "fechaSolicitud", "fase", "acciones"];
-  const statusColorMap = {
-    active: "success",
-    paused: "danger",
-    vacation: "warning",
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const resumenRef = useRef<HTMLDivElement>(null);
+  const [a_resumen, setA_resumen] = useState(false);
+  const redireccion = (
+    ref: React.RefObject<HTMLDivElement>,
+    funcion: (arg: boolean) => void
+  ) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+    funcion(true);
+    setTimeout(() => {
+      funcion(false);
+    }, 2000);
   };
   return (
-    <div className={styles.AdminDiv}>
-      <div className={styles.boxp10}>
-        <NextLink href="https://informatica.uv.cl/">
-          <Image
-            radius="none"
-            src="../UV.svg"
-            alt="Descripción del SVG"
-            width={"100%"}
-            height={"50%"}
-          />
-          <Image
-            radius="none"
-            src="../Logo_Practica_Blanco.svg"
-            alt="Descripción del SVG"
-            width={"100%"}
-            height={"50%"}
-          />
-        </NextLink>
-        <div className={styles.boxc11}>Icono Plataforma</div>
-        <div className={styles.boxe12}>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>boton1</Button>
-          <Button className={styles.botones}>Logout</Button>
-        </div>
+    <div className={styles.body}>
+      <div className={styles.navbar}>
+        <a
+          className={`${styles.btn_nav}`}
+          onClick={() => redireccion(resumenRef, setA_resumen)}
+        >
+          <Home className="w-5 h-5 mr-2" />
+          Inicio
+        </a>
+        <a className={styles.btn_nav}>
+          <User className="w-5 h-5 mr-2" />
+          Cerrar Sesión
+        </a>
       </div>
-      <div className={styles.boxp20}>
-        <div className={styles.boxp21}>ICONOUSER</div>
-        <div className={styles.boxp22}>
-          <div className={styles.boxp220}>Titulos1</div>
-          <div className={styles.boxp221}>
-            <div className={styles.boxp2210}>
-              <p>Search</p>
-              <p>Boton</p>
-            </div>
-            <div className={styles.boxp2211}>
-              <TAB
-                columns={columns}
-                statusOptions={statusOptions}
-                INITIAL_VISIBLE_COLUMNS={INITIAL_VISIBLE_COLUMNS}
-                FuncionDatos={AllSoli}
-              />
-            </div>
-          </div>
-        </div>
+      <div className={styles.EstDiv}>
+        <Card className="mb-6 mt-[1rem]">
+          <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+            Cartas de aceptacion
+          </h1>
+          <h2 className="text-1xl text-gray-400 pl-[2rem]">
+            Vista general para cartas de aceptacion
+          </h2>
+          <TablaSuppAcp token={Token} />
+        </Card>
       </div>
     </div>
   );

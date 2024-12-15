@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
         nombre: {
             type: Sequelize.STRING(50),
             allowNull: false,
-            unique: true // Para evitar áreas duplicadas
+            // unique: true // Para evitar áreas duplicadas
         }
     }, {
         tableName: 'areas',

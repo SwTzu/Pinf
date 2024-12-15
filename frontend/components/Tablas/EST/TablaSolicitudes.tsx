@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback,useImperativeHandle, forwardRef} from "react";
 import {
   Table,
   TableHeader,
@@ -16,8 +16,8 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Trash2, Eye, Pencil, EllipsisVertical, Search, ChevronDown } from "lucide-react";
-
+import { Trash2, FileText, EllipsisVertical, Search, ChevronDown } from "lucide-react";
+import { deleteSolicitud, PDF} from "@/api/est/solicitudes";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -36,7 +36,7 @@ interface Solicitud {
   updatedAt: string;
 }
 
-export default function TablaSolicitudes({ token }: { token: string }) {
+const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
   const [statusFilter, setStatusFilter] = useState("all"); // Filtro de fase
@@ -59,7 +59,9 @@ export default function TablaSolicitudes({ token }: { token: string }) {
       };
     },
   });
-
+  useImperativeHandle(ref, () => ({
+    reload: list.reload,
+  }));
   const filteredItems = useMemo(() => {
     let filtered = list.items;
 
@@ -79,6 +81,13 @@ export default function TablaSolicitudes({ token }: { token: string }) {
     return filtered;
   }, [list.items, filterValue, statusFilter]);
 
+  const Delete = async (idSolicitud:any) => {
+    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar esta solicitud?');
+  if (confirmDelete) {
+    await deleteSolicitud({ idSolicitud: idSolicitud, token: token });
+  }
+  list.reload();
+  }
   const renderActions = (item: Solicitud) => {
     return (
       <div className="relative flex justify-center items-center">
@@ -88,10 +97,9 @@ export default function TablaSolicitudes({ token }: { token: string }) {
               <EllipsisVertical />
             </Button>
           </DropdownTrigger>
-          <DropdownMenu style={{ width: "100%", textAlign: "center" }}>
-            <DropdownItem startContent={<Eye />}>View</DropdownItem>
-            <DropdownItem startContent={<Pencil />}>Edit</DropdownItem>
-            <DropdownItem startContent={<Trash2 />} color="danger">
+          <DropdownMenu style={{ width: "100%", textAlign: "center" }} disabledKeys={item.fase < 3 || item.fase>5||item.fase==0 ? ['PDF', 'Carta'] : []}>
+            <DropdownItem key={'PDF'} startContent={<FileText />} onClick={()=>{PDF(token,item.rutEmpresa,item.numeroPractica)}}>PDF</DropdownItem>
+            <DropdownItem key={'Delete'} startContent={<Trash2 />} color="danger" onClick={() => {Delete(item.idSolicitud);}}>
               Delete
             </DropdownItem>
           </DropdownMenu>
@@ -259,4 +267,5 @@ export default function TablaSolicitudes({ token }: { token: string }) {
       </Table>
     </>
   );
-}
+});
+export default TablaSolicitudes;

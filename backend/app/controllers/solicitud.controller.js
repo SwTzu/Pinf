@@ -76,10 +76,7 @@ const supXest = async (req, res) => {
 const crearSolicitud = async (req, res) => {
   const { token, datos } = req.body;
   const { rut } = jwt.verify(token, key);
-  console.log('datos de practica', datos);
-
   const numeroPractica = datos.numeroPractica;
-
   const solicitudCalificada = await db.solicitud.findOne({
     where: { rut, fase: 9, numeroPractica }, // En entero, la fase calificada es 5
   });
@@ -93,6 +90,11 @@ const crearSolicitud = async (req, res) => {
       numeroPractica: numeroPractica - 1,
     }, // Revisar
   });
+  const solicitudMismaempresa = await db.solicitud.findOne({
+    where: {
+      rut,
+      rutEmpresa: datos.rutEmpresa}
+  });
 
   if (solicitudCalificada) {
     return res.status(409).json({
@@ -105,6 +107,10 @@ const crearSolicitud = async (req, res) => {
   } else if (solicitudPracticaAnteriorNoTerminada) {
     return res.status(409).json({
       message: 'Aun no se termina la práctica profesional anterior',
+    });
+  } else if (solicitudMismaempresa) {
+    return res.status(409).json({
+      message: 'Ya se ha solicitado una práctica profesional en esta empresa',
     });
   }
 
@@ -499,8 +505,8 @@ const agregarSup = async (req, res) => {
       from: MAIL_USER,
       to: correoSupervisor,
       subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
-      text: `Se te ha creado un perfil en el sistema de practica profesional de la Universidad de de valparaiso, 
-      su nombre de usuario es su correo de contacto (${correoSupervisor})  y su contraseña es ${pass}`,
+      text: `Se te ha creado un perfil en el sistema de practica profesional de la Universidad de valparaiso, 
+      su nombre de usuario es su correo de contacto (${correoSupervisor}) y su contraseña es ${pass}`,
     };
 
     transporter.sendMail(mailOptions);
