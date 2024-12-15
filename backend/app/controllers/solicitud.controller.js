@@ -50,7 +50,7 @@ const todasPracticas = async (req, res) => {
       });
     }
 
-    const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gte]: 6 } } });
+    const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gte]: 5 } } });
 
     const solicitudesWithDetails = await Promise.all(
       solicitudes.map(async (solicitud) => {
