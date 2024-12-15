@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const Op = db.Sequelize.Op;
 const TOKEN = require('../helpers/token.helpers.js');
+const { where } = require('sequelize');
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -33,6 +34,50 @@ const buscarFase = async (req, res) => {
       err,
     });
   }
+};
+
+const todasPracticas = async (req, res) => {
+
+  try{
+
+    token = req.body.token;
+
+    const coordinador = await jwt.verify(token, key);
+
+    if (coordinador.tipoUsuario !== 2) {
+      return res.status(401).json({
+        message: 'No tienes permisos para ver las practicas',
+      });
+    }
+
+    const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gte]: 6 } } });
+
+    const solicitudesWithDetails = await Promise.all(
+      solicitudes.map(async (solicitud) => {
+        const usuario = await db.usuario.findOne({ where: { rut: solicitud.rut } });
+        const carta = await db.carta.findOne({ where: { idSolicitud: solicitud.idSolicitud } });
+        return {
+          solicitud,
+          usuario,
+          carta,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      message: 'Solicitudes encontradas exitosamente',
+      solicitudes: solicitudesWithDetails,
+    });
+
+  }catch{
+
+    return res.status(500).json({
+      message: 'Error interno del servidor',
+      err,
+    });
+
+  };
+
 };
 
 // Al reves 🔃
@@ -630,4 +675,5 @@ module.exports = {
   buscarFase,
   mostrarNotasCoo,
   modificarNotasCoo,
+  todasPracticas
 };

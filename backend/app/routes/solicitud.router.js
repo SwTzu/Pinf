@@ -20,7 +20,8 @@ const {
   agregarSup,
   buscarFase,
   mostrarNotasCoo,
-  modificarNotasCoo
+  modificarNotasCoo,
+  todasPracticas
 } = require('../controllers/solicitud.controller.js');
 const { response } = require('express');
 
@@ -45,6 +46,7 @@ router.post('/eliminar', eliminarSolicitud); // {idSolicitud}
 router.get('/fechaauto', fechaauto);
 router.post('/addSup', agregarSup); // { token, idSolicitud, correoSupervisor }
 router.post('/searchFase',buscarFase); // {fase}
+router.get('/todasPracticas', todasPracticas);
 
 // Rutas de Notas de Coordinador
 router.get('/notasCoo', mostrarNotasCoo);
