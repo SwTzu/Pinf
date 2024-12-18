@@ -151,7 +151,7 @@ export default function HomeEst() {
       <div className={styles.EstDiv}>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Mis Solicitudes</h1>
-          <Button color="secondary" onClick={()=>redireccion(nuevaSolicitudRef,setIsActive)}>
+          <Button color="secondary" onPress={()=>redireccion(nuevaSolicitudRef,setIsActive)}>
             Nueva solicitud
           </Button>
         </div>
@@ -314,7 +314,7 @@ export default function HomeEst() {
                   </CheckboxGroup>
                 </>
               </div>
-              <Button color="primary" onClick={()=>NewRequest()}>Enviar solicitud</Button>
+              <Button color="primary" onPress={()=>NewRequest()}>Enviar solicitud</Button>
             </div>
           </Card>
           <div ref={misDatosRef} className={`${styles.box} ${a_misDatos ? styles.active : ""}`}>

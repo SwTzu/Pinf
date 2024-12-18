@@ -30,12 +30,11 @@ export const funcionlogin = async (rut, password,userType,isValid,setIsLoading,r
   } catch (error) {
     // Maneja errores de red o de servidor
     console.error("Error al iniciar sesión:", error);
+    setIsLoading(false);
     alert(
       "Se produjo un error al intentar iniciar sesión. Por favor, inténtalo más tarde."
     );
-  } finally {
-    setIsLoading(false);
-  }
+  } 
 };
 export const funcionloginSup = async (rut, password,userType,isValid,setIsLoading,router) => {
   const userData = {
@@ -63,10 +62,9 @@ try {
 } catch (error) {
   // Maneja errores de red o de servidor
   console.error("Error al iniciar sesión:", error);
+  setIsLoading(false);
   alert(
     "Se produjo un error al intentar iniciar sesión. Por favor, inténtalo más tarde."
   );
-} finally {
-  setIsLoading(false);
 }
 };

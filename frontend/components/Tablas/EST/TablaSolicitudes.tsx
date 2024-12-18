@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback,useImperativeHandle, forwardRef} from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import {
   Table,
   TableHeader,
@@ -16,8 +22,14 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Trash2, FileText, EllipsisVertical, Search, ChevronDown } from "lucide-react";
-import { deleteSolicitud, PDF} from "@/api/est/solicitudes";
+import {
+  Trash2,
+  FileText,
+  EllipsisVertical,
+  Search,
+  ChevronDown,
+} from "lucide-react";
+import { deleteSolicitud, PDF } from "@/api/est/solicitudes";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -37,10 +49,11 @@ interface Solicitud {
 }
 
 const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
+  TablaSolicitudes.displayName = "TablaSolicitudes";
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
   const [statusFilter, setStatusFilter] = useState("all"); // Filtro de fase
-
+  
   let list = useAsyncList<Solicitud>({
     async load({ signal }) {
       let res = await fetch(`${backendUrl}/solicitud/listaSolicitudes`, {
@@ -75,19 +88,23 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((item) => item.fase === parseInt(statusFilter));
+      filtered = filtered.filter(
+        (item) => item.fase === parseInt(statusFilter)
+      );
     }
 
     return filtered;
   }, [list.items, filterValue, statusFilter]);
 
-  const Delete = async (idSolicitud:any) => {
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar esta solicitud?');
-  if (confirmDelete) {
-    await deleteSolicitud({ idSolicitud: idSolicitud, token: token });
-  }
-  list.reload();
-  }
+  const Delete = async (idSolicitud: any) => {
+    const confirmDelete = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta solicitud?"
+    );
+    if (confirmDelete) {
+      await deleteSolicitud({ idSolicitud: idSolicitud, token: token });
+    }
+    list.reload();
+  };
   const renderActions = (item: Solicitud) => {
     return (
       <div className="relative flex justify-center items-center">
@@ -97,9 +114,31 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
               <EllipsisVertical />
             </Button>
           </DropdownTrigger>
-          <DropdownMenu style={{ width: "100%", textAlign: "center" }} disabledKeys={item.fase < 3 || item.fase>5||item.fase==0 ? ['PDF', 'Carta'] : []}>
-            <DropdownItem key={'PDF'} startContent={<FileText />} onClick={()=>{PDF(token,item.rutEmpresa,item.numeroPractica)}}>PDF</DropdownItem>
-            <DropdownItem key={'Delete'} startContent={<Trash2 />} color="danger" onClick={() => {Delete(item.idSolicitud);}}>
+          <DropdownMenu
+            style={{ width: "100%", textAlign: "center" }}
+            disabledKeys={
+              item.fase < 3 || item.fase > 5 || item.fase == 0
+                ? ["PDF", "Carta"]
+                : []
+            }
+          >
+            <DropdownItem
+              key={"PDF"}
+              startContent={<FileText />}
+              onPress={() => {
+                PDF(token, item.rutEmpresa, item.numeroPractica);
+              }}
+            >
+              PDF
+            </DropdownItem>
+            <DropdownItem
+              key={"Delete"}
+              startContent={<Trash2 />}
+              color="danger"
+              onPress={() => {
+                Delete(item.idSolicitud);
+              }}
+            >
               Delete
             </DropdownItem>
           </DropdownMenu>
@@ -144,7 +183,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
             <DropdownItem key="4">Formularios</DropdownItem>
             <DropdownItem key="5">Coordinacion</DropdownItem>
             <DropdownItem key="6">Iniciada</DropdownItem>
-            <DropdownItem key="7">Memoria</DropdownItem>
+            <DropdownItem key="7">Memoria/Informe</DropdownItem>
             <DropdownItem key="8">Revision evaluacion</DropdownItem>
             <DropdownItem key="9">Finalizado</DropdownItem>
           </DropdownMenu>
@@ -153,9 +192,10 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
       <Table
         aria-label="Tabla de solicitudes con búsqueda y filtro"
         classNames={{
-          table: "min-h-[400px] max-h-[93.5vh]",
+          table: "max-h-[93.5vh]",
           wrapper: "bg-[transparent]",
           th: "bg-[#656565] text-white font-bold  text-md",
+          td: "text-center text-md",
         }}
         shadow="none"
         isStriped
@@ -222,6 +262,13 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
           items={filteredItems}
           isLoading={isLoading}
           loadingContent={<Spinner label="Cargando solicitudes..." />}
+          emptyContent={
+            <div className="text-center p-4">
+              <p className="text-gray-500 font-bold">
+                No hay solicitudes disponibles para mostrar.
+              </p>
+            </div>
+          }
         >
           {(item: Solicitud) => (
             <TableRow key={item.idSolicitud}>
@@ -251,7 +298,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                   : item.fase === 6
                   ? "Iniciada"
                   : item.fase === 7
-                  ? "Memoria"
+                  ? "Memoria/Informe"
                   : item.fase === 8
                   ? "Revision evaluacion"
                   : item.fase === 9

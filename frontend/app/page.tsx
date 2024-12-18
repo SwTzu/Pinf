@@ -48,7 +48,7 @@ export default function Home() {
             alt="Administrador"
             src="/Administracion.svg"
           />
-          <p className={styles.Texthome}>Administracion</p>
+          <p className={styles.Texthome}>Administración</p>
         </NextLink>
         <NextLink onClick={()=>{
           const userType='boss';

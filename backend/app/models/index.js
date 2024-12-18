@@ -53,4 +53,10 @@ db.carta.belongsTo(db.supervisor,{foreignKey:'correoSupervisor'});
 db.solicitud.hasMany(db.informe,{foreignKey:'idSolicitud'});
 db.informe.belongsTo(db.solicitud,{foreignKey:'idSolicitud'});
 
+db.carta.hasOne(db.memoria,{foreignKey:'idmemoria'});
+db.memoria.belongsTo(db.carta,{foreignKey:'idmemoria'});
+
+db.carta.hasOne(db.informe,{foreignKey:'idInforme'});
+db.informe.belongsTo(db.carta,{foreignKey:'idInforme'});
+
 module.exports = db;

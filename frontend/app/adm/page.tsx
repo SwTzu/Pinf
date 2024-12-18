@@ -48,38 +48,6 @@ export default function HomeAdm() {
             <TablaAdm/>
           </div>
         </Card>
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <div className="grid grid-row-2">
-              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-                Nueva solicitud
-              </h1>
-              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
-                Ingrese los datos para generar una nueva solicitud
-              </h2>
-            </div>
-          </Card>
-          <Card>
-            <div className="grid grid-row-2">
-              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-                Nueva solicitud
-              </h1>
-              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
-                Ingrese los datos para generar una nueva solicitud
-              </h2>
-            </div>
-          </Card>
-          <Card>
-            <div className="grid grid-row-2">
-              <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-                Nueva solicitud
-              </h1>
-              <h2 className="text-1xl text-gray-400 pl-[2rem] mb-[0.8rem]">
-                Ingrese los datos para generar una nueva solicitud
-              </h2>
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );

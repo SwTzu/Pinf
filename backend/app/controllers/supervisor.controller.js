@@ -33,18 +33,39 @@ const loginSupervisor = async (req,res,next) => {
 	};
 
 };
-
-const AllSolicitudes = async (req,res,next) => {
+const AllSolicitudes = async (req, res, next) => {
 	try {
-		const {token} = req.body;
+		const { token } = req.body;
 		const decoded = jwt.verify(token, key);
-		const solicitudes = await db.solicitud.findAll({where:{correoSupervisor:decoded.correoSupervisor}});
+		const solicitudes = await db.solicitud.findAll({
+			where: {
+				correoSupervisor: decoded.correoSupervisor,
+				fase: {
+					[db.Sequelize.Op.gt]: 3
+				}
+			},
+			attributes: {
+				include: [
+					[
+						db.Sequelize.fn('CONCAT', db.Sequelize.col('usuario.nombre1'), ' ', db.Sequelize.col('usuario.apellido1')),
+						'nombre'
+					]
+				]
+			},
+			include: [
+				{
+					model: db.usuario,
+					attributes: [], // Excluye todos los atributos del objeto usuario
+				}
+			],
+			raw: true // Retorna los resultados planos sin estructuras adicionales
+		});
+
 		res.status(200).json(solicitudes);
 	} catch (error) {
-		
-		res.status(500).json({ message: "Error interno del servidor.", error: error});
+		res.status(500).json({ message: "Error interno del servidor.", error: error });
 	}
-}
+};
 
 const crearSupervisor = async (req,res,next) => {
 	

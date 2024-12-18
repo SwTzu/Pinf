@@ -10,7 +10,7 @@ module.exports = (sequelize, Sequelize) =>{
       allowNull: true,
     },
     documento: {
-      type: Sequelize.BLOB,
+      type: Sequelize.STRING(100),
       allowNull: true
     },
     fechaEnvio: {

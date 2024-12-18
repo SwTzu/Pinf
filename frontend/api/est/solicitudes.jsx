@@ -280,3 +280,45 @@ export const deleteSolicitud = async (data) => {
     alert('Se produjo un error al intentar de nuevo mas tarde');
   }
 }
+export const obtenerCarta = async (idSolicitud) => {
+  try {
+    const response = await fetch(`${backendUrl}/carta/obtener`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idSolicitud }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Error al obtener la carta');
+    }
+  } catch (error) {
+    console.error('Error en la solicitud al servidor:', error);
+    throw error;
+  }
+}
+export const aceptarCarta = async (idSolicitud) => {
+  try {
+    const response = await fetch(`${backendUrl}/solicitud/check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({  idSolicitud}),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Error al aceptar la carta');
+    }
+  } catch (error) {
+    console.error('Error en la solicitud al servidor:', error);
+    throw error;
+  }
+}

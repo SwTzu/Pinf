@@ -19,16 +19,29 @@ import {
   Card,
   Checkbox,
   DateRangePicker,
+  Button,
+  Chip,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { HelpCircle, Search, CircleHelp } from "lucide-react";
+import {
+  HelpCircle,
+  Search,
+  CircleHelp,
+  CircleAlert,
+  ContactRound,
+  BadgeCheck,
+} from "lucide-react";
 import styles from "@/styles/est.module.css";
 import TaskForm from "./TaskForm";
-import {crearCarta} from "@/api/supp/solicitudes";
+import { crearCarta } from "@/api/supp/solicitudes";
+import DrawerInforme from "./DrawerInforme";
+import toast, { Toaster } from "react-hot-toast";
+import { number } from "echarts";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
+  nombre: string;
   rutEmpresa: string;
   fechaSolicitud: string;
   extension: string | null;
@@ -37,7 +50,9 @@ interface Solicitud {
   fase: number;
   calificacion: number | null;
   correoSupervisor: string;
-  notasCOO: string | null;
+  supervisorCheck: boolean;
+  alumnoCheck: boolean;
+  informe: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -64,11 +79,13 @@ export default function TablaSuppAcp({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
   const [showCardFormulario, setShowCardFormulario] = useState(false); // Para controlar la visibilidad de la card
+  const [showDrawerInforme, setShowDrawerInforme] = useState(false); // Para controlar la visibilidad del drawer
   const cardFormularioRef = useRef<HTMLDivElement>(null); // Crear una referencia para el formulario
   const [isActive, setIsActive] = useState(false);
   const [carta, setCarta] = useState<carta | null>(null);
   const [value, setValue] = useState<{ start: any; end: any } | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectSolicitud, setSelectSolicitud] = useState<number>(0);
   const redireccion = () => {
     cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
     setIsActive(true);
@@ -91,14 +108,11 @@ export default function TablaSuppAcp({ token }: { token: string }) {
         if (!res.ok) {
           throw new Error("Failed to fetch data");
         }
-
         const json = await res.json();
-
         if (!Array.isArray(json)) {
           console.error("Unexpected API response", json);
           throw new Error("Invalid data format");
         }
-
         setIsLoading(false);
         return { items: json };
       } catch (error) {
@@ -119,27 +133,71 @@ export default function TablaSuppAcp({ token }: { token: string }) {
           item.rutEmpresa.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-
-    // Filtrar por fase entre 3 y 5
-    filtered = filtered.filter((item) => item.fase >= 3 && item.fase <= 5);
+    filtered = filtered.filter((item) => item.fase >= 3);
 
     return filtered;
   }, [list.items, filterValue]);
   const handleRowClick = (item: Solicitud) => {
-    setCarta({
-      idSolicitud: item.idSolicitud,
-      correoSupervisor: item.correoSupervisor,
-      tareas: "",
-      fechaInicio: "",
-      fechaTermino: "",
-      supervisorCheck: false,
-      alumnoCheck: false,
-    });
-    setShowCardFormulario(true);
-    redireccion();
-    setTimeout(() => {
-      cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    setSelectSolicitud(item.idSolicitud);
+    if (item.fase === 4 && !item.supervisorCheck && !item.alumnoCheck) {
+      setCarta({
+        idSolicitud: item.idSolicitud,
+        correoSupervisor: item.correoSupervisor,
+        tareas: [],
+        fechaInicio: "",
+        fechaTermino: "",
+        supervisorCheck: false,
+        alumnoCheck: false,
+      });
+      setShowCardFormulario(true);
+      redireccion();
+      setTimeout(() => {
+        cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else if (item.fase === 4 && item.supervisorCheck && !item.alumnoCheck) {
+      toast.success(<h2>A la espera de la firma del alumno.</h2>, {
+        position: "top-right",
+      });
+      setShowCardFormulario(false);
+    } else if (item.fase === 5) {
+      toast.success(
+        <h1>
+          Carta de aceptación fue firmada por el alumno. A la espera de la
+          revision del coordinador
+        </h1>,
+        { position: "top-right" }
+      );
+      setShowCardFormulario(false);
+    } else if (item.fase === 6) {
+      toast.success(<h1>Practica en curso</h1>, { position: "top-right" });
+      setShowCardFormulario(false);
+    } else if (item.fase === 7 && !item.informe) {
+      setShowCardFormulario(false);
+      setShowDrawerInforme(true);
+    } else if (item.fase === 7 && item.informe) {
+      toast.success(
+        <h1>
+          Informe de practica enviado, a la espera de la revision del
+          coordinador
+        </h1>,
+        { position: "top-right" }
+      );
+      setShowCardFormulario(false);
+    } else if (item.fase === 8) {
+      toast.success(
+        <h1>Informe finalizado, a la espera de la revision del coordinador</h1>,
+        { position: "top-right" }
+      );
+      setShowCardFormulario(false);
+    } else if (item.fase === 9) {
+      toast.success(<h1>Practica finalizada</h1>, { position: "top-right" });
+      setShowCardFormulario(false);
+    } else {
+      toast.error(<h1>La carta de aceptación no se encuentra disponible</h1>, {
+        position: "top-right",
+      });
+      setShowCardFormulario(false);
+    }
   };
 
   const onSearchChange = useCallback((value: string) => {
@@ -154,43 +212,72 @@ export default function TablaSuppAcp({ token }: { token: string }) {
     );
   }
   const handleSubmitForum = () => {
-    if (value&&tasks.length>0) {
-      const startDate = new Date(value.start);
-      const endDate = new Date(value.end);
+    if (value && tasks.length > 0) {
+      if (confirm("¿Está seguro de que desea guardar los datos?")) {
+        const startDate = new Date(value.start);
+        const endDate = new Date(value.end);
 
-      // Sumar 1 día a cada fecha
-      startDate.setDate(startDate.getDate() + 1);
-      endDate.setDate(endDate.getDate() + 1);
+        // Sumar 1 día a cada fecha
+        startDate.setDate(startDate.getDate() + 1);
+        endDate.setDate(endDate.getDate() + 1);
 
-      const dateFormatter = new Intl.DateTimeFormat("es-ES", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
+        const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
 
-      setCarta((prevCarta) => {
-        if (!prevCarta) return null;
-        const updatedCarta = {
-          ...prevCarta,
+        setCarta((prevCarta) => {
+          if (!prevCarta) return null;
+          return {
+            ...prevCarta,
+            fechaInicio: dateFormatter.format(startDate),
+            fechaTermino: dateFormatter.format(endDate),
+            tareas: tasks,
+            supervisorCheck: true,
+          };
+        });
+        setTimeout(() => {
+          setShowCardFormulario(false);
+        }, 0);
+
+        crearCarta({
+          ...carta!,
           fechaInicio: dateFormatter.format(startDate),
           fechaTermino: dateFormatter.format(endDate),
           tareas: tasks,
           supervisorCheck: true,
-        };
+        });
         setTimeout(() => {
-          crearCarta(updatedCarta);
-        }, 0);
-        return updatedCarta;
-
+          list.reload();
+        }, 1000);
+        setValue(null);
+        setTasks([]);
+        setCarta(null);
       }
-    );
-    }
-    else{
+    } else {
       alert("Debe completar todos los campos del formulario");
     }
-  }
+  };
   return (
     <div id="tabla" className="w-full p-4">
+      {showDrawerInforme && (
+        <DrawerInforme
+          useDisclosure={() => ({
+            isOpen: showDrawerInforme,
+            onClose: () => {
+              setShowDrawerInforme(false);
+              list.reload();
+              toast.success("Informe enviado correctamente", {
+                position: "top-right",
+              });
+            },
+            onOpenChange: (isOpen) => setShowDrawerInforme(isOpen),
+            selectSolicitud,
+          })}
+        />
+      )}
+      <Toaster />
       <div className="flex justify-between items-center">
         <Input
           id="filter-input"
@@ -211,6 +298,8 @@ export default function TablaSuppAcp({ token }: { token: string }) {
         }}
         shadow="none"
         isStriped
+        color="primary"
+        selectionMode="single"
       >
         <TableHeader>
           <TableColumn
@@ -222,6 +311,16 @@ export default function TablaSuppAcp({ token }: { token: string }) {
             key="idSolicitud"
           >
             ID SOLICITUD
+          </TableColumn>
+          <TableColumn
+            style={{
+              textAlign: "center",
+              borderRightWidth: "0.2rem",
+              borderColor: "white",
+            }}
+            key="nombre"
+          >
+            Nombre
           </TableColumn>
           <TableColumn
             style={{
@@ -273,10 +372,13 @@ export default function TablaSuppAcp({ token }: { token: string }) {
             <TableRow
               key={item.idSolicitud}
               onClick={() => handleRowClick(item)} // Hacer clic en la fila
-              style={{ cursor: "pointer" }} // Mostrar que la fila es clickeable
+              style={{ cursor: "pointer" }}
             >
               <TableCell style={{ textAlign: "center" }}>
                 {item.idSolicitud}
+              </TableCell>
+              <TableCell style={{ textAlign: "center" }}>
+                {item.nombre}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>{item.rut}</TableCell>
               <TableCell style={{ textAlign: "center" }}>
@@ -285,8 +387,82 @@ export default function TablaSuppAcp({ token }: { token: string }) {
               <TableCell style={{ textAlign: "center" }}>
                 {new Date(item.fechaSolicitud).toLocaleDateString()}
               </TableCell>
-              <TableCell style={{ textAlign: "center" }}>
-                {item.fase === 4 ? "Formularios" : "Coordinacion"}
+              <TableCell
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                {item.fase === 4 &&
+                !item.supervisorCheck &&
+                !item.alumnoCheck ? (
+                  <Chip
+                    startContent={<CircleAlert size={18} />}
+                    color="warning"
+                    variant="flat"
+                  >
+                    Requiere Formulario
+                  </Chip>
+                ) : item.fase === 4 &&
+                  item.supervisorCheck &&
+                  !item.alumnoCheck ? (
+                  <Chip
+                    startContent={<Spinner size="sm" color="secondary" />}
+                    color="secondary"
+                    variant="flat"
+                  >
+                    Pendiente firma del alumno
+                  </Chip>
+                ) : item.fase === 5 ? (
+                  <Chip
+                    startContent={<Spinner color="warning" size="sm" />}
+                    color="default"
+                    variant="flat"
+                  >
+                    Pendiente de validación (Coordinación)
+                  </Chip>
+                ) : item.fase === 6 ? (
+                  <Chip
+                    startContent={<ContactRound size={18} />}
+                    color="primary"
+                    variant="flat"
+                  >
+                    Practica iniciada
+                  </Chip>
+                ) : item.fase === 7 && !item.informe ? (
+                  <Chip
+                    startContent={<CircleAlert size={18} />}
+                    color="danger"
+                    variant="flat"
+                  >
+                    Requiere Evaluacion
+                  </Chip>
+                ) : item.fase === 7 && item.informe ? (
+                  <Chip
+                    startContent={<Spinner color="success" size="sm" />}
+                    color="default"
+                    variant="flat"
+                  >
+                    Pendiente de evaluación (Estudiante)
+                  </Chip>
+                ) : item.fase === 8 ? (
+                  <Chip
+                    startContent={<Spinner color="danger" size="sm" />}
+                    color="default"
+                    variant="flat"
+                  >
+                    Pendiente de evaluación (Coordinación)
+                  </Chip>
+                ) : item.fase === 9 ? (
+                  <Chip
+                    startContent={<BadgeCheck size={18} />}
+                    color="success"
+                    variant="flat"
+                  >
+                    Práctica finalizada
+                  </Chip>
+                ) : (
+                  ""
+                )}
               </TableCell>
             </TableRow>
           )}
@@ -337,22 +513,33 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                 label="Fecha Inicio/Fin"
                 labelPlacement="inside"
                 placeholder="Fecha Inicio/Fin"
-                startContent={<Tooltip content='Seleccione el rango de fechas, se debe seleccionar la celda correspondiente a cada fecha'><HelpCircle size={30} color='gray'/></Tooltip>}
-                value={value||null} 
+                startContent={
+                  <Tooltip content="Seleccione el rango de fechas, se debe seleccionar la celda correspondiente a cada fecha">
+                    <HelpCircle size={30} color="gray" />
+                  </Tooltip>
+                }
+                value={value || null}
                 onChange={(value) => value && setValue(value)}
-                
               />
               <div className="grid grid-rows-2 gap-2">
                 <div className="flex flex-row gap-2 justify-start items-center">
-                  <Checkbox size="lg" isSelected={carta?.supervisorCheck} onValueChange={()=>handleSubmitForum()}>
+                  <Checkbox
+                    size="lg"
+                    isSelected={carta?.supervisorCheck}
+                    onValueChange={() => handleSubmitForum()}
+                  >
                     Firmado del supervisor
                   </Checkbox>
                   <Tooltip content="Se habilita al completar el formulario">
-                  <CircleHelp size={20} color="grey"/>
+                    <CircleHelp size={20} color="grey" />
                   </Tooltip>
                 </div>
                 <div className="flex flex-row gap-2 justify-start items-center">
-                  <Checkbox size="lg" isSelected={carta?.alumnoCheck} isDisabled>
+                  <Checkbox
+                    size="lg"
+                    isSelected={carta?.alumnoCheck}
+                    isDisabled
+                  >
                     Firmado del alumno
                   </Checkbox>
                   <Tooltip
@@ -362,14 +549,14 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                         : "Se activará cuando el supervisor termine y firme el formulario"
                     }
                   >
-                    <CircleHelp size={20} color="grey"/>
+                    <CircleHelp size={20} color="grey" />
                   </Tooltip>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-4">
-            <TaskForm tasks={tasks} setTasks={setTasks} />
+              <TaskForm tasks={tasks} setTasks={setTasks} />
             </div>
           </div>
         </Card>

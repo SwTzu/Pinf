@@ -24,7 +24,7 @@ import {
 } from "@nextui-org/react";
 import {UserCheck, UserX,EllipsisVertical, Search,Copy } from "lucide-react";
 import { backendUrl } from "@/config/config";
-
+import toast, { Toaster } from 'react-hot-toast';
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -44,19 +44,20 @@ interface Solicitud {
 }
 
 const actualizarFaseSolicitud = async (
-  idSolicitud: any,
-  nroFase: any,
-  motivoRechazo: any
+  Token:string,
+  idSolicitud: number,
+  nroFase: number,
+  motivoRechazo: string
 ) => {
   try {
     const response = await fetch(
       `${backendUrl}/solicitud/actualizar/${idSolicitud}`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nroFase, idSolicitud, motivoRechazo }),
+        body: JSON.stringify({Token,idSolicitud, nroFase, motivoRechazo }),
       }
     );
 
@@ -78,6 +79,8 @@ export default function TablaAdm() {
   const [items, setItems] = useState<Solicitud[]>([]);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [selectedSolicitudId, setSelectedSolicitudId] = useState<number | null>(null);
+  const Token =
+    typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
   // Función para cargar solicitudes desde el backend
   const loadSolicitudes = async () => {
     try {
@@ -128,21 +131,20 @@ export default function TablaAdm() {
       <div className="relative flex justify-center items-center">
         <Dropdown>
           <DropdownTrigger>
-            <Button isIconOnly size="lg" variant="light">
-              <EllipsisVertical
-              />
-            </Button>
+            <EllipsisVertical/>
           </DropdownTrigger>
           <DropdownMenu style={{ width: "100%", textAlign: "center" }}>
             <DropdownItem
+              key="accept"
               startContent={<UserCheck />}
               color="success"
-              onClick={() => actualizarFaseSolicitud(item.idSolicitud, 2, null)}
+              onPress={() => actualizarFaseSolicitud(Token, item.idSolicitud, 2, '')}
             >
               Aceptar
             </DropdownItem>
             <DropdownItem
-              onClick={()=>{setSelectedSolicitudId(item.idSolicitud);onOpen()}}
+              key="reject"
+              onPress={()=>{setSelectedSolicitudId(item.idSolicitud);onOpen()}}
               startContent={<UserX />}
               color="danger"
             >
@@ -158,12 +160,63 @@ export default function TablaAdm() {
     setFilterValue(value);
   }, []);
 
-  const handleCellClick = (content: string) => {
-    navigator.clipboard.writeText(content);
-  };
+  async function handleCellClick(content: string) {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(content);
+        //toast('Texto copiado');
+        /* Resuelto - texto copiado al portapapeles con éxito */
+      } else {
+        fallbackCopyTextToClipboard(content);
+        console.error('Clipboard API no está disponible');
+        /* Rechazado - Clipboard API no está disponible */
+      }
+    } catch (err) {
+      console.error('Error al copiar: ', err);
+      fallbackCopyTextToClipboard(content);
+      /* Rechazado - fallo al copiar el texto al portapapeles */
+    }
+  }
+
+  function fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";  // Avoid scrolling to bottom
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      toast('Texto copiado',{
+        duration: 2000,
+        position: 'top-right',
+      
+        // Styling
+        style: {backgroundColor: '#DDDCFB', color: 'black'},
+      
+        // Custom Icon
+        icon: '📑',
+      
+        // Change colors of success/error/loading icon
+        iconTheme: {
+          primary: '#000',
+          secondary: '#fff',
+        },
+      
+        // Aria
+        ariaProps: {
+          role: 'status',
+          'aria-live': 'polite',
+        },
+      });
+    } catch (err) {
+      console.error('Fallback: Error al copiar', err);
+    }
+    document.body.removeChild(textArea);
+  }
   const handleGuardarRechazo = async () => {
     if (selectedSolicitudId !== null) {
-      await actualizarFaseSolicitud(selectedSolicitudId, 0, motivoRechazo); // Actualizar fase a 0 con motivo de rechazo
+      await actualizarFaseSolicitud(Token,selectedSolicitudId, 0, motivoRechazo); // Actualizar fase a 0 con motivo de rechazo
       setMotivoRechazo(""); // Limpiar motivo
       onOpenChange(); // Cerrar modal
     }
@@ -234,6 +287,7 @@ export default function TablaAdm() {
           )}
         </ModalContent>
       </Modal>
+      <Toaster />
       <div className="flex justify-between items-center mb-4 p-2 gap-4">
         <Input
           placeholder="Buscar por ID de solicitud, RUT o empresa..."
@@ -246,7 +300,7 @@ export default function TablaAdm() {
       <Table
         aria-label="Tabla de solicitudes con búsqueda"
         classNames={{
-          table: "min-h-[400px] max-h-[93.5vh]",
+          table: "max-h-[93.5vh]",
           wrapper: "bg-[transparent]",
           th: "bg-[#656565] text-white font-bold text-md",
         }}
@@ -315,6 +369,13 @@ export default function TablaAdm() {
           items={filteredItems}
           isLoading={isLoading}
           loadingContent={<Spinner label="Cargando solicitudes..." />}
+          emptyContent={
+            <div className="text-center p-4">
+              <p className="text-gray-500 font-bold">
+                No hay solicitudes disponibles para mostrar.
+              </p>
+            </div>
+          }
         >
           {(item: Solicitud) => (
             <TableRow key={item.idSolicitud}>

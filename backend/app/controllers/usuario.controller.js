@@ -175,7 +175,6 @@ const updateUsuario = async (req, res) => {
   try {
 
     const decoded = await jwt.verify(token, key);
-    console.log(decoded); // Muestra la estructura completa del token
     const { rut } = decoded;
   
     // Verifica que rutToken no sea undefined

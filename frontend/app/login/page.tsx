@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button, Spinner} from "@nextui-org/react";
 import { useRut } from "react-rut-formatter";
 import { useRouter } from "next/navigation"; // Importa el router de Next.js
 import { funcionlogin, funcionloginSup } from "../../api/standar";
@@ -40,6 +40,7 @@ export default function Login() {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    setIsLoading(true);
     if (userType === "sup") {
       funcionloginSup(email, password, userType, isValid, setIsLoading, router);
     } else {
@@ -111,9 +112,21 @@ export default function Login() {
           />
         </div>
 
-        <Button onClick={handleSubmit} type="submit" color="secondary" size="lg">
-          <LogIn size={18} />
-          Iniciar Sesión
+        <Button
+          onPress={() => handleSubmit(new Event('submit'))}
+          type="submit"
+          color="secondary"
+          size="lg"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Spinner color="white" />
+          ) : (
+            <>
+              <LogIn size={18} />
+              Iniciar Sesión
+            </>
+          )}
         </Button>
 
         <div className="text-center flex flex-col gap-1">

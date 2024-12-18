@@ -61,7 +61,79 @@ const getNumerosEmpresas = async (req, res) => {
     
 };
 
+const areasPracticas = async (req, res) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const cartas = await db.carta.findAll({
+            where: db.Sequelize.where(db.Sequelize.fn('YEAR', db.Sequelize.col('createdAt')), currentYear)
+        });
+        const areas = {};
+        cartas.forEach(carta => {
+            const tareas = typeof carta.tareas === 'string' ? JSON.parse(carta.tareas) : carta.tareas;
+            tareas.forEach(tarea => {
+                tarea.areas.forEach(area => {
+                    if (areas[area.nombre]) {
+                        areas[area.nombre]++;
+                    } else {
+                        areas[area.nombre] = 1;
+                    }
+                });
+            });
+        });
+        const total = Object.values(areas).reduce((acc, count) => acc + count, 0);
+        areas.total = total;
+        res.status(200).json(areas);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const estadisticasFasesSolicitudes = async (req, res) => {
+    try {
+        const currentYear = new Date().getFullYear();
+        const solicitudes = await db.solicitud.findAll({
+            where: db.Sequelize.where(db.Sequelize.fn('YEAR', db.Sequelize.col('createdAt')), currentYear)
+        });
+        const fases = {};
+
+        solicitudes.forEach(solicitud => {
+            if (fases[solicitud.fase]) {
+                fases[solicitud.fase]++;
+            } else {
+                fases[solicitud.fase] = 1;
+            }
+        });
+        fases.total = solicitudes.length;
+        res.status(200).json(fases);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const EMPverificadas= async (req, res) => {
+    try {
+        const empresas = await db.empresa.findAll({
+            where: { verificado: true },
+            attributes: ['region', [db.Sequelize.fn('COUNT', db.Sequelize.col('region')), 'count']],
+            group: ['region']
+        });
+
+        const empresasPorRegion = {};
+        empresas.forEach(empresa => {
+            empresasPorRegion[empresa.region] = empresa.dataValues.count;
+        });
+        const totalVerificadas = await db.empresa.count({ where: { verificado: true } });
+        empresasPorRegion.totalVerificadas = totalVerificadas;
+        return res.status(200).json(empresasPorRegion);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
-  empresasAprobadas,
-  getNumerosEmpresas
+    empresasAprobadas,
+    getNumerosEmpresas,
+    areasPracticas,
+    estadisticasFasesSolicitudes,
+    EMPverificadas
 };

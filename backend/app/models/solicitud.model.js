@@ -1,3 +1,5 @@
+const { supervisor } = require(".");
+
 module.exports = (sequelize, Sequelize) => {
   const solicitud = sequelize.define(
     'solicitud de practica',
@@ -41,7 +43,7 @@ module.exports = (sequelize, Sequelize) => {
             4. Formularios//manufacturar carta de aceptacion junto a supervisor
             5. Coordinacion
             6. Iniciada
-            7. Memoria
+            7. Memoria/informe
             8. Revision evaluación
             9. Finalizado
             */
@@ -60,6 +62,21 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      supervisorCheck: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      alumnoCheck: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      informe:{
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      }
     },
     {
       // Opciones adicionales

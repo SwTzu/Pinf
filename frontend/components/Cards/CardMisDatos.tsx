@@ -139,7 +139,7 @@ const CardMisDatos: React.FC<CardMisDatosProps> = ({
         />
         {mod_est && (
           <div className="col-span-2">
-            <Button color="primary" onClick={click_save}>
+            <Button color="primary" onPress={click_save}>
               Guardar
             </Button>
           </div>

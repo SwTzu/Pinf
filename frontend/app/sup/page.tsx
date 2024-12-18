@@ -37,10 +37,10 @@ export default function HomeSupp() {
       <div className={styles.EstDiv}>
         <Card className="mb-6 mt-[1rem]">
           <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-            Cartas de aceptacion
+            Cartas de aceptación
           </h1>
           <h2 className="text-1xl text-gray-400 pl-[2rem]">
-            Vista general para cartas de aceptacion
+            Vista general para cartas de aceptación
           </h2>
           <TablaSuppAcp token={Token} />
         </Card>

@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const {
     crearCarta,
+    obtenerCarta
 }= require('../controllers/carta.controller.js');
 
 //Ruta de prueba
@@ -10,5 +11,6 @@ router.get("/", (req, res) => {
 });
 
 router.post("/crear", crearCarta);
+router.post("/obtener", obtenerCarta);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) =>{
-  const informe= sequelize.define('informe evaluacion', {
+  const informe = sequelize.define('informe evaluacion', {
     idInforme: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
@@ -18,7 +18,7 @@ module.exports = (sequelize, Sequelize) =>{
       allowNull: true
     },
     nota: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.FLOAT,
       allowNull: true
     }
   }, {

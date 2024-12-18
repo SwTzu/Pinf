@@ -45,7 +45,7 @@ export default function StatsCoo() {
           />
         </NextLink>
         <div className={styles.boxe12}>
-          <Button className={styles.botEst} variant='light'>
+          <Button className={styles.botEst} variant='light' onPress={() => {}}>
             Logout
           </Button>
         </div>

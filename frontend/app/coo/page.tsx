@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Button, Card } from "@nextui-org/react";
+import { Button, Card} from "@nextui-org/react";
 import styles from "@/styles/coo.module.css";
 import TablaCoo from "@/components/Tablas/TabCoo/TablaCoo";
 import * as echarts from "echarts";
@@ -14,6 +14,9 @@ import {
   ArrowUpToLine,
 } from "lucide-react";
 import { Empresas } from "@/api/coo/solicitudes";
+import TablaUsers from "@/components/Tablas/TabCoo/TablaUsers";
+import TablaEvaluacionCarta from "@/components/Tablas/TabCoo/TablaEvaluacionCarta";
+import toast, { Toaster } from "react-hot-toast";
 type empresa = {
   verificadas: number;
   total: number;
@@ -116,7 +119,7 @@ export default function HomeCoo() {
           variant="bordered"
           className={styles.reset}
           color="secondary"
-          onClick={() => {
+          onPress={() => {
             panelRef.current?.scrollIntoView({ behavior: "smooth" });
           }}
         >
@@ -128,6 +131,7 @@ export default function HomeCoo() {
           Panel de coordinación
         </h1>
       </div>
+      
       <div className="grid gap-[2rem] md:grid-cols-5 mb-[1rem]">
         <div onClick={() => redireccion(empresasRef, setS_empresas)}>
           <Card id="res_empresas" className={styles.card_base}>
@@ -242,7 +246,7 @@ export default function HomeCoo() {
           Lista de usuarios administrativos.
         </h2>
         <div className={styles.divtable}>
-          <TablaCoo />
+          <TablaUsers token={Token} />
         </div>
       </Card>
       <div
@@ -301,7 +305,7 @@ export default function HomeCoo() {
           Lista de evaluaciones pendientes.
         </h2>
         <div className={styles.divtable}>
-          <TablaCoo />
+          <TablaEvaluacionCarta token={Token}/>
         </div>
       </Card>
     </div>

@@ -17,6 +17,7 @@ const memoriaRouter = require('./memoria.router.js');
 const informeRouter = require('./informe.router.js');
 const cartaRouter = require('./carta.router.js');
 const statsRouter = require('./stats.router.js');
+const coordinadorRouter = require('./coordinador.router.js');
 
 
 module.exports = app => {
@@ -31,4 +32,5 @@ module.exports = app => {
     app.use('/stats', statsRouter);
     app.use('/area', areaRouter);
     app.use('/carta', cartaRouter);
+    app.use('/coordinador', coordinadorRouter);
 }

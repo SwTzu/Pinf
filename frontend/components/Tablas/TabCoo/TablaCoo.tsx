@@ -127,20 +127,22 @@ export default function TablaCoo() {
       <div className="relative flex justify-center items-center">
         <Dropdown>
           <DropdownTrigger>
-            <Button isIconOnly size="lg" variant="light">
+            <Button isIconOnly size="lg" variant="light" onPress={() => {}}> 
               <EllipsisVertical/>
             </Button>
           </DropdownTrigger>
           <DropdownMenu style={{ width: "100%", textAlign: "center" }}>
             <DropdownItem
+              key="accept"
               startContent={<UserCheck />}
               color="success"
-              onClick={() => actualizarFaseSolicitud(item.idSolicitud, 3, null)}
+              onPress={() => actualizarFaseSolicitud(item.idSolicitud, 3, null)}
             >
               Aceptar
             </DropdownItem>
             <DropdownItem
-              onClick={()=>{setSelectedSolicitudId(item.idSolicitud);onOpen()}}
+              key="reject"
+              onPress={()=>{setSelectedSolicitudId(item.idSolicitud);onOpen()}}
               startContent={<UserX />}
               color="danger"
             >
@@ -244,7 +246,7 @@ export default function TablaCoo() {
       <Table
         aria-label="Tabla de solicitudes con búsqueda"
         classNames={{
-          table: "min-h-[400px] max-h-[93.5vh]",
+          table: "min-h-[200px] max-h-[93.5vh]",
           wrapper: "bg-[transparent]",
           th: "bg-[#656565] text-white font-bold text-md",
         }}
@@ -313,6 +315,13 @@ export default function TablaCoo() {
           items={filteredItems}
           isLoading={isLoading}
           loadingContent={<Spinner label="Cargando solicitudes..." />}
+          emptyContent={
+            <div className="text-center p-4">
+              <p className="text-gray-500 font-bold">
+                No hay solicitudes disponibles para mostrar.
+              </p>
+            </div>
+          }
         >
           {(item: Solicitud) => (
             <TableRow key={item.idSolicitud}>

@@ -21,7 +21,8 @@ const {
   buscarFase,
   mostrarNotasCoo,
   modificarNotasCoo,
-  todasPracticas
+  todasPracticas,
+  check
 } = require('../controllers/solicitud.controller.js');
 const { response } = require('express');
 
@@ -35,18 +36,20 @@ router.post('/crear', crearSolicitud); // { rut, rutempresa, extension, numeroPr
 router.put('/:id', faseSolicitud); // {fase, descripcionRechazo (puede ser nulo)}
 router.post('/listaSolicitudes', verSolicitudesUsuario); // {rut}
 router.post('/SolicitudesAceptadas', verSolicitudesAceptadasU); // {rut}
-router.get('/allSolicitudesCoo', allSolicitudesCoo);
+router.post('/allSolicitudesCoo', allSolicitudesCoo);//{token}
 router.get('/allSolicitudesJefe', allSolicitudesJefe);
 router.get('/allSolicitudesSec', allSolicitudesSec);
 router.post('/readyAlumno', readyAlumno); // {idSolicitud}
 router.post('/readySupervisor', readySupervisor);
-router.put('/actualizar/:id', actualizarFase); // {idSolicitud, nroFase}
+router.post('/actualizar', actualizarFase); // {idSolicitud, nroFase}
 router.post('/supXest', supXest); // {rutSupervisor, rutEstudiante}
 router.post('/eliminar', eliminarSolicitud); // {idSolicitud}
 router.get('/fechaauto', fechaauto);
 router.post('/addSup', agregarSup); // { token, idSolicitud, correoSupervisor }
 router.post('/searchFase',buscarFase); // {fase}
 router.post('/todasPracticas', todasPracticas);
+router.post('/check', check); // {token}
+
 
 // Rutas de Notas de Coordinador
 router.get('/notasCoo', mostrarNotasCoo);

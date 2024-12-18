@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from "@nextui-org/react";
 import { listarArea } from "@/api/coo/solicitudes";
-import {HelpCircle} from "lucide-react";
+import {HelpCircle, Trash} from "lucide-react";
 
 interface area {
   idArea: string;
@@ -56,7 +56,7 @@ export default function TaskForm({ tasks, setTasks }: TaskFormProps) {
       const newTask = {
         id: Date.now().toString(),
         name,
-        description,
+        description:description.replace(/\n/g, ' '),
         areas: selectedAreas,
       };
       setTasks([...tasks, newTask]);
@@ -89,10 +89,12 @@ export default function TaskForm({ tasks, setTasks }: TaskFormProps) {
               onChange={(e) => setName(e.target.value)}
               placeholder="Nombre de la tarea"
               required
+              maxLength={50}
               startContent={<Tooltip content='Ingrese un nombre descriptivo para la actividad a realizar'><HelpCircle size={20} color='gray'/></Tooltip>}
             />
             <Textarea
               value={description}
+              maxLength={240}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descripción de la tarea"
               required
@@ -122,36 +124,47 @@ export default function TaskForm({ tasks, setTasks }: TaskFormProps) {
         </CardBody>
       </Card>
 
-      <Card className="flex-1 max-h-[400px] overflow">
+      <Card className="flex-1 min-h-[300px] max-h-[300px] overflow">
         <CardHeader>
           <h1>Lista de Tareas</h1>
         </CardHeader>
         <Divider />
         <CardBody className="p-2">
-          {tasks.length > 0 ? (
-            tasks.map((task) => (
-              <Accordion key={task.id} className={`bg-gray-100 border-b-4 border-gray-300 ${tasks[0].id === task.id ? 'rounded-t-lg' : ''}`}>
+            {tasks.length > 0 ? (
+            <Accordion >
+              {tasks.map((task, index) => (
                 <AccordionItem
-                  aria-label={task.name}
-                  title={task.name}
-                  className={"m-t-2"}
+                key={index}
+                aria-label={task.name}
+                title={task.name}
+                subtitle={task.description.length > 20 ? `${task.description.substring(0, 20)}...` : task.description}
+                startContent={
+                  <Trash
+                  size={20}
+                  style={{ color: "gray", cursor: "pointer" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "red")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "gray")}
+                  onClick={() => setTasks(tasks.filter((t) => t.id !== task.id))}
+                  />
+                }
                 >
-                  <Divider />
-                  <h2>{task.description}</h2>
-                  
-                  {task.areas.map((area) => (
-                    <Chip size="sm" key={area.idArea} color="secondary">
-                      {area.nombre}
-                    </Chip>
-                  ))}
+                <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "0.875rem", color: "gray" }}>
+                {task.description}
+                </p>
+                <Divider className="my-2" />
+                {task.areas.map((area, index) => (
+                <Chip key={index} color="secondary" size="sm">
+                  {area.nombre}
+                </Chip>
+                ))}
                 </AccordionItem>
-              </Accordion>
-            ))
-          ) : (
+              ))}
+            </Accordion>
+            ) : (
             <div className="p-4 text-center text-muted-foreground ">
               No hay tareas guardadas.
             </div>
-          )}
+            )}
         </CardBody>
       </Card>
     </div>

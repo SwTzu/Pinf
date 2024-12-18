@@ -98,6 +98,8 @@
   color: #000000;
   cursor: pointer;
   transition: border 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  width: 100%;
+  height: 100%;
 }
 .box {
   background-color: #ffffff;
@@ -128,7 +130,7 @@
   position: absolute;
   top: 2rem;
   right: 2rem;
-  z-index: 100;
+  z-index: 49;
 }
 .stats_btn{
   display: flex;

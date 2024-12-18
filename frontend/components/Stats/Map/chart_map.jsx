@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo} from "react";
 import * as echarts from "echarts";
 
 const ChartMap = () => {
@@ -6,7 +6,7 @@ const ChartMap = () => {
   const chartInstance = useRef(null); // Almacenamos la instancia del gráfico aquí
 
   // Datos para el gráfico
-  const data = [
+  const data = useMemo(() => [
     { name: "Arica", value: 335 },
     { name: "Tarapacá", value: 5449 },
     { name: "Antofagasta", value: 67 },
@@ -23,10 +23,10 @@ const ChartMap = () => {
     { name: "Los Lagos", value: 5176 },
     { name: "Aysén", value: 7674 },
     { name: "Magallanes", value: 5218 },
-  ];
+  ], []);
 
   // Opciones para el mapa
-  const mapOption = {
+  const mapOption = useMemo(() => ({
     visualMap: {
       left: "right",
       min: 0,
@@ -61,7 +61,7 @@ const ChartMap = () => {
         }
       },
     ],
-  };
+  }), [data]);
 
   // Opciones para el gráfico de barras
   const barOption = {
@@ -94,7 +94,7 @@ const ChartMap = () => {
       myChart.setOption(mapOption); // Configuración inicial para mostrar el mapa
     };
     initChart();
-  }, []);
+  }, [mapOption]);
 
   const toggleChart = () => {
     if (!chartInstance.current) return; // Comprobamos si la instancia del gráfico existe

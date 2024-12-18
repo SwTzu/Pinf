@@ -2,11 +2,12 @@ const { informe, memoria } = require(".");
 
 module.exports = (sequelize, Sequelize) =>{
 
-    const carta = sequelize.define('carta de aceptacion', {
+    const carta = sequelize.define('carta', {
 
       idAceptacion: {
           type: Sequelize.INTEGER,
-          primaryKey: true
+          primaryKey: true,
+          autoIncrement: true
         },
         idSolicitud: {
           type: Sequelize.INTEGER,
@@ -17,11 +18,7 @@ module.exports = (sequelize, Sequelize) =>{
           allowNull: true
         },
         tareas: {
-          type: Sequelize.STRING(100),
-          allowNull: true
-        },
-        area: {
-          type: Sequelize.STRING(50),
+          type: Sequelize.JSON,
           allowNull: true
         },
         fechaInicio: {
@@ -32,29 +29,18 @@ module.exports = (sequelize, Sequelize) =>{
           type: Sequelize.DATE,
           allowNull: true
         },
-        supervisorCheck: {
-          // A usar para el cambio de fase.
-          type: Sequelize.BOOLEAN,
-          allowNull: true,
-          defaultValue: false,
-        },
-        alumnoCheck: {
-          type: Sequelize.BOOLEAN,
-          allowNull: true,
-          defaultValue: false,
-        },
-        informe: {
-          type: Sequelize.STRING(50),
+        idInforme: {
+          type: Sequelize.INTEGER,
           allowNull: true,
         },
-        memoria: {
-          type: Sequelize.STRING(50),
+        idmemoria: {
+          type: Sequelize.INTEGER,
           allowNull: true,
         },
     }, 
     {
       // Opciones adicionales
-      tableName: 'carta de aceptacion',
+      tableName: 'carta',
       freezeTableName: true,
     });
 

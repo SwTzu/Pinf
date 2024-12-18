@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const Op = db.Sequelize.Op;
 const TOKEN = require('../helpers/token.helpers.js');
-const { where } = require('sequelize');
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -18,6 +17,7 @@ const transporter = nodemailer.createTransport({
     pass: PASS_USER,
   },
 });
+exports.transporter = transporter;
 
 const buscarFase = async (req, res) => {
   const { fase } = req.body;
@@ -38,14 +38,14 @@ const buscarFase = async (req, res) => {
 
 const todasPracticas = async (req, res) => {
   try{
-    token = req.body.token;
+    const token = req.body.token;
     const coordinador = await jwt.verify(token, key);
     if (coordinador.tipoUsuario !== 2) {
       return res.status(401).json({
         message: 'No tienes permisos para ver las practicas',
       });
     }
-    const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gte]: 5 } } });
+    const solicitudes = await db.solicitud.findAll({ where: { fase: { [Op.gt]: 4, [Op.lt]: 9 } } });
     const solicitudesWithDetails = await Promise.all(
       solicitudes.map(async (solicitud) => {
         const usuario = await db.usuario.findOne({ where: { rut: solicitud.rut } });
@@ -53,6 +53,7 @@ const todasPracticas = async (req, res) => {
         return {
           id: solicitud.idSolicitud,
           nombreEstudiante: `${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2}`,
+          rutEstudiante: solicitud.rut,
           empresa: solicitud.rutEmpresa,
           fase: solicitud.fase,
           //estado: solicitud.estado,
@@ -60,12 +61,12 @@ const todasPracticas = async (req, res) => {
           //comentarios: solicitud.comentarios,
           notasCOO: solicitud.notasCOO,
           correoSupervisor: solicitud.correoSupervisor,
-          //fechaInicio: carta.fechaInicio,
-          //fechaTermino: carta.fechaTermino,
-          //tareas: carta.tareas,
+          fechaInicio: carta.fechaInicio,
+          fechaTermino: carta.fechaTermino,
+          tareas: carta.tareas,
           //area: carta.area,
-          //informe: carta.informe,
-          //memoria: carta.memoria,
+          informe: carta.informe,
+          idmemoria: carta.idmemoria,
         };
       })
     );
@@ -192,6 +193,8 @@ const eliminarSolicitud = async (req, res) => {
       where: { idSolicitud: idSolicitud },
     });
 
+    
+
     if (!solicitud) {
       return res.status(404).json({
         message: 'Solicitud no encontrada',
@@ -308,8 +311,15 @@ const verSolicitudesAceptadasU = async (req, res) => {
 };
 // COORDINADOR
 const allSolicitudesCoo = async (req, res) => {
+  const {token} = req.body;
+  const coordinador = await jwt.verify(token, key);
+  if (coordinador.tipoUsuario !== 2) {
+    return res.status(401).json({
+      message: 'No tienes permisos para ver las solicitudes',
+    });
+  }
   try {
-    const solicitudes = await db.solicitud.findAll({ where: { fase: 3 } });
+    const solicitudes = await db.solicitud.findAll({ where: { fase:  [5, 8] } });
     return res.status(200).json({
       message: 'Solicitudes listadas exitosamente',
       solicitudes,
@@ -484,33 +494,40 @@ const readyAlumno = async (req, res) => {
 
 // aplicar solo usarios con el token de admin pueden usar esta funcion.
 const actualizarFase = async (req, res) => {
-  const { idSolicitud, nroFase, motivoRechazo } = req.body;
-
-  try {
-    const solicitud = await db.solicitud.findOne({ where: { idSolicitud } });
-
-    if (!solicitud) {
-      return res.status(404).json({
-        message: 'Solicitud no encontrada',
+    const {token}=req.body;
+    const usuario = await jwt.verify(token, key);
+    if (usuario.tipoUsuario === 1 || usuario.tipoUsuario === 0) {
+      return res.status(401).json({
+        message: 'No tienes permisos para actualizar la fase',
       });
     }
+    const { idSolicitud, nroFase, motivoRechazo } = req.body;
 
-    if (motivoRechazo) {
-      solicitud.descripcionRechazo = motivoRechazo;
+    try {
+      const solicitud = await db.solicitud.findOne({ where: { idSolicitud } });
+
+      if (!solicitud) {
+        return res.status(404).json({
+          message: 'Solicitud no encontrada',
+        });
+      }
+
+      if (motivoRechazo && nroFase===0) {
+        solicitud.descripcionRechazo = motivoRechazo;
+      }
+
+      solicitud.fase = nroFase;
+      await solicitud.save();
+
+      return res.status(200).json({
+        message: 'Se realizo correctamente el cambio de fase.',
+      });
+    } catch (err) {
+      return res.status(500).json({
+        message: 'Error interno del servidor',
+        err,
+      });
     }
-
-    solicitud.fase = nroFase;
-    await solicitud.save();
-
-    return res.status(200).json({
-      message: 'Se realizo correctamente el cambio de fase.',
-    });
-  } catch (err) {
-    return res.status(500).json({
-      message: 'Error interno del servidor',
-      err,
-    });
-  }
 };
 
 // Eliminar mail send
@@ -530,48 +547,76 @@ const agregarSup = async (req, res) => {
     });
   }
 
-  solicitud.correoSupervisor = correoSupervisor;
-
-  await solicitud.save();
-
   const supervisor = await db.supervisor.findOne({
     where: { correoSupervisor: correoSupervisor },
   });
 
   if (!supervisor) {
     const pass = await TOKEN.passSUP(correoSupervisor);
-    // Revisar si de verdad crea o es una ilusion
-    const supervisor = await db.supervisor.create({
+    const crearSupervisor = await db.supervisor.create({
       correoSupervisor,
       rutEmpresa: solicitud.rutEmpresa,
       password: pass,
     });
-
-
-    const mailOptions = {
-      from: MAIL_USER,
-      to: correoSupervisor,
-      subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
-      text: `Se te ha creado un perfil en el sistema de practica profesional de la Universidad de valparaiso, 
-      su nombre de usuario es su correo de contacto (${correoSupervisor}) y su contraseña es ${pass}`,
-    };
-
-    transporter.sendMail(mailOptions);
-
+    if (!crearSupervisor) {
+      return res.status(500).json({
+        message: 'Error al crear supervisor',
+      });
+    }
+    solicitud.correoSupervisor = correoSupervisor;
+    solicitud.fase = 4;
+    const save=await solicitud.save();
+    if (!save) {
+      return res.status(500).json({
+        message: 'Error al guardar supervisor',
+      });
+    }
+    try {
+      const mailOptions = {
+        from: MAIL_USER,
+        to: correoSupervisor,
+        subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
+        text: `Se te ha creado un perfil en el sistema de practica profesional de la Universidad de valparaiso, 
+        su nombre de usuario es su correo de contacto (${correoSupervisor}) y su contraseña es ${pass}`,
+      };
+      transporter.sendMail(mailOptions);
+    }
+    catch (err) {
+      return res.status(500).json({
+        message: 'Error al enviar el correo',
+        err,
+      });
+    }
     return res.status(200).json({
       message: 'Supervisor agregado correctamente',
       solicitud,
     });
   }else{
-    const mailOptions = {
-      from: MAIL_USER,
-      to: correoSupervisor,
-      subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
-      text: `Se te ha agregado a la practica profesional de la Universidad de de valparaiso`
-    };
-    transporter.sendMail(mailOptions);
+    solicitud.correoSupervisor = correoSupervisor;
+    solicitud.fase = 4;
+    const save=await solicitud.save();
+    if (!save) {
+      return res.status(500).json({
+        message: 'Error al guardar supervisor',
+      });
+    }
+    try {
+      const mailOptions = {
+        from: MAIL_USER,
+        to: correoSupervisor,
+        subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
+        text: `Se te ha agregado a la practica profesional de la Universidad de de valparaiso`
+      };
+      transporter.sendMail(mailOptions);
+    }
+    catch (err) {
+      return res.status(500).json({
+        message: 'Error al enviar el correo',
+        err,
+      });
+    }
     return res.status(200).json({
-      message: 'Supervisor agregado correctamente',
+      message: 'Supervisor asignado correctamente',
       solicitud,
     });
   }
@@ -613,7 +658,7 @@ const processSolicitud = async (element) => {
       element.fase = 0;
       await element.save();
     }
-  } else if (fechahoy >= carta.fechaTermino) {
+  } else if (fechahoy2.toDateString() === carta.fechaTermino.toDateString()) {
     await sendMail(
       usuario.correo,
       `Tu práctica en ${empresa.razonSocial} termina hoy`,
@@ -658,7 +703,34 @@ const fechaauto = async (req, res) => {
     });
   }
 };
-
+const check = async (req, res) => {
+  const { idSolicitud } = req.body;
+  try {
+    const solicitud = await db.solicitud.findOne({ where: { idSolicitud } });
+    if (!solicitud) {
+      return res.status(404).json({
+        message: 'Solicitud no encontrada',
+      });
+    }
+    if (solicitud.fase === 4) {
+      solicitud.alumnoCheck = true;
+      solicitud.fase = 5;
+      await solicitud.save();
+      return res.status(200).json({
+        message: 'Solicitud actualizada exitosamente. Alumno listo.',
+      });
+    } else {
+      return res.status(409).json({
+        message: 'Solicitud no se encuentra en la fase correcta',
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: 'Error interno del servidor',
+      err,
+    });
+  }
+};
 module.exports = {
   fechaauto,
   supXest,
@@ -677,5 +749,6 @@ module.exports = {
   buscarFase,
   mostrarNotasCoo,
   modificarNotasCoo,
-  todasPracticas
+  todasPracticas,
+  check,
 };
