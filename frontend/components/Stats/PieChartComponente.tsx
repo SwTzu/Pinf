@@ -98,8 +98,8 @@ const PieChartComponent: React.FC<PieChartProps> = ({
         chart.dispose();
       };
     }
-  }, [data, title, showLabels, enableTooltip, labelPosition, legendOrientation, legendPosition, showEmphasis]);
-
+  }, [data, title, showLabels, enableTooltip, labelPosition,legendOrientation,showEmphasis]);
+//data, title, showLabels, enableTooltip, labelPosition, dataAxis, legendOrientation, showEmphasis
   return (
     <div
       id={chartId}

@@ -2,11 +2,11 @@
 import { usePathname } from 'next/navigation';
 import styles from '@/styles/coo.module.css';
 import {Home,UserX, ChartColumn, Building2,LayoutPanelLeft} from 'lucide-react';
+import { funcionLogOut } from '@/api/standar';
 export default function CooLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
-
   return (
     <div className={styles.body}>
       <div className={styles.navbar}>
@@ -21,7 +21,7 @@ export default function CooLayout({ children }: { children: React.ReactNode }) {
         </a>
         <a href="/coo/workspace" className={`${styles.btn} ${isActive('/coo/workspace') ? styles.active : ''}`}>
           <LayoutPanelLeft className='mr-[0.5rem]'/>Workspace        </a>
-        <a href="/coo/logout" className={`${styles.btn} ${styles.logoutBtn}`} >
+        <a href="/" className={`${styles.btn} ${styles.logoutBtn}`} onClick={funcionLogOut}>
           <UserX className='mr-[0.5rem]'/>Cerrar Sesión
         </a>
       </div>

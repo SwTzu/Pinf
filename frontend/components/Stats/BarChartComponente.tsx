@@ -129,7 +129,7 @@ const BarChartComponent: React.FC<BarChartProps> = ({
         chart.dispose();
       };
     }
-  }, [data, title, showLabels, enableTooltip, labelPosition, dataAxis, legendOrientation, legendPosition, showEmphasis]);
+  }, [data, title, showLabels, enableTooltip, labelPosition, legendOrientation, showEmphasis]);
 
   return (
     <div

@@ -68,3 +68,20 @@ try {
   );
 }
 };
+export const funcionLogOut = async () => {
+  const response = await fetch(`${backendUrl}/supervisor/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+  if (response.ok) {
+    localStorage.clear();
+    caches.keys().then(names => {
+      for (let name of names) caches.delete(name);
+    });
+  } else {
+    alert("Error al cerrar sesión");
+  }
+};

@@ -244,7 +244,6 @@ export default function HomeCoo() {
               chartId="chartFases"
               showEmphasis={true}
               legendOrientation="vertical"
-              legendPosition={{ left: "0" }}
             />
           </Card>
 
