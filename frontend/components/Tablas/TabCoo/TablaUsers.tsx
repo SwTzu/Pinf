@@ -30,10 +30,8 @@ import {
   UserPen,
   EllipsisVertical,
   Search,
-  Copy,
   Send,
   CircleX,
-  Divide,
   Plus,
 } from "lucide-react";
 import { useRut } from "react-rut-formatter";
@@ -77,7 +75,7 @@ export default function TablaUsers({ token }: { token: string }) {
   };
   const [newUser, setNewUser] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const loadUsuarios = async () => {
+  const loadUsuarios = useCallback(async () => {
     try {
       let res = await fetch(`${backendUrl}/coordinador/obtener`, {
         method: "POST",
@@ -93,7 +91,7 @@ export default function TablaUsers({ token }: { token: string }) {
       console.error("Error al cargar los usuarios", error);
       setIsLoading(false);
     }
-  };
+  }, [token]);
   const handleEdit = async (user: Usuario) => {
     setUserSelected(user);
     setNewUser(false);
@@ -112,7 +110,7 @@ export default function TablaUsers({ token }: { token: string }) {
     loadUsuarios();
     const intervalId = setInterval(loadUsuarios, 10000); // Actualiza cada 10 segundos
     return () => clearInterval(intervalId);
-  }, []);
+  }, [loadUsuarios]);
 
   // Filtrado de usuarios
   const filteredUsuarios = useMemo(() => {
@@ -329,6 +327,7 @@ export default function TablaUsers({ token }: { token: string }) {
                       variant="bordered"
                       size="md"
                       maxLength={45}
+                      isInvalid={!isEmailValid(userSelected.correo)}
                     />
                     <Input
                       label="Teléfono"
@@ -413,14 +412,15 @@ export default function TablaUsers({ token }: { token: string }) {
                   onPress={() => {
                     console.log(newUser);
                     if (newUser) {
-                      if (
+                        if (
                         !isValid ||
                         !userSelected.nombre1 ||
                         !userSelected.apellido1 ||
                         !userSelected.correo ||
+                        !isEmailValid(userSelected.correo) ||
                         !userSelected.telefono ||
                         !userSelected.direccion
-                      ) {
+                        ) {
                         toast.error(
                           "Por favor complete todos los campos requeridos"
                         );
@@ -536,9 +536,7 @@ export default function TablaUsers({ token }: { token: string }) {
           {(user) => (
             <TableRow key={user.rut}>
               <TableCell style={{ textAlign: "center" }}>
-                <Tooltip content={<Copy />} delay={200}>
-                  {user.rut}
-                </Tooltip>
+              {user.rut}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
                 {user.nombre1} {user.nombre2}

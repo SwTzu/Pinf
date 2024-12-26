@@ -7,9 +7,8 @@ router.get("/",(req,res)=>{
 	res.json({message:"Ruta de /memoria/ funcionando"});
 });
 
-router.post("/crear",uploadPdf); // {idSolicitud,documento,fechaEnvio};
-router.post("/guardarMemoria",upload.single('file'),uploadPdf);
+//router.post("/crear",uploadPdf); 
+router.post("/uploadMemoria",upload.single('file'),uploadPdf);// {idSolicitud,file};
 router.post("/descargar",descargarPDF); // {idMemoria};
-
 
 module.exports = router;

@@ -37,9 +37,17 @@ const crearInforme = async (req, res) => {
             idInforme:idInforme
         });
         const solicitud = await db.solicitud.findOne({where:{idSolicitud:idSolicitud}});
-        await solicitud.update({
-            informe: true
-        });
+        if(solicitud.memoria){
+            await solicitud.update({
+                fase:8,
+                informe:true
+            });
+        }
+        else{
+            await solicitud.update({
+                informe:true
+            });
+        }
         return res.status(200).json({
             message: "Memoria creada exitosamente."
         });

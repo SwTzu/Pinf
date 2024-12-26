@@ -89,6 +89,15 @@ async function passSUP(correo) {
   const hash = crypto.createHash('sha256').update(correo).digest('hex');
   return hash.slice(0, 10);
 }
+function decode(token) {
+  try {
+    const decoded = jwt.verify(token, key); // Decodifica el token usando la clave secreta
+    return decoded; // Retorna el contenido decodificado del token
+  } catch (error) {
+    console.error('Error al decodificar el token:', error);
+    return null; // Retorna null si el token no es válido
+  }
+}
 
 module.exports = {
   generateToken,
@@ -96,4 +105,5 @@ module.exports = {
   validarToken,
   blacklist,
   passSUP,
+  decode,
 };

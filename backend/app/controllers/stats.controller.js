@@ -62,30 +62,32 @@ const getNumerosEmpresas = async (req, res) => {
 };
 
 const areasPracticas = async (req, res) => {
-    try {
-        const currentYear = new Date().getFullYear();
-        const cartas = await db.carta.findAll({
-            where: db.Sequelize.where(db.Sequelize.fn('YEAR', db.Sequelize.col('createdAt')), currentYear)
+  try {
+    const currentYear = new Date().getFullYear();
+    const cartas = await db.carta.findAll({
+      where: db.Sequelize.where(db.Sequelize.fn('YEAR', db.Sequelize.col('createdAt')), currentYear)
+    });
+    const areas = {};
+    cartas.forEach(carta => {
+      const tareas = typeof carta.tareas === 'string' ? JSON.parse(carta.tareas) : carta.tareas;
+      tareas.forEach(tarea => {
+        tarea.areas.forEach(area => {
+          if (areas[area.nombre]) {
+            areas[area.nombre]++;
+          } else {
+            areas[area.nombre] = 1;
+          }
         });
-        const areas = {};
-        cartas.forEach(carta => {
-            const tareas = typeof carta.tareas === 'string' ? JSON.parse(carta.tareas) : carta.tareas;
-            tareas.forEach(tarea => {
-                tarea.areas.forEach(area => {
-                    if (areas[area.nombre]) {
-                        areas[area.nombre]++;
-                    } else {
-                        areas[area.nombre] = 1;
-                    }
-                });
-            });
-        });
-        const total = Object.values(areas).reduce((acc, count) => acc + count, 0);
-        areas.total = total;
-        res.status(200).json(areas);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+      });
+    });
+    const areasArray = Object.keys(areas).map(key => ({
+      name: key,
+      value: areas[key]
+    }));
+    res.status(200).json(areasArray);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const estadisticasFasesSolicitudes = async (req, res) => {

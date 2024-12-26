@@ -52,9 +52,8 @@ router.post('/check', check); // {token}
 
 
 // Rutas de Notas de Coordinador
-router.get('/notasCoo', mostrarNotasCoo);
-router.post('/modificarNotasCoo', modificarNotasCoo); // {idSolicitud, notaCoo}
-
+router.post('/notasCoo', mostrarNotasCoo); // {*token,idSolicitud}
+router.post('/ModNotas', modificarNotasCoo); // {*token,idSolicitud,notas}
 // Revisar
 async function hacerSolicitud() {
   try {

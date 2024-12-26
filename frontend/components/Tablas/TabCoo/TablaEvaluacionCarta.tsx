@@ -26,17 +26,23 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Search, Asterisk, FileSearch, CircleX, Send } from "lucide-react";
+import {
+  Search,
+  Asterisk,
+  FileSearch,
+  CircleX,
+  Send,
+  Save,
+} from "lucide-react";
 import styles from "@/styles/est.module.css";
-import { obtenerCarta, aceptarCarta } from "@/api/est/solicitudes";
-import { updateFase } from "@/api/coo/solicitudes";
+import { obtenerCarta } from "@/api/est/solicitudes";
+import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
 import toast, { Toaster } from "react-hot-toast";
-import { on } from "events";
+import ContentModal from "./ContentModal";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -50,6 +56,8 @@ interface Solicitud {
   correoSupervisor: string;
   notasCOO: string | null;
   supervisorCheck: boolean;
+  informe: boolean;
+  memoria: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,7 +88,77 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
   const [carta, setCarta] = useState<carta | null>(null);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange, onClose:onModalClose} = useDisclosure();
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onOpenChange: onModalOpenChange,
+    onClose: onModalClose,
+  } = useDisclosure();
+  const [informe, setInforme] = useState({
+    aspectos_generales: {
+      capacidad: "1",
+      responzabilidad: "1",
+      asistencia: "1",
+      comportamiento: "1",
+      adaptabilidad: "1",
+      iniciativa: "1",
+    },
+    aspectos_tecnicos: {
+      solucion: "1",
+      conocimientos: "1",
+      organizacion: "1",
+      decision: "1",
+    },
+    aspectos_comunicacionales: {
+      comunicacion_escrita: "1",
+      comunicacion_oral: "1",
+    },
+    preguntas: [
+      {
+        id: 1,
+        respuesta: "true",
+        comentario: "Comentario 1",
+      },
+      {
+        id: 2,
+        respuesta: "true",
+        comentario: "Comentario 2",
+      },
+      {
+        id: 3,
+        respuesta: "true",
+        comentario: "Comentario 3",
+      },
+      {
+        id: 4,
+        respuesta: "true",
+        comentario: "Comentario 4",
+      },
+      {
+        id: 5,
+        respuesta: "true",
+        comentario: "Comentario 5",
+      },
+      {
+        id: 6,
+        respuesta: "true",
+        comentario: "Comentario 6",
+      },
+      {
+        id: 7,
+        respuesta: "true",
+        comentario: "Comentario 7",
+      },
+      {
+        id: 8,
+        respuesta: "true",
+        comentario: "Comentario 8",
+      },
+    ],
+    opinion: "Opinion",
+    nota: "",
+    idSolicitud: 0,
+  });
   const redireccion = () => {
     cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
     setIsActive(true);
@@ -125,6 +203,7 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
     return filtered;
   }, [list.items, filterValue]);
   const handleRowClick = (item: Solicitud) => {
+    console.log(item);
     if (item.fase === 5) {
       obtenerCarta(item.idSolicitud).then((res) => {
         // Convertir la fecha de YYYY-MM-DD a DD-MM-YYYY
@@ -143,8 +222,22 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
       setTimeout(() => {
         cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100); // Añadir un pequeño retraso para asegurar que el formulario está visible antes del scroll
-    } else {
-      onModalOpen();
+    } else if (item.fase === 8) {
+      {
+        getInforme(item.idSolicitud).then((res) => {
+          if (res.informe != undefined) {
+            setInforme(res.informe.formulario);
+            setInforme((prevInforme) => ({
+              ...prevInforme,
+              nota: res.informe.nota,
+              idSolicitud: item.idSolicitud,
+            }));
+            onModalOpen();
+          } else {
+            toast.error("Error al obtener el informe");
+          }
+        });
+      }
     }
   };
 
@@ -159,7 +252,7 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
       </p>
     );
   }
-  const handleRechazo = (onClose:()=>void) => {
+  const handleRechazo = (onClose: () => void) => {
     updateFase(token, carta?.idSolicitud, 0, motivoRechazo).then((res) => {
       if (res) {
         toast.success("Carta rechazada correctamente");
@@ -180,7 +273,11 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
         isOpen={isModalOpen}
         onClose={onModalClose}
         onOpenChange={onModalOpenChange}
-        size="5xl"
+        scrollBehavior="inside"
+        size="3xl"
+        classNames={{
+          base: styles.customScroll,
+        }}
         motionProps={{
           variants: {
             enter: {
@@ -202,26 +299,43 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
           },
         }}
       >
-        <ModalContent className="min-w-[90vw] min-h-[90vh]">
+        <ModalContent className=" min-h-[85vh]">
           {(onModalClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-[1rem] font-bold text-3xl text-center">
-                Informe
+              <ModalHeader className="flex justify-between items-center pr-[4rem] pt-[1rem]">
+                <div className="flex flex-row gap-2">
+                  <h1 className="text-3xl font-bold text-black-900">Informe</h1>
+                  <Chip
+                    color={parseFloat(informe.nota) > 4 ? "success" : "danger"}
+                    variant="flat"
+                    size="lg"
+                  >
+                    Nota: {informe.nota}
+                  </Chip>
+                </div>
+                <Tooltip content="Descargar Memoria del estudiante">
+                  <Button
+                    color="success"
+                    onPress={() => {
+                      dowload(informe.idSolicitud)
+                        .then(() => {
+                          toast.success("Memoria descargada correctamente");
+                        })
+                        .catch(() => {
+                          toast.error("Error al descargar la memoria");
+                        });
+                    }}
+                    variant="flat"
+                    size="md"
+                    startContent={<Save size={18} />}
+                  >
+                    Memoria
+                  </Button>
+                </Tooltip>
               </ModalHeader>
-              <ModalBody className="flex flex-col items-center justify-center">
-                <p className="m-[1rem] text-justify ">
-                  Es necesario ingresar el motivo del rechazo de la solicitud.
-                </p>
-                <p className="m-[1rem] text-justify text-sm text-gray-500">
-                  Si cancela la operacion se perdera el comentario ingresados.
-                </p>
+              <ModalBody>
+                {informe !== null && <ContentModal informe={informe} />}
               </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={()=>{setMotivoRechazo('');onModalClose()}}>
-                  Cancelar
-                </Button>
-                
-              </ModalFooter>
             </>
           )}
         </ModalContent>
@@ -307,7 +421,13 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
                 </div>
               </DrawerBody>
               <DrawerFooter>
-                <Button color="danger" onPress={() => handleRechazo(onClose)} className="w-full" variant="flat" startContent={<Send />}>
+                <Button
+                  color="danger"
+                  onPress={() => handleRechazo(onClose)}
+                  className="w-full"
+                  variant="flat"
+                  startContent={<Send />}
+                >
                   Rechazar
                 </Button>
               </DrawerFooter>

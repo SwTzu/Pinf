@@ -10,7 +10,7 @@ router.get("/",(req,res)=>{
 });
 
 router.post("/crear",crearInforme); // {idSolicitud,documento,fechaEnvio};
-router.get("/obtener",obtenerInforme); // {idSolicitud};
+router.post("/obtener",obtenerInforme); // {idSolicitud};
 router.get("/getAll",obtenerTodos);
 
 module.exports = router;

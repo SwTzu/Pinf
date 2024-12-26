@@ -37,7 +37,7 @@ const buscarFase = async (req, res) => {
 };
 
 const todasPracticas = async (req, res) => {
-  try{
+  try {
     const token = req.body.token;
     const coordinador = await jwt.verify(token, key);
     if (coordinador.tipoUsuario !== 2) {
@@ -50,23 +50,22 @@ const todasPracticas = async (req, res) => {
       solicitudes.map(async (solicitud) => {
         const usuario = await db.usuario.findOne({ where: { rut: solicitud.rut } });
         const carta = await db.carta.findOne({ where: { idSolicitud: solicitud.idSolicitud } });
+        const empresa = await db.empresa.findOne({ where: { rutEmpresa: solicitud.rutEmpresa } });
         return {
           id: solicitud.idSolicitud,
           nombreEstudiante: `${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2}`,
           rutEstudiante: solicitud.rut,
           empresa: solicitud.rutEmpresa,
+          razonSocial: empresa.razonSocial,
           fase: solicitud.fase,
-          //estado: solicitud.estado,
           fechaSolicitud: solicitud.fechaSolicitud,
-          //comentarios: solicitud.comentarios,
           notasCOO: solicitud.notasCOO,
           correoSupervisor: solicitud.correoSupervisor,
           fechaInicio: carta.fechaInicio,
           fechaTermino: carta.fechaTermino,
           tareas: carta.tareas,
-          //area: carta.area,
-          informe: carta.informe,
-          idmemoria: carta.idmemoria,
+          informe: solicitud.informe,
+          memoria: solicitud.memoria,
         };
       })
     );
@@ -74,13 +73,12 @@ const todasPracticas = async (req, res) => {
       message: 'Solicitudes encontradas exitosamente',
       solicitudes: solicitudesWithDetails,
     });
-  }catch{
+  } catch (err) {
     return res.status(500).json({
       message: 'Error interno del servidor',
+      err,
     });
-
-  };
-
+  }
 };
 
 // Al reves 🔃
@@ -333,9 +331,13 @@ const allSolicitudesCoo = async (req, res) => {
 };
 
 const mostrarNotasCoo = async (req, res) => {
-
-  const { idSolicitud } = req.body;
-
+  const {token,idSolicitud} = req.body;
+  const coordinador = await jwt.verify(token, key);
+  if (coordinador.tipoUsuario !== 2) {
+    return res.status(401).json({
+      message: 'No tienes permisos para ver las solicitudes',
+    });
+  }
   try{
     const solicitud = await db.solicitud.findOne({ where: { idSolicitud } });
 
@@ -347,7 +349,7 @@ const mostrarNotasCoo = async (req, res) => {
 
     return res.status(200).json({
       message: 'Solicitud encontrada',
-      notas: solicitud.notasCOO,
+      notasCOO: solicitud.notasCOO,
     });
 
   }
@@ -361,11 +363,9 @@ const mostrarNotasCoo = async (req, res) => {
 };
 
 const modificarNotasCoo = async (req, res) => {
+  const { idSolicitud, nuevasNotas } = req.body;
 
-  const { idSolicitud, texto } = req.body;
-  console.log("Datos a modificar: ", idSolicitud, texto);
-
-  try{
+  try {
     const solicitud = await db.solicitud.findOne({ where: { idSolicitud } });
 
     if (!solicitud) {
@@ -374,20 +374,37 @@ const modificarNotasCoo = async (req, res) => {
       });
     }
 
-    solicitud.notasCOO = texto;
+    const notasActuales = solicitud.notasCOO || [];
+    const nuevasNotasMap = nuevasNotas.reduce((map, nota) => {
+      map[nota.id] = nota;
+      return map;
+    }, {});
+
+    const notasFiltradas = notasActuales
+      .filter(nota => nuevasNotasMap[nota.id])
+      .map(nota => {
+        const nuevaNota = nuevasNotasMap[nota.id];
+        return {
+          ...nota,
+          title: nuevaNota.title || nota.title,
+          content: nuevaNota.content || nota.content,
+        };
+      });
+
+    const notasAgregadas = nuevasNotas.filter(nota => !notasActuales.some(n => n.id === nota.id));
+
+    solicitud.notasCOO = [...notasFiltradas, ...notasAgregadas];
     await solicitud.save();
 
     return res.status(200).json({
-      message: 'Solicitud actualizada exitosamente.',
+      message: 'Notas del coordinador modificadas exitosamente',
     });
-
-  }
-  catch(err){
+  } catch (err) {
     return res.status(500).json({
       message: 'Error interno del servidor al modificar las notas del coordinador',
       err,
     });
-  };
+  }
 };
 // Vista Jefe de Carrera
 const allSolicitudesJefe = async (req, res) => {

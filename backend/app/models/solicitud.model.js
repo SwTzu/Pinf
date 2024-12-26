@@ -59,8 +59,8 @@ module.exports = (sequelize, Sequelize) => {
       },
       notasCOO: {
         // Notas del COO
-        type: Sequelize.TEXT,
-        allowNull: true,
+        type: Sequelize.JSON,
+        allowNull: true
       },
       supervisorCheck: {
         type: Sequelize.BOOLEAN,
@@ -72,7 +72,12 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         defaultValue: false,
       },
-      informe:{
+      informe: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      memoria: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
         defaultValue: false,

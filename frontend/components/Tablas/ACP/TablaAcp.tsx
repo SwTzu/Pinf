@@ -28,9 +28,9 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Mail, Search, CircleHelp } from "lucide-react";
+import { Mail, Search, CircleHelp, Plus, Check } from "lucide-react";
 import styles from "@/styles/est.module.css";
-import { addSup, obtenerCarta, aceptarCarta} from "@/api/est/solicitudes";
+import { addSup, obtenerCarta, aceptarCarta } from "@/api/est/solicitudes";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -125,8 +125,12 @@ export default function TablaAcp({ token }: { token: string }) {
   const handleRowClick = (item: Solicitud) => {
     if (item.fase === 3 && item.correoSupervisor === null) {
       setIdSolicitud(item.idSolicitud);
-        onOpen();
-    } else if (item.fase === 4 && item.correoSupervisor !== null && item.supervisorCheck === true) {
+      onOpen();
+    } else if (
+      item.fase === 4 &&
+      item.correoSupervisor !== null &&
+      item.supervisorCheck === true
+    ) {
       obtenerCarta(item.idSolicitud).then((res) => {
         // Convertir la fecha de YYYY-MM-DD a DD-MM-YYYY
         const formatFecha = (fecha: string) => {
@@ -144,8 +148,7 @@ export default function TablaAcp({ token }: { token: string }) {
       setTimeout(() => {
         cardFormularioRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100); // Añadir un pequeño retraso para asegurar que el formulario está visible antes del scroll
-    }
-    else {
+    } else {
       alert("La solicitud esta a la espera de la firma del supervisor");
     }
   };
@@ -162,17 +165,21 @@ export default function TablaAcp({ token }: { token: string }) {
     );
   }
   const handleForumCheck = (carta: carta) => {
-    if (confirm("¿Desea proceder con la firma de la carta de aceptación?. Con esto indica que acepta las condiciones y actividades determinadas por el supervisor.")) {
+    if (
+      confirm(
+        "¿Desea proceder con la firma de la carta de aceptación?. Con esto indica que acepta las condiciones y actividades determinadas por el supervisor."
+      )
+    ) {
       carta.alumnoCheck = true;
       setShowCardFormulario(false);
       aceptarCarta(carta.idSolicitud).then((res) => {
         alert("Se ha enviado la carta de aceptación al coordinador");
         setTimeout(() => {
           list.reload();
-        }, 1000); 
+        }, 1000);
       });
     }
-  }
+  };
   return (
     <>
       <div className="flex justify-between items-center mb-4 p-2 gap-4">
@@ -269,7 +276,54 @@ export default function TablaAcp({ token }: { token: string }) {
                 {new Date(item.fechaSolicitud).toLocaleDateString()}
               </TableCell>
               <TableCell style={{ textAlign: "center" }}>
-                {item.fase === 3 ? "Firmado" : "Formularios"}
+                {item.fase === 3 ? (
+                  <Tooltip
+                    color="warning"
+                    content="Solicitud Firmada, se requiere ingresar Email de Supervisor para continuar(Seccion carta de aceptación)"
+                  >
+                    <Chip
+                      startContent={<Plus size={18} />}
+                      color="warning"
+                      variant="flat"
+                      className="p-2"
+                      size="md"
+                    >
+                      Ingresar Supervisor
+                    </Chip>
+                  </Tooltip>
+                ) : item.fase === 4 && item.supervisorCheck ? (
+                  <Tooltip
+                    color="success"
+                    content="Solicitud Firmada, Carta de aceptación firmada por el supervisor, se requiere firma del alumno para continuar."
+                  >
+                    <Chip
+                    startContent={<Plus size={18} />}
+                      color="success"
+                      variant="flat"
+                      className="p-2"
+                      size="md"
+                    >
+                      Carta de aceptación
+                    </Chip>
+                  </Tooltip>
+                ) : item.fase === 4 && !item.supervisorCheck ? (
+                  <Tooltip
+                    color="warning"
+                    content="El Supervisor debe llenar la carta de aceptación para continuar"
+                  >
+                    <Chip
+                    startContent={<Spinner size="sm" color="secondary" />}
+                      color="warning"
+                      variant="flat"
+                      className="p-2"
+                      size="md"
+                    >
+                      Carta de aceptación
+                    </Chip>
+                  </Tooltip>
+                ) : (
+                  ""
+                )}
               </TableCell>
             </TableRow>
           )}
@@ -332,7 +386,13 @@ export default function TablaAcp({ token }: { token: string }) {
                   </Tooltip>
                 </div>
                 <div className="flex flex-row gap-2 justify-start items-center">
-                  <Checkbox size="lg" isSelected={carta?.alumnoCheck} onValueChange={() => {carta && handleForumCheck(carta)}} >
+                  <Checkbox
+                    size="lg"
+                    isSelected={carta?.alumnoCheck}
+                    onValueChange={() => {
+                      carta && handleForumCheck(carta);
+                    }}
+                  >
                     Firmado del alumno
                   </Checkbox>
                   <Tooltip
@@ -355,9 +415,16 @@ export default function TablaAcp({ token }: { token: string }) {
                   aria-label={tarea.name}
                   title={tarea.name}
                 >
-                    <p style={{ whiteSpace: "pre-wrap", wordWrap: "break-word", fontSize: "0.875rem", color: "gray" }}>
+                  <p
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
+                      fontSize: "0.875rem",
+                      color: "gray",
+                    }}
+                  >
                     {tarea.description}
-                    </p>
+                  </p>
                   <Divider className="my-2" />
                   {tarea.areas.map((area: area, index) => (
                     <Chip key={index} color="secondary" size="sm">

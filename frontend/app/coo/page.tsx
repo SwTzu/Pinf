@@ -1,13 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Button, Card} from "@nextui-org/react";
+import { Button, Card } from "@nextui-org/react";
 import styles from "@/styles/coo.module.css";
-import TablaCoo from "@/components/Tablas/TabCoo/TablaCoo";
 import * as echarts from "echarts";
 import {
   Building2,
   UserRound,
-  FileInput,
   ChartPie,
   FileCheck2,
   BarChart2,
@@ -16,14 +14,23 @@ import {
 import { Empresas } from "@/api/coo/solicitudes";
 import TablaUsers from "@/components/Tablas/TabCoo/TablaUsers";
 import TablaEvaluacionCarta from "@/components/Tablas/TabCoo/TablaEvaluacionCarta";
-import toast, { Toaster } from "react-hot-toast";
+import {
+  obtenerEstadisticasFasesSolicitudes,
+  obtenerStatsAreas,
+} from "@/api/coo/stats";
+import PieChartComponent from "@/components/Stats/PieChartComponente";
+import VisualPieChartComponent from "@/components/Stats/VisualPieChartComponente";
+import BarChartComponent from "@/components/Stats/BarChartComponente";
 type empresa = {
   verificadas: number;
   total: number;
 };
+interface DataCharts {
+  value: number;
+  name: string;
+}
 export default function HomeCoo() {
   const chartRef = useRef<HTMLDivElement>(null);
-  const solicitudRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const empresasRef = useRef<HTMLDivElement>(null);
   const usersRef = useRef<HTMLDivElement>(null);
@@ -32,10 +39,11 @@ export default function HomeCoo() {
   const containerRef = useRef<HTMLDivElement>(null); // Ref para el div que contiene el scroll
   const [isvisible, setIsvisible] = useState(false);
   const [s_empresas, setS_empresas] = useState(false);
-  const [s_resumen, setS_resumen] = useState(false);
   const [st_resumen, setSt_resumen] = useState(false);
   const [s_users, setS_users] = useState(false);
   const [s_evaluaciones, setS_evaluaciones] = useState(false);
+  const [statsFases, setStatsFases] = useState<DataCharts[]>([]);
+  const [statsAreas, setStatsAreas] = useState<DataCharts[]>([]);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
   const [empresas, setEmpresas] = useState<empresa>({
@@ -111,6 +119,26 @@ export default function HomeCoo() {
       }
     });
   }, [Token]);
+  useEffect(() => {
+    obtenerEstadisticasFasesSolicitudes().then((res) => {
+      const data = [
+        { value: res[0], name: "Rechazado" },
+        { value: res[1], name: "Solicitado" },
+        { value: res[2], name: "Revisado" },
+        { value: res[3], name: "Firmado" },
+        { value: res[5], name: "Coordinación" },
+        { value: res[6], name: "Iniciada" },
+        { value: res[8], name: "Revision evaluación" },
+      ];
+      setStatsFases(data);
+    });
+  }, []);
+  useEffect(() => {
+    obtenerStatsAreas().then((res) => {
+      setStatsAreas(res);
+    });
+  }, []);
+
   return (
     <div className={styles.CooDiv} ref={containerRef}>
       {isvisible && (
@@ -131,33 +159,8 @@ export default function HomeCoo() {
           Panel de coordinación
         </h1>
       </div>
-      
-      <div className="grid gap-[2rem] md:grid-cols-5 mb-[1rem]">
-        <div onClick={() => redireccion(empresasRef, setS_empresas)}>
-          <Card id="res_empresas" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen de empresas</h1>
-            <h2 className={styles.card_h2}>
-              Vista general empresas en sistema
-            </h2>
-            <Building2 className={styles.card_icon} />
-          </Card>
-        </div>
-        <div onClick={() => redireccion(statsRef, setSt_resumen)}>
-          <Card id="res_stats" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen estadístico</h1>
-            <h2 className={styles.card_h2}>
-              Muestreo de estadisticas relevantes
-            </h2>
-            <ChartPie className={styles.card_icon} />
-          </Card>
-        </div>
-        <div onClick={() => redireccion(solicitudRef, setS_resumen)}>
-          <Card id="res_solicitudes" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen de solicitudes</h1>
-            <h2 className={styles.card_h2}>Vista general de solicitudes</h2>
-            <FileInput className={styles.card_icon} />
-          </Card>
-        </div>
+
+      <div className="grid gap-[2rem] md:grid-cols-4 mb-6">
         <div onClick={() => redireccion(usersRef, setS_users)}>
           <Card id="res_Users" className={styles.card_base}>
             <h1 className={styles.card_h1}>Usuarios administrativos</h1>
@@ -167,6 +170,26 @@ export default function HomeCoo() {
             <UserRound className={styles.card_icon} />
           </Card>
         </div>
+        <div onClick={() => redireccion(empresasRef, setS_empresas)}>
+          <Card id="res_empresas" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen de empresas</h1>
+            <h2 className={styles.card_h2}>
+              Vista general empresas en sistema
+            </h2>
+            <Building2 className={styles.card_icon} />
+          </Card>
+        </div>
+        
+        <div onClick={() => redireccion(statsRef, setSt_resumen)}>
+          <Card id="res_stats" className={styles.card_base}>
+            <h1 className={styles.card_h1}>Resumen estadístico</h1>
+            <h2 className={styles.card_h2}>
+              Muestreo de estadisticas relevantes
+            </h2>
+            <ChartPie className={styles.card_icon} />
+          </Card>
+        </div>
+        
         <div onClick={() => redireccion(evaluacionesRef, setS_evaluaciones)}>
           <Card id="res_evaluaciones" className={styles.card_base}>
             <h1 className={styles.card_h1}>Evaluaciones</h1>
@@ -178,17 +201,19 @@ export default function HomeCoo() {
         </div>
       </div>
       <Card
-        ref={solicitudRef}
-        className={`mb-6 ${styles.box} ${s_resumen ? styles.active_box : ""}`}
+        ref={evaluacionesRef}
+        className={`mb-6 ${styles.box} ${
+          s_evaluaciones ? styles.active_box : ""
+        }`}
       >
         <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-          Resumen de solicitudes
+          Evaluaciones
         </h1>
         <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
-          Vista general de solicitudes.
+          Lista de evaluaciones pendientes.
         </h2>
         <div className={styles.divtable}>
-          <TablaCoo />
+          <TablaEvaluacionCarta token={Token} />
         </div>
       </Card>
       <div
@@ -197,44 +222,110 @@ export default function HomeCoo() {
         }`}
         ref={statsRef}
       >
-        <h1 className="text-xl font-semibold mb-4">Reportes Personalizados</h1>
+        <h1 className="text-3xl font-semibold black mb-4">
+          Resumen estadístico personalizado
+        </h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Evaluación de Impacto de Proyectos
+            Ponderación de fases/estados de solicitudes
           </div>
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Evaluación de Impacto de Proyectos
+            Ponderación de empresas verificadas por región
           </div>
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Evaluación de Impacto de Proyectos
+            Ponderación de áreas en practicas
           </div>
-          <Card id="res_empresas" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen de empresas</h1>
-            <h2 className={styles.card_h2}>
-              Vista general empresas en sistema
-            </h2>
-            <Building2 className={styles.card_icon} />
+          <Card id="res_empresas" className={styles.card_base_stats}>
+            <PieChartComponent
+              data={statsFases}
+              chartId="chartFases"
+              showEmphasis={true}
+              legendOrientation="vertical"
+              legendPosition={{ left: "0" }}
+            />
           </Card>
-          <Card id="res_empresas" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen de empresas</h1>
-            <h2 className={styles.card_h2}>
-              Vista general empresas en sistema
-            </h2>
-            <Building2 className={styles.card_icon} />
+
+          <Card id="res_empresas" className={styles.card_base_stats}>
+            <BarChartComponent
+              data={statsAreas}
+              chartId="BarEmp"
+              showEmphasis={true}
+              legendOrientation="horizontal"
+              legendPosition={{ left: "0" }}
+            />
           </Card>
-          <Card id="res_empresas" className={styles.card_base}>
-            <h1 className={styles.card_h1}>Resumen de empresas</h1>
-            <h2 className={styles.card_h2}>
-              Vista general empresas en sistema
-            </h2>
-            <Building2 className={styles.card_icon} />
+          <Card id="res_empresas" className={styles.card_base_stats}>
+            <VisualPieChartComponent
+              data={statsAreas}
+              chartId="chartAreas"
+              showEmphasis={true}
+              legendOrientation="vertical"
+              legendPosition={{ left: "0" }}
+            />
           </Card>
         </div>
       </div>
-      
+      <div
+        id="resumenempresas"
+        className="grid gap-[2rem] md:grid-cols-3 mb-[1rem]"
+        ref={empresasRef}
+      >
+        <Card
+          className={`mb-6 max-h-[20vh] ${styles.box} ${
+            s_empresas ? styles.active_box : ""
+          }`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Empresas verificadas
+          </h1>
+          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
+            <p className="text-[4rem] font-semibold">{empresas.verificadas}</p>
+            <Building2 className="self-center" size={62}/>
+          </div>
+        </Card>
+        <Card
+          className={`mb-6 max-h-[20vh] ${styles.box} ${
+            s_empresas ? styles.active_box : ""
+          }`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+            Empresas no verificadas
+          </h1>
+          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
+            <p className="text-[4rem] font-semibold">
+              {empresas.total - empresas.verificadas}
+            </p>
+            <Building2 className="self-center" size={62} />
+          </div>
+        </Card>
+
+
+
+        <Card
+          className={`mb-6 max-h-[20vh] ${styles.box} ${
+            s_empresas ? styles.active_box : ""
+          }`}
+        >
+          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
+          Total empresas
+          </h1>
+          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
+          <p className="text-[4rem] font-semibold">{empresas.total}</p>
+          <div
+              id="chart"
+              ref={chartRef}
+              style={{ width: "5rem", height: "5rem", alignSelf: "center", justifySelf  : "center" }}
+            />
+          </div>
+        </Card>
+
+
+
+
+      </div>
       <Card
         ref={usersRef}
         className={`mb-6 ${styles.box} ${s_users ? styles.active_box : ""}`}
@@ -247,65 +338,6 @@ export default function HomeCoo() {
         </h2>
         <div className={styles.divtable}>
           <TablaUsers token={Token} />
-        </div>
-      </Card>
-      <div
-        id="resumenempresas"
-        className="grid gap-[2rem] md:grid-cols-3 mb-[1rem]"
-        ref={empresasRef}
-      >
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-            Empresas verificadas
-          </h1>
-          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
-            <p className="text-[7rem] font-bold">{empresas.verificadas}</p>
-            <Building2 className="h-[7rem] w-[7rem] self-center" />
-          </div>
-        </Card>
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-            Empresas no verificadas
-          </h1>
-          <div className="grid md:grid-cols-2 self-center mb-[2rem]">
-            <p className="text-[7rem] font-bold">
-              {empresas.total - empresas.verificadas}
-            </p>
-            <Building2 className="h-[7rem] w-[7rem] self-center" />
-          </div>
-        </Card>
-        <Card
-          className={`mb-6 ${styles.box} ${s_empresas ? styles.active_box : ""}`}
-        >
-          <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-            Total empresas
-          </h1>
-          <div className="grid  md:grid-cols-2 self-center mb-[2rem]">
-            <p className="text-[7rem] font-bold">{empresas.total}</p>
-            <div
-              id="chart"
-              ref={chartRef}
-              style={{ width: "7rem", height: "7rem", alignSelf: "center" }}
-            />
-          </div>
-        </Card>
-      </div>
-      <Card
-        ref={evaluacionesRef}
-        className={`mb-6 ${styles.box} ${s_evaluaciones ? styles.active_box : ""}`}
-      >
-        <h1 className="text-3xl font-semibold black pt-[2rem] pl-[2rem]">
-          Evaluaciones
-        </h1>
-        <h2 className="text-1xl text-gray-400 pl-[2.2rem]">
-          Lista de evaluaciones pendientes.
-        </h2>
-        <div className={styles.divtable}>
-          <TablaEvaluacionCarta token={Token}/>
         </div>
       </Card>
     </div>

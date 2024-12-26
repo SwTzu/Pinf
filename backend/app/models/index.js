@@ -37,10 +37,12 @@ db.solicitud.belongsTo(db.empresa,{foreignKey:'rutEmpresa'});
 db.empresa.hasMany(db.supervisor,{foreignKey:'rutEmpresa'});
 db.supervisor.belongsTo(db.empresa,{foreignKey:'rutEmpresa'});
 
-
+/*
 db.solicitud.hasMany(db.memoria,{foreignKey:'idSolicitud'});
 db.memoria.belongsTo(db.solicitud,{foreignKey:'idSolicitud'});
-
+*/
+db.solicitud.hasMany(db.memoria,{foreignKey:'idSolicitud', as: 'memorias'});
+db.memoria.belongsTo(db.solicitud,{foreignKey:'idSolicitud', as: 'solicitud'});
 
 db.solicitud.hasMany(db.carta,{foreignKey:'idSolicitud'});
 db.carta.belongsTo(db.solicitud,{foreignKey:'idSolicitud'});

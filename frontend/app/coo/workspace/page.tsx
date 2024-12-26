@@ -11,6 +11,18 @@ import {
   Input,
   Chip,
   Tooltip,
+  Accordion,
+  AccordionItem,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
 } from "@nextui-org/react";
 import {
   CirclePlus,
@@ -22,8 +34,15 @@ import {
   FileX,
   CheckCircle2,
   CircleX,
+  CircleCheckBig,
+  FilePlus2,
+  Save,
+  Send,
 } from "lucide-react";
-import { Solicitudes, crearArea } from "../../../api/coo/solicitudes";
+import { Solicitudes, updateNotas } from "../../../api/coo/solicitudes";
+import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
+import toast, { Toaster } from "react-hot-toast";
+import ContentModal from "@/components/Tablas/TabCoo/ContentModal";
 // Clave para almacenar en localStorage
 const STORAGE_KEY = "notes_positions";
 
@@ -207,6 +226,9 @@ const DraggableNote = ({
               maxHeight: "220px", // Limitar la altura máxima
               scrollbarWidth: "none", // Firefox
               msOverflowStyle: "none", // IE y Edge
+              fontSize: "0.98rem",
+              textAlign: "center",
+              alignSelf: "center",
             }}
           >
             {content}
@@ -220,6 +242,7 @@ type Practica = {
   id: number;
   nombreEstudiante: string;
   rutEstudiante: string;
+  razonSocial: string;
   empresa: string;
   fase: number;
   estado: string;
@@ -227,11 +250,11 @@ type Practica = {
   fechaInicio: string;
   fechaTermino: string;
   comentarios: string[];
-  notasCOO: { title: string; content: string }[] | null;
+  notasCOO: { id: number; title: string; content: string }[] | null;
   correoSupervisor: string;
   tareas: Task[];
-  informe: string;
-  idmemoria: string;
+  informe: boolean | null;
+  memoria: boolean | null;
 };
 interface Task {
   id: string;
@@ -243,16 +266,34 @@ interface area {
   idArea: number;
   nombre: string;
 }
+interface notaCoo {
+  id: number;
+  title: string;
+  content: string;
+}
 export default function Workspace() {
   const [notes, setNotes] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [active, setActive] = useState(false);
   const [practicas, setPracticas] = useState<Practica>();
-  const [newNote, setNewNote] = useState({ title: "", content: "" });
+  const [notesCOO, setNotesCOO] = useState<notaCoo[]>([]);
+  const [newNote, setNewNote] = useState<notaCoo>({
+    id: 0,
+    title: "",
+    content: "",
+  });
+  const [motivoRechazo, setMotivoRechazo] = useState("");
+  const {
+    isOpen: isDrawerOpen,
+    onOpen: onDrawerOpen,
+    onOpenChange: onDrawerOpenChange,
+    onClose: onDrawerClose,
+  } = useDisclosure();
   const [selectedPractica, setSelectedPractica] = useState<Practica>({
     id: 0,
     nombreEstudiante: "",
     rutEstudiante: "",
+    razonSocial: "",
     empresa: "",
     fase: 0,
     estado: "",
@@ -263,9 +304,75 @@ export default function Workspace() {
     notasCOO: [],
     correoSupervisor: "",
     tareas: [],
-    informe: "",
-    idmemoria: "",
+    informe: false,
+    memoria: false,
   });
+  const [informe, setInforme] = useState({
+    aspectos_generales: {
+      capacidad: "1",
+      responzabilidad: "1",
+      asistencia: "1",
+      comportamiento: "1",
+      adaptabilidad: "1",
+      iniciativa: "1",
+    },
+    aspectos_tecnicos: {
+      solucion: "1",
+      conocimientos: "1",
+      organizacion: "1",
+      decision: "1",
+    },
+    aspectos_comunicacionales: {
+      comunicacion_escrita: "1",
+      comunicacion_oral: "1",
+    },
+    preguntas: [
+      {
+        id: 1,
+        respuesta: "true",
+        comentario: "Comentario 1",
+      },
+      {
+        id: 2,
+        respuesta: "true",
+        comentario: "Comentario 2",
+      },
+      {
+        id: 3,
+        respuesta: "true",
+        comentario: "Comentario 3",
+      },
+      {
+        id: 4,
+        respuesta: "true",
+        comentario: "Comentario 4",
+      },
+      {
+        id: 5,
+        respuesta: "true",
+        comentario: "Comentario 5",
+      },
+      {
+        id: 6,
+        respuesta: "true",
+        comentario: "Comentario 6",
+      },
+      {
+        id: 7,
+        respuesta: "true",
+        comentario: "Comentario 7",
+      },
+      {
+        id: 8,
+        respuesta: "true",
+        comentario: "Comentario 8",
+      },
+    ],
+    opinion: "Opinion",
+    nota: "",
+    idSolicitud: 0,
+  });
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
   // Obtener los límites del área visible
@@ -274,51 +381,56 @@ export default function Workspace() {
     const screenHeight = window.innerHeight;
     return { screenWidth, screenHeight };
   };
+  function getSolicitudes(Token: string) {
+    Solicitudes(Token)
+      .then((res) => {
+        const updatedPracticas = res.map((practica: Practica) => {
+          let estadoString = "";
+          switch (practica.fase) {
+            case 0:
+              estadoString = "Rechazado";
+              break;
+            case 1:
+              estadoString = "Solicitado";
+              break;
+            case 2:
+              estadoString = "Revisado";
+              break;
+            case 3:
+              estadoString = "Firmado";
+              break;
+            case 4:
+              estadoString = "Formularios";
+              break;
+            case 5:
+              estadoString = "Coordinacion";
+              break;
+            case 6:
+              estadoString = "Iniciada";
+              break;
+            case 7:
+              estadoString = "Memoria/informe";
+              break;
+            case 8:
+              estadoString = "Revision evaluación";
+              break;
+            case 9:
+              estadoString = "Finalizado";
+              break;
+            default:
+              estadoString = practica.estado;
+          }
+          return { ...practica, estado: estadoString };
+        });
+        setPracticas(updatedPracticas);
+        setNotesCOO(updatedPracticas[0].notasCOO);
+        setSelectedPractica(updatedPracticas[0]);
+      })
+      .catch((err) => console.log(err));
+  }
   useEffect(() => {
     if (practicas === undefined) {
-      Solicitudes(Token)
-        .then((res) => {
-          const updatedPracticas = res.map((practica: Practica) => {
-            let estadoString = "";
-            switch (practica.fase) {
-              case 0:
-                estadoString = "Rechazado";
-                break;
-              case 1:
-                estadoString = "Solicitado";
-                break;
-              case 2:
-                estadoString = "Revisado";
-                break;
-              case 3:
-                estadoString = "Firmado";
-                break;
-              case 4:
-                estadoString = "Formularios";
-                break;
-              case 5:
-                estadoString = "Coordinacion";
-                break;
-              case 6:
-                estadoString = "Iniciada";
-                break;
-              case 7:
-                estadoString = "Memoria/informe";
-                break;
-              case 8:
-                estadoString = "Revision evaluación";
-                break;
-              case 9:
-                estadoString = "Finalizado";
-                break;
-              default:
-                estadoString = practica.estado;
-            }
-            return { ...practica, estado: estadoString };
-          });
-          setPracticas(updatedPracticas);
-        })
-        .catch((err) => console.log(err));
+      getSolicitudes(Token);
     }
   }, [Token, practicas]);
   // Sincronizar las notas con localStorage y establecer el estado inicial
@@ -390,7 +502,6 @@ export default function Workspace() {
 
     setNotes([...notes, newNote]);
   };
-
   const handleEditNote = (id: string, newTitle: string, newContent: string) => {
     setNotes((prevNotes: any) =>
       prevNotes.map((note: any) =>
@@ -400,7 +511,6 @@ export default function Workspace() {
       )
     );
   };
-
   const handleDeleteNote = (id: string) => {
     setNotes((prevNotes: any) =>
       prevNotes.filter((note: any) => note.id !== id)
@@ -413,16 +523,101 @@ export default function Workspace() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedStoredNotes));
   };
   // No renderizamos las notas hasta que estén completamente sincronizadas
+  const handleInforme = (idSolicitud: number) => {
+    getInforme(idSolicitud).then((res) => {
+      if (res.informe != undefined) {
+        setInforme(res.informe.formulario);
+        setInforme((prevInforme) => ({
+          ...prevInforme,
+          nota: res.informe.nota,
+          idSolicitud: idSolicitud,
+        }));
+        onOpen();
+      } else {
+        alert("Error al obtener el informe");
+      }
+    });
+  };
+  const handleModPractica = (idSolicitud: number, fase: number) => {
+    updateFase(Token, idSolicitud, fase).then((res) => {
+      if (res.status === 200) {
+        toast.success("Fase actualizada correctamente");
+      } else {
+        toast.error("Error al actualizar la fase");
+      }
+    });
+  };
+  const handleRechazo = (onDrawerClose: () => void) => {
+    updateFase(Token, selectedPractica.id, 0, motivoRechazo).then((res) => {
+      if (res) {
+        toast.success("Carta rechazada correctamente");
+        setMotivoRechazo("");
+        onDrawerClose();
+        //actualizar la lista de solicitudes
+        getSolicitudes(Token);
+      } else {
+        toast.error("Error al rechazar la carta");
+      }
+    });
+  };
+  const handleDeleteNoteCoo = (id: number) => {
+    // Filtra las notas eliminadas localmente
+    const newNotes = selectedPractica.notasCOO?.filter(
+      (note) => note.id !== id
+    );
 
-  const handlecrearArea = () => {
-    crearArea("Java")
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => console.log(err));
-  }; //<Button onPress={handlecrearArea}>Crear Area</Button>
+    // Realiza la actualización en el backend
+    updateNotas(Token, selectedPractica.id, newNotes).then((res) => {
+      if (res) {
+        toast.success("Nota eliminada correctamente");
+        // Actualiza el estado asegurando una nueva referencia del objeto
+        setSelectedPractica((prevPractica) => ({
+          ...prevPractica,
+          notasCOO: newNotes ? [...newNotes] : [],
+        }));
+      } else {
+        toast.error("Error al eliminar la nota");
+      }
+    });
+  };
+  const handleAddNoteCoo = () => {
+    if (!newNote.title.trim() || !newNote.content.trim()) {
+      toast.error("El título y el contenido de la nota son obligatorios");
+      return;
+    }
+  
+    // Generar un nuevo ID para la nota (puedes mejorarlo con un generador único si es necesario)
+    const newNoteWithId = {
+      ...newNote,
+      id:
+        (selectedPractica.notasCOO?.length
+          ? Math.max(...selectedPractica.notasCOO.map((note) => note.id))
+          : 0) + 1,
+    };
+  
+    // Agregar la nueva nota a las notas actuales localmente
+    const updatedNotes = selectedPractica.notasCOO
+      ? [...selectedPractica.notasCOO, newNoteWithId]
+      : [newNoteWithId];
+    updateNotas(Token, selectedPractica.id, updatedNotes).then((res) => {
+      if (res) {
+        toast.success("Nota agregada correctamente");
+        // Actualizar el estado local con la nueva nota
+        setSelectedPractica((prevPractica) => ({
+          ...prevPractica,
+          notasCOO: updatedNotes,
+        }));
+        // Limpiar el formulario de nueva nota
+        setNewNote({ id: 0, title: "", content: "" });
+      } else {
+        toast.error("Error al agregar la nota");
+      }
+    });
+  };
+  
   return (
     <main className="flex-1 overflow-auto w-[91.99vw] h-[99.99vh] p-[1.5rem]">
+      <Toaster />
       {active && (
         <div
           className="w-[90vw] h-[90vh] text-center text-2xl font-bold absolute "
@@ -445,6 +640,152 @@ export default function Workspace() {
           </DndContext>
         </div>
       )}
+      <Modal
+        backdrop="opaque"
+        isOpen={isOpen}
+        onClose={onOpenChange}
+        onOpenChange={onOpenChange}
+        scrollBehavior="inside"
+        size="3xl"
+        motionProps={{
+          variants: {
+            enter: {
+              y: 0,
+              opacity: 1,
+              transition: {
+                duration: 0.3,
+                ease: "easeOut",
+              },
+            },
+            exit: {
+              y: -20,
+              opacity: 0,
+              transition: {
+                duration: 0.2,
+                ease: "easeIn",
+              },
+            },
+          },
+        }}
+      >
+        <ModalContent className=" min-h-[85vh]">
+          {(onModalClose) => (
+            <>
+              <ModalHeader className="flex justify-between items-center pr-[4rem] pt-[1rem]">
+                <div className="flex flex-row gap-2">
+                  <h1 className="text-3xl font-bold text-black-900">Informe</h1>
+                  <Chip
+                    color={parseFloat(informe.nota) > 4 ? "success" : "danger"}
+                    variant="flat"
+                    size="lg"
+                  >
+                    Nota: {informe.nota}
+                  </Chip>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                {informe !== null && <ContentModal informe={informe} />}
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Drawer
+        hideCloseButton
+        backdrop="blur"
+        classNames={{
+          base: "data-[placement=right]:sm:m-2 data-[placement=left]:sm:m-2  rounded-medium",
+        }}
+        isOpen={isDrawerOpen}
+        onOpenChange={onDrawerOpenChange}
+        size="2xl"
+      >
+        <DrawerContent>
+          {(onDrawerClose) => (
+            <>
+              <DrawerHeader className="absolute top-0 inset-x-0 z-50 flex flex-row gap-2 p-2 border-b border-default-200/50 justify-between bg-content1/50 backdrop-saturate-150 backdrop-blur-lg">
+                <Tooltip content="Close">
+                  <Button
+                    isIconOnly
+                    className="text-black-500"
+                    size="sm"
+                    variant="light"
+                    onPress={onDrawerClose}
+                  >
+                    <svg
+                      fill="none"
+                      height="20"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      width="20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
+                    </svg>
+                  </Button>
+                </Tooltip>
+                <div className="w-full flex justify-between items-center gap-2">
+                  <h1 className="text-lg font-bold text-black-500">
+                    RECHAZAR CARTA DE ACEPTACIÓN
+                  </h1>
+                  <Button
+                    className="font-medium text-small text-black-500 z-51"
+                    size="sm"
+                    startContent={<CircleX color="red" />}
+                    variant="flat"
+                    color="danger"
+                    onPress={() => {
+                      onDrawerClose();
+                    }}
+                  >
+                    Cerrar
+                  </Button>
+                </div>
+              </DrawerHeader>
+              <DrawerBody className="pt-16">
+                <div className="flex flex-col gap-2 py-4 ">
+                  <h1 className="text-lg font-bold text-black-500">
+                    Motivo de rechazo
+                  </h1>
+                  <p className="text-medium text-default-500 mb-4">
+                    Por favor, ingrese el motivo por el cual rechaza la carta de
+                    aceptación.
+                  </p>
+                  <div className="flex flex-col gap-4">
+                    <Textarea
+                      placeholder="Ingrese motivo de rechazo"
+                      value={motivoRechazo}
+                      onValueChange={setMotivoRechazo}
+                      variant="bordered"
+                      rows={5}
+                      size="lg"
+                      isClearable
+                      onClear={() => toast.success("Motivo de rechazo borrado")}
+                      className="w-full h-full"
+                      maxLength={170}
+                    />
+                  </div>
+                </div>
+              </DrawerBody>
+              <DrawerFooter>
+                <Button
+                  color="danger"
+                  onPress={() => handleRechazo(onDrawerClose)}
+                  className="w-full"
+                  variant="flat"
+                  startContent={<Send />}
+                  isDisabled={!motivoRechazo.trim()}
+                >
+                  Rechazar
+                </Button>
+              </DrawerFooter>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
       <div className="flex justify-between items-center mb-[2rem]">
         <h1 className="text-3xl font-bold text-gray-900">
           Gestión de Prácticas Profesionales
@@ -502,7 +843,7 @@ export default function Workspace() {
                         {practica.nombreEstudiante}
                       </h1>
                       <p className="text-sm text-gray-600">
-                        {practica.empresa}
+                        {practica.razonSocial}
                       </p>
                     </div>
                     <span
@@ -556,9 +897,53 @@ export default function Workspace() {
                 {selectedPractica.rutEstudiante}
               </h2>
             </div>
-            <Button variant="bordered" size="md" color="danger" onPress={() => {}}>
-              Rechazar Práctica
-            </Button>
+            <div className="flex space-x-2 items-center">
+              <Button
+                onPress={() => {
+                  if (
+                    confirm("¿Está seguro de que desea aceptar esta práctica?")
+                  ) {
+                    handleModPractica(
+                      selectedPractica.id,
+                      selectedPractica.fase + 1
+                    );
+                    getSolicitudes(Token);
+                  }
+                }}
+                size="md"
+                color={
+                  selectedPractica.fase === 5 || selectedPractica.fase === 8
+                    ? "success"
+                    : "default"
+                }
+                variant="bordered"
+                isDisabled={
+                  selectedPractica.fase === 5 || selectedPractica.fase === 8
+                    ? false
+                    : true
+                }
+                startContent={<CircleCheckBig size={20} />}
+              >
+                Aceptar Práctica
+              </Button>
+              <Button
+                variant="bordered"
+                size="md"
+                color="danger"
+                onPress={() => {
+                  if (
+                    confirm(
+                      "¿Está seguro de que desea rechazar e interrumpir esta práctica?"
+                    )
+                  ) {
+                    onDrawerOpen();
+                  }
+                }}
+                startContent={<CircleX size={20} />}
+              >
+                Rechazar Práctica
+              </Button>
+            </div>
           </CardHeader>
           <div className="p-[0.8rem]">
             <Divider className="mb-4" orientation="horizontal" />
@@ -574,16 +959,6 @@ export default function Workspace() {
                 </Chip>
               </div>
               <div className="border-r-2 text-center">
-                <h4 className="font-semibold text-center">
-                  Fecha de Solicitud
-                </h4>
-                <p className="text-center">
-                  {new Date(selectedPractica.fechaSolicitud).toLocaleDateString(
-                    "es-ES"
-                  )}
-                </p>
-              </div>
-              <div className="text-center">
                 <h4 className="font-semibold text-center">Fecha de Inicio</h4>
                 <p className="text-center">
                   {new Date(selectedPractica.fechaInicio).toLocaleDateString(
@@ -591,11 +966,22 @@ export default function Workspace() {
                   )}
                 </p>
               </div>
-              <Divider className="col-span-4 my-2" orientation="horizontal" />
-              <div className="border-r-2 text-center">
+
+              <div className=" text-center">
                 <h4 className="font-semibold text-center">Fecha de Término</h4>
                 <p className="text-center">
                   {new Date(selectedPractica.fechaTermino).toLocaleDateString(
+                    "es-ES"
+                  )}
+                </p>
+              </div>
+              <Divider className="col-span-4 my-2" orientation="horizontal" />
+              <div className="border-r-2 text-center">
+                <h4 className="font-semibold text-center">
+                  Fecha de Solicitud
+                </h4>
+                <p className="text-center">
+                  {new Date(selectedPractica.fechaSolicitud).toLocaleDateString(
                     "es-ES"
                   )}
                 </p>
@@ -619,174 +1005,156 @@ export default function Workspace() {
               </div>
               <div className="border-r-2 flex flex-col justify-center items-center text-center">
                 <h4 className="font-semibold text-center">Informe</h4>
-                {selectedPractica.informe !== null ? (
+                {selectedPractica.informe === null || false ? (
+                  <FileX />
+                ) : (
                   <FileCheck
                     className="hover:cursor-pointer hover:text-green-500"
                     onClick={() => {
-                      console.log("tu madre");
+                      handleInforme(selectedPractica.id);
                     }}
                   />
-                ) : (
-                  <FileX />
                 )}
               </div>
               <div className="flex flex-col justify-center items-center text-center">
                 <h4 className="font-semibold text-center">Memoria</h4>
-                {selectedPractica.idmemoria !== null ? (
+                {selectedPractica.memoria === null ||
+                selectedPractica.memoria === false ? (
+                  <FileX />
+                ) : (
                   <FileCheck
                     className="hover:cursor-pointer hover:text-green-500"
                     onClick={() => {
-                      console.log("tu madre");
+                      dowload(selectedPractica.id)
+                        .then(() => {
+                          toast.success("Memoria descargada correctamente");
+                        })
+                        .catch(() => {
+                          toast.error("Error al descargar la memoria");
+                        });
                     }}
                   />
-                ) : (
-                  <FileX />
                 )}
               </div>
             </div>
             <Divider className="mt-4 " orientation="horizontal" />
-            <div className="m-2">
-              <div className="flex flex-wrap gap-1 mb-2">
-                {selectedPractica.tareas.map((task) =>
-                  task.areas.map((area, index) => (
-                    <Chip key={index} color="secondary" size="sm">
-                      {area.nombre}
-                    </Chip>
-                  ))
-                )}
-              </div>
+            <div className="flex flex-wrap gap-1 my-2 ">
+              {Array.from(
+                new Set(
+                  selectedPractica.tareas.flatMap((task) =>
+                    task.areas.map((area) => area.nombre)
+                  )
+                )
+              ).map((areaNombre, index) => (
+                <Chip key={index} color="secondary" size="sm">
+                  {areaNombre}
+                </Chip>
+              ))}
             </div>
             <Divider orientation="horizontal" />
-            <div className="grid grid-cols-2 gap-x-4 text-center">
-              <h4 className="font-semibold ">Tareas</h4>
-              <h4 className="font-semibold ">Rechazadas</h4>
-              <div className="max-h-[15vh] w-full rounded-md border p-2 overflow-auto">
-                <div>
-                  {selectedPractica.tareas.map((tarea, index) => (
-                    <div key={tarea.id}>
-                      {tarea.name.length >= 40 ? (
-                        <Tooltip content={tarea.name}>
-                          <div className="flex items-start space-x-2 mb-2">
-                            <CheckCircle2
-                              className="h-5 w-5 text-green-500 flex-shrink-0"
-                              onClick={() => console.log("click")}
-                            />
-                            <p className="text-sm">{`${tarea.name.substring(
-                              0,
-                              40
-                            )}...`}</p>
-                          </div>
-                        </Tooltip>
-                      ) : (
-                        <div className="flex items-start space-x-2 mb-2">
-                          <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm">{tarea.name}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="max-h-[15vh] w-full rounded-md border p-2 overflow-auto">
-                <div>
-                  {selectedPractica.tareas.map((tarea, index) => (
-                    <div key={tarea.id}>
-                      {tarea.name.length >= 40 ? (
-                        <Tooltip content={tarea.name}>
-                          <div className="flex items-start space-x-2 mb-2">
-                            <CircleX
-                              className="h-5 w-5 text-red-500 flex-shrink-0"
-                              onClick={() => console.log("click")}
-                            />
-                            <p className="text-sm">{`${tarea.name.substring(
-                              0,
-                              40
-                            )}...`}</p>
-                          </div>
-                        </Tooltip>
-                      ) : (
-                        <div className="flex items-start space-x-2 mb-2">
-                          <CircleX
-                            className="h-5 w-5 text-red-500 flex-shrink-0"
-                            onClick={() => console.log("clickno")}
-                          />
-                          <span className="text-sm">{tarea.name}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <Divider className="mt-2" orientation="horizontal" />
-            <div>
-              <h4 className="font-semibold">Notas</h4>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 text-center mt-2">
+              <div className="w-full border-r-1">
+                <h4 className="font-semibold ">Tareas</h4>
+                <Divider className="mt-2" />
                 <div
-                  className="space-y-4 overflow-auto"
-                  style={{
-                    maxHeight: "29vh",
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
-                    pointerEvents: active ? "none" : "auto",
-                  }}
+                  className="max-h-[48vh] w-full overflow-y-auto p-4 scrollbar-none"
+                  id="boxNotas"
                 >
-                  {selectedPractica.notasCOO &&
-                    selectedPractica.notasCOO.map((nota, index) => (
-                      <div
+                  <Accordion variant="splitted">
+                    {selectedPractica.tareas.map((tarea: Task, index) => (
+                      <AccordionItem
                         key={index}
-                        className="bg-gray-100 p-3 rounded-lg"
-                        style={{
-                          wordWrap: "break-word",
-                          overflowWrap: "break-word",
-                          scrollbarWidth: "none",
-                          msOverflowStyle: "none",
-                        }}
+                        aria-label={tarea.name}
+                        title={tarea.name}
                       >
-                        <div className="flex justify-between items-start">
-                          <h5 className="font-semibold">{nota.title}</h5>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onPress={() => handleDeleteNote(index.toString())}
-                          >
-                            Eliminar
-                          </Button>
-                        </div>
-                        <p className="text-sm mt-1">{nota.content}</p>
-                      </div>
-                    ))}
+                        <p
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            wordWrap: "break-word",
+                            fontSize: "0.875rem",
+                            color: "gray",
+                          }}
+                        >
+                          {tarea.description}
+                        </p>
+                        <Divider className="my-2" />
+                        {tarea.areas.map((area: area, index) => (
+                          <Chip key={index} color="secondary" size="sm">
+                            {area.nombre}
+                          </Chip>
+                        ))}
+                      </AccordionItem>
+                    )) || null}
+                  </Accordion>
                 </div>
-                <div className="flex flex-col space-y-2 max-h-[29vh]">
-                  <Input
-                    placeholder="Título de la nota"
-                    value={newNote.title}
-                    onChange={(e) =>
-                      setNewNote({ ...newNote, title: e.target.value })
-                    }
-                  />
-                  <Textarea
-                    placeholder="Contenido de la nota"
-                    value={newNote.content}
-                    minRows={5}
-                    maxRows={5}
-                    onChange={(e) =>
-                      setNewNote({ ...newNote, content: e.target.value })
-                    }
-                  />
-                  <div className="flex flex-col gap-4">
-                    <Button onPress={handleAddNote}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Agregar Nota
-                    </Button>
-                    <Button onPress={handleAddNote}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Aceptar Práctica
-                    </Button>
+              </div>
+              <div className="w-full">
+                <h4 className="font-semibold">Notas</h4>
+                <Divider className="mt-2" />
+                <div className="grid grid-rows-[3fr,1fr] gap-2 min-h-[48vh] max-h-[48vh]">
+                  <div
+                    id="boxTask"
+                    className="overflow-y-auto p-2 flex flex-col justify-start scrollbar-none max-h-[48vh]"
+                  >
+                    {selectedPractica.notasCOO &&
+                    selectedPractica.notasCOO.length > 0 ? (
+                      selectedPractica.notasCOO.map((nota, index) => (
+                        <div
+                          key={index}
+                          className="bg-[#FFFFE0] p-3 rounded-lg w-full mt-2 border-1"
+                        >
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-semibold">{nota.title}</h5>
+                            <Trash
+                              size={18}
+                              className="hover:text-red-500"
+                              onClick={() => handleDeleteNoteCoo(nota.id)}
+                            />
+                          </div>
+                          <p className="text-sm mt-1">{nota.content}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="overflow-y-auto p-2 h-[10vh]">
+                        <h1>No hay notas</h1>
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 self-end p-2">
+                    <div className="flex flex-col gap-4">
+                      <Input
+                        placeholder="Título de la nota"
+                        variant="bordered"
+                        value={newNote.title}
+                        onChange={(e) =>
+                          setNewNote({ ...newNote, title: e.target.value })
+                        }
+                      />
+                      <Button
+                        onPress={handleAddNoteCoo}
+                        startContent={<FilePlus2 size={18} />}
+                        variant="flat"
+                        size="md"
+                        color="primary"
+                      >
+                        Agregar Nota
+                      </Button>
+                    </div>
+                    <Textarea
+                      placeholder="Contenido de la nota"
+                      value={newNote.content}
+                      variant="bordered"
+                      minRows={4}
+                      maxRows={4}
+                      onChange={(e) =>
+                        setNewNote({ ...newNote, content: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
               </div>
             </div>
+            <Divider orientation="horizontal" />
           </div>
         </Card>
       </div>

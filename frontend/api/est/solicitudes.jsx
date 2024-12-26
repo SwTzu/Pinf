@@ -322,3 +322,25 @@ export const aceptarCarta = async (idSolicitud) => {
     throw error;
   }
 }
+export const uploadMemoria = async (token,idSolicitud, file) => {
+  try {
+    const formData = new FormData();
+    formData.append('token', token);
+    formData.append('file', file);
+    formData.append('idSolicitud', idSolicitud);
+
+    const response = await fetch(`${backendUrl}/memoria/uploadMemoria`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      return response;
+    } else {
+      throw new Error('Error al subir la memoria');
+    }
+  } catch (error) {
+    console.error('Error en la solicitud al servidor:', error);
+    throw error;
+  }
+};

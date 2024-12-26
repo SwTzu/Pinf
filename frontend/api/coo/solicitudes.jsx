@@ -1,7 +1,6 @@
 "use client";
 import { backendUrl } from "../../config/config";
 export const actualizarDatosUsuario = async (token, nuevosDatos) => {
-  console.log("nuevos datos", nuevosDatos);
   try {
     const response = await fetch(`${backendUrl}/usuario/update`, {
       method: "PUT",
@@ -25,7 +24,6 @@ export const actualizarDatosUsuario = async (token, nuevosDatos) => {
     throw error; // Puedes manejar el error según tus necesidades
   }
 };
-
 export const Empresas = async (token) => {
   try {
     const response = await fetch(`${backendUrl}/stats/getNumerosEmpresas`, {
@@ -63,7 +61,6 @@ export const Solicitudes = async (token) => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log("data", data);
       return data.solicitudes;
     } else {
       throw new Error("Error al obtener datos del usuario");
@@ -122,7 +119,6 @@ export const crearUsuarioAdm = async (
   data
 ) => {
   try {
-    console.log("data", data);
     const response = await fetch(`${backendUrl}/coordinador/crear`, {
       method: "POST",
       headers: {
@@ -233,5 +229,82 @@ export const updateFase = async (token, idSolicitud, nroFase, motivoRechazo) => 
   } catch (error) {
     console.error("Error en la solicitud al servidor:", error);
     throw error; // Puedes manejar el error según tus necesidades
+  }
+}
+export const getInforme = async (idSolicitud) => {
+  try {
+    const response = await fetch(`${backendUrl}/informe/obtener`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idSolicitud: idSolicitud,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error("Error al obtener el informe de la solicitud");
+    }
+  } catch (error) {
+    console.error("Error en la solicitud al servidor:", error);
+    throw error;
+  }
+}
+export const dowload = async (idSolicitud) => {
+  try {
+    const response = await fetch(`${backendUrl}/memoria/descargar`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idSolicitud: idSolicitud,
+      }),
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "memoria.pdf"; // You can set the file name here
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } else {
+      throw new Error("Error al obtener el informe de la solicitud");
+    }
+  } catch (error) {
+    console.error("Error en la solicitud al servidor:", error);
+    throw error;
+  }
+}
+export const updateNotas = async (token, idSolicitud, notas) => {
+  try {
+    const response = await fetch(`${backendUrl}/solicitud/ModNotas`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: token,
+        idSolicitud: idSolicitud,
+        nuevasNotas: notas,
+      }),
+    });
+
+    if (response.ok) {
+      return response;
+    } else {
+      throw new Error("Error al actualizar las notas de la solicitud");
+    }
+  } catch (error) {
+    console.error("Error en la solicitud al servidor:", error);
+    throw error;
   }
 }

@@ -107,9 +107,5 @@ module.exports = {
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui(),require('tailwind-scrollbar')],
 }
-//base: #222736,
-//caja: #2a3042,
-//granMin #34406b,
-//granMax #34406b,

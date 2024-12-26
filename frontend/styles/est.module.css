@@ -89,3 +89,37 @@
 .active {
   animation: highlight 1.8s ease-out;
 }
+.customScroll {
+  /* Estilo general para Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+
+  /* WebKit (Chrome, Edge, Safari) */
+  &::-webkit-scrollbar {
+    width: 6px; /* Ancho más delgado */
+    height: 6px; /* Scroll horizontal si aplica */
+  }
+
+  /* Estilo del "thumb" (deslizador) */
+  &::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color del deslizador */
+    border-radius: 10px; /* Bordes redondeados */
+    border: 2px solid transparent; /* Espacio para separar del track */
+    background-clip: content-box; /* Asegurar separación interna */
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Cambio al pasar el cursor */
+  }
+
+  /* Estilo del track (fondo del scroll) */
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0; /* Color del track */
+    border-radius: 10px; /* Bordes redondeados */
+  }
+
+  /* Ocultar las flechas */
+  &::-webkit-scrollbar-button {
+    display: none; /* Quita las flechas */
+  }
+}
