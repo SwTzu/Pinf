@@ -187,7 +187,6 @@ const verificarEmpresa = async (req,res) => {
 const getEmpresas = async (req,res) => {
     const {token} = req.body;
     const response = await tokenfunc.validarToken(token, 2);
-    console.log(response);
 
     if(response.Boolean){
         const empresas = await db.empresa.findAll();

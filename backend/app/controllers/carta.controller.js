@@ -15,7 +15,6 @@ const crearCarta = async (req, res) => {
     try {
         // Convertir fechaInicio y fechaTermino del formato DD-MM-YYYY a YYYY-MM-DD HH:mm:ss
         const convertirFecha = (fecha) => {
-            console.log(fecha);
             const [dia, mes, anio] = fecha.split('/'); // Dividir DD-MM-YYYY
             return `${anio}-${mes}-${dia}`; // Crear formato YYYY-MM-DD HH:mm:ss
         };
@@ -51,7 +50,6 @@ const crearCarta = async (req, res) => {
         const alumno = await db.usuario.findOne({ where: { rut:solicitud.rut} });
         const supervisor = await db.supervisor.findOne({where:{correoSupervisor:correoSupervisor}});
         const empresa= await db.empresa.findOne({where:{rutEmpresa:solicitud.rutEmpresa}});
-        console.log(alumno.correo)
         const mailOptions = {
             from: MAIL_USER,
             to: alumno.correo,

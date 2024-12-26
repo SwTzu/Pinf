@@ -20,7 +20,6 @@ const empresasAprobadas = async (req, res) => {
 
     const empresasRepetidas = {};
     solicitudes.forEach(async (solicitud) => {
-      console.log(solicitud.empresa.razonSocial);
       if (empresasRepetidas[solicitud.empresa.razonSocial]) {
         empresasRepetidas[solicitud.empresa.razonSocial]++;
       } else {

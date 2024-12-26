@@ -16,7 +16,6 @@ const crearCoordinador = async (req, res) => {
             if (decoded.tipoUsuario !== 2) {
                 return res.status(403).json({message: "No tiene permisos para realizar esta acción"});
             }
-            console.log(req.body);
             const {rut,
                 password,
                 telefono,

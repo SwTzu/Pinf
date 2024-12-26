@@ -410,7 +410,6 @@ export default function TablaUsers({ token }: { token: string }) {
                   variant="flat"
                   color="success"
                   onPress={() => {
-                    console.log(newUser);
                     if (newUser) {
                         if (
                         !isValid ||
@@ -427,7 +426,7 @@ export default function TablaUsers({ token }: { token: string }) {
                         return;
                       } else {
                         const data = {
-                          rut: rut.formatted,
+                          rut: rut.raw,
                           tipoUsuario: userSelected.tipoUsuario,
                           nombre1: userSelected.nombre1,
                           nombre2: userSelected.nombre2,

@@ -21,7 +21,7 @@ const logout = async (req,res) => {
 const login = async (req, res) => {
   try {
     let { rut, password, userType} = req.body;
-
+    
     switch(userType){
       case 'est':
         userType=1;
@@ -41,7 +41,6 @@ const login = async (req, res) => {
       }
 
       const usuario = await db.usuario.findOne({ where: { rut: rut } });
-      
       if (!usuario || usuario.password !== password || usuario.tipoUsuario !== userType) {
         return res.status(404).json({ message: "Credenciales incorrectas." });
       }

@@ -266,7 +266,6 @@ const verSolicitudesUsuario = async (req, res) => {
   try {
     const { token } = req.body;
     const usuario = await jwt.verify(token, key);
-    console.log(usuario);
     const solicitudes = await db.solicitud.findAll({
       where: { rut: usuario.rut },
     });
@@ -701,8 +700,6 @@ const processSolicitud = async (element) => {
     );
     element.fase = 6;
     await element.save();
-  } else {
-    console.log('No se realizan acciones');
   }
 };
 
