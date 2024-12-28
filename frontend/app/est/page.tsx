@@ -12,7 +12,6 @@ import {
 } from "@nextui-org/react";
 import styles from "@/styles/est.module.css";
 import TablaSolicitudes from "@/components/Tablas/EST/TablaSolicitudes";
-import { PlusIcon } from "@/public/icons/PlusIcon";
 import {
   datosEst,
   actualizarDatosUsuario,
@@ -20,8 +19,9 @@ import {
 } from "@/api/est/solicitudes";
 import CardMisDatos from "@/components/Cards/CardMisDatos"; // Importa el nuevo componente
 import TablaAcp from "@/components/Tablas/ACP/TablaAcp";
-import { Home, User, Mail } from "lucide-react";
-import { crearSolicitud,newEmpresaCreate} from "@/api/est/solicitudes";
+import { Home, User, Mail, UserX, Plus } from "lucide-react";
+import { crearSolicitud, newEmpresaCreate } from "@/api/est/solicitudes";
+import { funcionLogOut } from "@/api/standar";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -57,7 +57,14 @@ export default function HomeEst() {
   const userType =
     typeof window !== "undefined" ? localStorage.getItem("userType") || "" : "";
   const [new_empresa, setNew_empresa] = useState(true);
-  const [new_empresa_data, setNew_empresa_data] = useState<empresa>({ rutEmpresa: "", razonSocial: "", direccion: "", region: "", ciudad: "", rubro: ""});
+  const [new_empresa_data, setNew_empresa_data] = useState<empresa>({
+    rutEmpresa: "",
+    razonSocial: "",
+    direccion: "",
+    region: "",
+    ciudad: "",
+    rubro: "",
+  });
   const [numeroPractica, setNumeroPractica] = useState(1);
   const [datos_est, setDatos_est] = useState<estudiante>({
     rut: "",
@@ -83,7 +90,10 @@ export default function HomeEst() {
     });
   }, [Token]);
 
-  const redireccion = (ref: React.RefObject<HTMLDivElement>, funcion: (arg: boolean) => void) => {
+  const redireccion = (
+    ref: React.RefObject<HTMLDivElement>,
+    funcion: (arg: boolean) => void
+  ) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
     funcion(true);
     setTimeout(() => {
@@ -101,61 +111,77 @@ export default function HomeEst() {
     setEmp_selected(datos_emp.find((emp) => emp.rutEmpresa === e.target.value));
   };
   const NewRequest = () => {
-    if(new_empresa){
-      if(new_empresa_data.rutEmpresa===""||new_empresa_data.razonSocial===""||new_empresa_data.direccion===""||new_empresa_data.region===""||new_empresa_data.ciudad===""||new_empresa_data.rubro===""){
+    if (new_empresa) {
+      if (
+        new_empresa_data.rutEmpresa === "" ||
+        new_empresa_data.razonSocial === "" ||
+        new_empresa_data.direccion === "" ||
+        new_empresa_data.region === "" ||
+        new_empresa_data.ciudad === "" ||
+        new_empresa_data.rubro === ""
+      ) {
         alert("Complete todos los campos");
-      }
-      else{
-        newEmpresaCreate(Token,new_empresa_data,numeroPractica).then(() => {
+      } else {
+        newEmpresaCreate(Token, new_empresa_data, numeroPractica).then(() => {
           tablaRef.current?.reload();
         });
       }
-    }else{
+    } else {
       if (emp_selected) {
-      crearSolicitud(Token, emp_selected.rutEmpresa, numeroPractica).then(() => {
-        tablaRef.current?.reload();
-      });
-        }
-      else{
+        crearSolicitud(Token, emp_selected.rutEmpresa, numeroPractica).then(
+          () => {
+            tablaRef.current?.reload();
+          }
+        );
+      } else {
         alert("Seleccione una empresa");
       }
     }
-  }
+  };
   return (
     <div className={styles.body}>
       <div className={styles.navbar}>
         <a
-          className={`${styles.btn_nav}`}
+          className={styles.btn_nav}
           onClick={() => redireccion(resumenRef, setA_resumen)}
         >
-          <Home className="w-5 h-5 mr-2" />
-          Inicio
+          <Home
+            className="mr-2 flex-shrink-0"
+            size={24}
+          />
+          <span className={styles.nav_text}>Inicio</span>
         </a>
-        <a className={styles.btn_nav}
-        onClick={() => redireccion(misDatosRef, setA_misDatos)}
+        <a
+          className={styles.btn_nav}
+          onClick={() => redireccion(misDatosRef, setA_misDatos)}
         >
-          <User className="w-5 h-5 mr-2" />
-          Mis datos
+          <User className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Mis datos</span>
         </a>
-        <a className={styles.btn_nav}
-        onClick={() => redireccion(ac, setA_ac)}
-        >
-          <Mail className="w-5 h-5 mr-2" />
-          Aceptación
+        <a className={styles.btn_nav} onClick={() => redireccion(ac, setA_ac)}>
+          <Mail className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Aceptación</span>
         </a>
-        <a className={styles.btn_nav}>
-          <User className="w-5 h-5 mr-2" />
-          Cerrar Sesión
+        <a href="/" className={styles.btn_nav} onClick={() => funcionLogOut()}>
+          <UserX className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Cerrar Sesión</span>
         </a>
       </div>
+
       <div className={styles.EstDiv}>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Mis Solicitudes</h1>
-          <Button color="secondary" onPress={()=>redireccion(nuevaSolicitudRef,setIsActive)}>
+          <Button
+            color="secondary"
+            onPress={() => redireccion(nuevaSolicitudRef, setIsActive)}
+          >
             Nueva solicitud
           </Button>
         </div>
-        <Card ref={resumenRef} className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}>
+        <Card
+          ref={resumenRef}
+          className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}
+        >
           <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
             Resumen de solicitudes
           </h1>
@@ -163,7 +189,7 @@ export default function HomeEst() {
             Vista general de solicitudes realizadas
           </h2>
           <div className={styles.divtable}>
-            <TablaSolicitudes token={Token} ref={tablaRef}/>
+            <TablaSolicitudes token={Token} ref={tablaRef} />
           </div>
         </Card>
         <div className="grid gap-6 md:grid-cols-2">
@@ -181,7 +207,7 @@ export default function HomeEst() {
 
               <Checkbox
                 defaultSelected
-                icon={<PlusIcon size={23} height={23} width={23} />}
+                icon={<Plus size={23}/>}
                 color="warning"
                 style={{
                   justifySelf: "end",
@@ -195,7 +221,14 @@ export default function HomeEst() {
                   if (e) {
                     setEmp_selected(undefined); // Limpia la empresa seleccionada
                     setValue(""); // Limpia el valor del select
-                    setNew_empresa_data({ rutEmpresa: "", razonSocial: "", direccion: "", region: "", ciudad: "", rubro: "" }); // Limpia los inputs
+                    setNew_empresa_data({
+                      rutEmpresa: "",
+                      razonSocial: "",
+                      direccion: "",
+                      region: "",
+                      ciudad: "",
+                      rubro: "",
+                    }); // Limpia los inputs
                   }
                 }}
               >
@@ -237,10 +270,10 @@ export default function HomeEst() {
                     })
                   }
                 />
-                
+
                 <Input
                   variant="faded"
-                  placeholder="Razon social"
+                  placeholder="Razón social"
                   isDisabled={!new_empresa}
                   value={emp_selected?.razonSocial}
                   onChange={(e) =>
@@ -252,7 +285,7 @@ export default function HomeEst() {
                 />
                 <Input
                   variant="faded"
-                  placeholder="Region"
+                  placeholder="Región"
                   isDisabled={!new_empresa}
                   value={emp_selected?.region}
                   onChange={(e) =>
@@ -264,7 +297,7 @@ export default function HomeEst() {
                 />
                 <Input
                   variant="faded"
-                  placeholder="Direccion"
+                  placeholder="Dirección"
                   isDisabled={!new_empresa}
                   value={emp_selected?.direccion}
                   onChange={(e) =>
@@ -300,24 +333,29 @@ export default function HomeEst() {
                 />
                 <>
                   <CheckboxGroup
-                  label="Numero de practica"
-                  orientation="horizontal"
-                  className="pl-[1rem]"
-                  value={[numeroPractica.toString()]}
+                    label="Número de práctica"
+                    orientation="horizontal"
+                    className="pl-[1rem]"
+                    value={[numeroPractica.toString()]}
                   >
-                  <Checkbox value="1" onChange={()=>setNumeroPractica(1)}>
-                    I
-                  </Checkbox>
-                  <Checkbox value="2" onChange={()=>setNumeroPractica(2)}>
-                    II
-                  </Checkbox>
+                    <Checkbox value="1" onChange={() => setNumeroPractica(1)}>
+                      I
+                    </Checkbox>
+                    <Checkbox value="2" onChange={() => setNumeroPractica(2)}>
+                      II
+                    </Checkbox>
                   </CheckboxGroup>
                 </>
               </div>
-              <Button color="primary" onPress={()=>NewRequest()}>Enviar solicitud</Button>
+              <Button color="primary" onPress={() => NewRequest()}>
+                Enviar solicitud
+              </Button>
             </div>
           </Card>
-          <div ref={misDatosRef} className={`${styles.box} ${a_misDatos ? styles.active : ""}`}>
+          <div
+            ref={misDatosRef}
+            className={`${styles.box} ${a_misDatos ? styles.active : ""}`}
+          >
             <CardMisDatos
               datos_est={datos_est}
               setDatos_est={setDatos_est}
@@ -328,15 +366,15 @@ export default function HomeEst() {
           </div>
         </div>
         <div ref={ac} className={`${styles.box} ${a_ac ? styles.active : ""}`}>
-        <Card className="mb-6 mt-[1rem]">
-        <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
-          Cartas de aceptación
-        </h1>
-        <h2 className="text-1xl text-gray-400 pl-[2rem]">
-          Vista general para cartas de aceptación
-        </h2>
-        <TablaAcp token={Token} />
-      </Card>
+          <Card className="mb-6 mt-[1rem]">
+            <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
+              Cartas de aceptación
+            </h1>
+            <h2 className="text-1xl text-gray-400 pl-[2rem]">
+              Vista general para cartas de aceptación
+            </h2>
+            <TablaAcp token={Token} />
+          </Card>
         </div>
       </div>
     </div>

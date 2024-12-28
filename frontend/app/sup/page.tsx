@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Card, user } from "@nextui-org/react";
+import { Card} from "@nextui-org/react";
 import styles from "@/styles/est.module.css";
-import { Home, User } from "lucide-react";
+import { Home, UserX } from "lucide-react";
 import TablaSuppAcp from "@/components/Tablas/ACP/TablaSuppACP";
+import { funcionLogOut } from "@/api/standar";
 export default function HomeSupp() {
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
@@ -26,11 +27,11 @@ export default function HomeSupp() {
           className={`${styles.btn_nav}`}
           onClick={() => redireccion(resumenRef, setA_resumen)}
         >
-          <Home className="w-5 h-5 mr-2" />
-          Inicio
+          <Home className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Inicio</span>
         </a>
-        <a className={styles.btn_nav}>
-          <User className="w-5 h-5 mr-2" />
+        <a href="/" className={styles.btn_nav} onClick={funcionLogOut}>
+          <UserX className="mr-2 flex-shrink-0" size={24} />
           Cerrar Sesión
         </a>
       </div>

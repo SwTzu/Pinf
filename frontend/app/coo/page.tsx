@@ -128,7 +128,7 @@ export default function HomeCoo() {
         { value: res[3], name: "Firmado" },
         { value: res[5], name: "Coordinación" },
         { value: res[6], name: "Iniciada" },
-        { value: res[8], name: "Revision evaluación" },
+        { value: res[8], name: "Revisión evaluación" },
       ];
       setStatsFases(data);
     });
@@ -184,7 +184,7 @@ export default function HomeCoo() {
           <Card id="res_stats" className={styles.card_base}>
             <h1 className={styles.card_h1}>Resumen estadístico</h1>
             <h2 className={styles.card_h2}>
-              Muestreo de estadisticas relevantes
+              Muestreo de estadísticas relevantes
             </h2>
             <ChartPie className={styles.card_icon} />
           </Card>
@@ -236,7 +236,7 @@ export default function HomeCoo() {
           </div>
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Ponderación de áreas en practicas
+            Ponderación de áreas en prácticas
           </div>
           <Card id="res_empresas" className={styles.card_base_stats}>
             <PieChartComponent

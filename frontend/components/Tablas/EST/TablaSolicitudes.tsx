@@ -218,10 +218,10 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
             <DropdownItem key="2">Revisado</DropdownItem>
             <DropdownItem key="3">Ingresar Supervisor</DropdownItem>
             <DropdownItem key="4">Carta de Aceptación</DropdownItem>
-            <DropdownItem key="5">Revision de Coordinación</DropdownItem>
+            <DropdownItem key="5">Revisión de Coordinación</DropdownItem>
             <DropdownItem key="6">Practica Iniciada</DropdownItem>
             <DropdownItem key="7">Requiere Memoria</DropdownItem>
-            <DropdownItem key="8">Evaluacion de Coordinación</DropdownItem>
+            <DropdownItem key="8">Evaluación de Coordinación</DropdownItem>
             <DropdownItem key="9">Finalizada</DropdownItem>
             </DropdownMenu>
         </Dropdown>
@@ -387,7 +387,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                   className="p-2"
                   size='md'
                 >
-                  Revision de Coordinación
+                  Revisión de Coordinación
                 </Chip></Tooltip>
                   : item.fase === 6
                   ? <Chip
@@ -410,14 +410,14 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                   Requiere Memoria
                 </Chip></Tooltip>
                 : item.fase === 7 && item.memoria
-                ? <Tooltip color="warning" content="Hace falta la evaluacion del Supervisor"><Chip
+                ? <Tooltip color="warning" content="Hace falta la evaluación del Supervisor"><Chip
                 startContent={<Spinner size="sm" color="success" />}
                 color="warning"
                 variant="flat"
                 className="p-2"
                 size='md'
               >
-                Evaluacion de Supervisor
+                Evaluación de Supervisor
               </Chip></Tooltip>
                   : item.fase === 8
                   ? <Tooltip color="primary" content="El Coordinador esta revisando la documentación"><Chip
@@ -427,7 +427,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                   className="p-2"
                   size='md'
                 >
-                  Evaluacion de Coordinación
+                  Evaluación de Coordinación
                 </Chip></Tooltip>
                   : item.fase === 9
                   ? <Chip

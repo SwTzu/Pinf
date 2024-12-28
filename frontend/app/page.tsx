@@ -2,9 +2,7 @@
 import { Image } from "@nextui-org/react";
 import styles from "../styles/styleop.module.css";
 import NextLink from "next/link";
-import { useRouter } from "next/navigation";
 export default function Home() {
-  const router = useRouter();
   return (
     <div className={styles.BaseHome}>
       <div className={styles.bloquehome}>

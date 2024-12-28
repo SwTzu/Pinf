@@ -1,17 +1,19 @@
 "use client";
-import React, { useState, useRef} from "react";
-import {
-  Card
-} from "@nextui-org/react";
+import React, { useState, useRef } from "react";
+import { Card } from "@nextui-org/react";
 import styles from "@/styles/est.module.css";
-import {Home, User} from "lucide-react";
+import { Home, User, UserX } from "lucide-react";
 import TablaAdm from "@/components/Tablas/TabADM/TablaAdm";
+import { funcionLogOut } from "@/api/standar";
 export default function HomeAdm() {
   const resumenRef = useRef<HTMLDivElement>(null);
   const [a_resumen, setA_resumen] = useState(false);
   const Token =
     typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
-  const redireccion = (ref: React.RefObject<HTMLDivElement>, funcion: (arg: boolean) => void) => {
+  const redireccion = (
+    ref: React.RefObject<HTMLDivElement>,
+    funcion: (arg: boolean) => void
+  ) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
     funcion(true);
     setTimeout(() => {
@@ -25,11 +27,11 @@ export default function HomeAdm() {
           className={`${styles.btn_nav}`}
           onClick={() => redireccion(resumenRef, setA_resumen)}
         >
-          <Home className="w-5 h-5 mr-2" />
-          Inicio
+          <Home className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Inicio</span>
         </a>
-        <a className={styles.btn_nav}>
-          <User className="w-5 h-5 mr-2" />
+        <a href="/" className={styles.btn_nav} onClick={funcionLogOut}>
+          <UserX className="mr-2 flex-shrink-0" size={24} />
           Cerrar Sesión
         </a>
       </div>
@@ -37,7 +39,10 @@ export default function HomeAdm() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Solicitudes</h1>
         </div>
-        <Card ref={resumenRef} className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}>
+        <Card
+          ref={resumenRef}
+          className={`mb-6 ${styles.box} ${a_resumen ? styles.active : ""}`}
+        >
           <h1 className="text-3xl font-bold text-gray-800 pt-[2rem] pl-[2rem]">
             Resumen de solicitudes
           </h1>
@@ -45,7 +50,7 @@ export default function HomeAdm() {
             Vista general de solicitudes recibidas
           </h2>
           <div className={styles.divtable}>
-            <TablaAdm/>
+            <TablaAdm />
           </div>
         </Card>
       </div>

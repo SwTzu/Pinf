@@ -403,7 +403,7 @@ export default function Workspace() {
               estadoString = "Formularios";
               break;
             case 5:
-              estadoString = "Coordinacion";
+              estadoString = "Coordinación";
               break;
             case 6:
               estadoString = "Iniciada";
@@ -412,7 +412,7 @@ export default function Workspace() {
               estadoString = "Memoria/informe";
               break;
             case 8:
-              estadoString = "Revision evaluación";
+              estadoString = "Revisión evaluación";
               break;
             case 9:
               estadoString = "Finalizado";
@@ -858,13 +858,13 @@ export default function Workspace() {
                           ? "bg-green-100 text-green-800"
                           : practica.estado === "Formularios"
                           ? "bg-purple-100 text-purple-800"
-                          : practica.estado === "Coordinacion"
+                          : practica.estado === "Coordinación"
                           ? "bg-indigo-100 text-indigo-800"
                           : practica.estado === "Iniciada"
                           ? "bg-teal-100 text-teal-800"
                           : practica.estado === "Memoria/informe"
                           ? "bg-orange-100 text-orange-800"
-                          : practica.estado === "Revision evaluación"
+                          : practica.estado === "Revisión evaluación"
                           ? "bg-pink-100 text-pink-800"
                           : practica.estado === "Finalizado"
                           ? "bg-gray-100 text-gray-800"

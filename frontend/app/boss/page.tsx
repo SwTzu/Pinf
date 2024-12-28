@@ -4,8 +4,9 @@ import {
   Card
 } from "@nextui-org/react";
 import styles from "@/styles/est.module.css";
-import {Home, User} from "lucide-react";
+import {Home,UserX} from "lucide-react";
 import TablaBoss from "@/components/Tablas/TabBoss/TablaBoss";
+import { funcionLogOut } from "@/api/standar";
 export default function HomeBoss() {
   const resumenRef = useRef<HTMLDivElement>(null);
   const [a_resumen, setA_resumen] = useState(false);
@@ -25,11 +26,11 @@ export default function HomeBoss() {
           className={`${styles.btn_nav}`}
           onClick={() => redireccion(resumenRef, setA_resumen)}
         >
-          <Home className="w-5 h-5 mr-2" />
-          Inicio
+          <Home className="mr-2 flex-shrink-0" size={24} />
+          <span className={styles.nav_text}>Inicio</span>
         </a>
-        <a className={styles.btn_nav}>
-          <User className="w-5 h-5 mr-2" />
+        <a href="/" className={styles.btn_nav} onClick={funcionLogOut}>
+          <UserX className="mr-2 flex-shrink-0" size={24} />
           Cerrar Sesión
         </a>
       </div>

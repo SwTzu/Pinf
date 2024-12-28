@@ -7,36 +7,91 @@
   height:100vh;
   width:100vw;
 }
-.navbar{
+.navbar {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  height: 100vh;
-  width: 8vw;
+  height: 100vh; /* Mantiene la altura del contenedor basada en el viewport */
+  width: 8vw; /* Ancho fijo relativo al ancho del viewport */
   background-color: #ffffff;
-  gap: 1rem;
+  gap: 1rem; /* Espacio entre elementos relativo al tamaño base de fuente */
   border-right: 0.12rem solid rgb(143, 143, 143);
+  min-width: 50px; /* Ancho mínimo */
 }
-.btn:last-child{
-  border-top: 0.1em solid rgb(185, 185, 185);
+.btn:last-child {
+  border-top: 0.1em solid rgb(185, 185, 185); /* Línea divisoria relativa */
   margin-top: auto;
   border-radius: 0.5rem;
 }
 .btn:first-child{
   margin-top: 2rem;
 }
-.btn_nav {
+.btn{
   display: flex;
   color: #000000;
   justify-content: flex-start;
   padding: 0.8rem;
   align-items: center;
-  height: 2.5rem;
-  width: 100%;
-  font-size: 1rem;
+  height: 5vh; /* Altura basada en el viewport */
+  width: 100%; /* Ocupa el ancho completo del contenedor */
+  font-size: 0.9rem; /* Tamaño de texto relativo al tamaño base */
   text-align: center;
   cursor: pointer;
+  overflow: hidden;
+}
+.nav_text {
+  font-size: 1rem; /* Tamaño normal relativo */
+  white-space: nowrap;
+  overflow: hidden;
+  transition: font-size 0.3s ease, opacity 0.3s ease;
+}
+/* Texto del botón */
+.nav_text {
+  font-size: 1rem; /* Tamaño normal relativo */
+  white-space: nowrap;
+  overflow: hidden;
+  transition: font-size 0.3s ease, opacity 0.3s ease;
+}
+
+/* Reducir texto en pantallas más pequeñas */
+@media (max-width: 75vw) {
+  .nav_text {
+    font-size: 0.8rem; /* Texto más pequeño en pantallas medianas */
+  }
+}
+
+@media (max-width: 60vw) {
+  .nav_text {
+    font-size: 0.6rem; /* Reducir más el tamaño del texto */
+  }
+}
+
+@media (max-width: 50vw) {
+  .nav_text {
+    font-size: 0; /* Ocultar texto completamente */
+    opacity: 0;
+  }
+}
+
+/* Reducir texto en pantallas más pequeñas */
+@media (max-width: 1200px) {
+  .nav_text {
+    font-size: 0.8rem; /* Texto ligeramente más pequeño */
+  }
+}
+
+@media (max-width: 112px) {
+  .nav_text {
+    font-size: 0.6rem; /* Reducir más el tamaño del texto */
+  }
+}
+
+@media (max-width: 968px) {
+  .nav_text {
+    font-size: 0; /* Ocultar texto completamente */
+    opacity: 0;
+  }
 }
 .CooDiv {
   width: 91.99vw;
@@ -50,19 +105,7 @@
   height: 100%;
   padding: 1.5rem;
 }
-.btn{
-  display: flex;
-  color: #000000;
-  justify-content:flex-start;
-  padding: 0.8rem;
-  align-items: center;
-  height: 2.5rem;
-  width: 100%;
-  font-size: 1rem;
-  text-align: center;
-  cursor: pointer;
-  border-color: #b8b8b8;
-}
+
 .active {
   background-color: #c5c5c5;
   border-top: #c5c5c5 0.2em solid;
