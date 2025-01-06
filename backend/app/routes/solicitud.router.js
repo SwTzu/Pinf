@@ -75,23 +75,40 @@ async function hacerSolicitud() {
     console.error('\n\n\ Segundo error al hacer solicitud:', error.message,"\n\n\n");
   }
 }
-const intervalo = 24*60*60*1000;
+const intervalo = 12*60*60*1000;
 
 router.post('/SolicitudyEmpresa', async (req, res) => {
-    try {
-        const { empresa } = req.body;
-        const { rutEmpresa, razonSocial, ciudad, region, direccion, rubro } = empresa;
-        response= await axios.post(`http://${DB_HOST}:${RUN_PORT}/empresa/crear`, {  rutEmpresa, razonSocial, ciudad, region, direccion, rubro});
-        // res.status(200).json(response);
-        const {estudiante}= req.body;
-        const {token, numeroPractica} = estudiante
-        response2= await axios.post(`http://${DB_HOST}:${RUN_PORT}/solicitud/crear`, {token, datos:{rutEmpresa, numeroPractica}});
-        res.status(200).json(response2.data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error interno del servidor fvddfgdfgsvdfgsvdfgsdfgs",error:error});
-    }
+  try {
+    const { empresa } = req.body;
+    const { rutEmpresa, razonSocial, ciudad, region, direccion, rubro } = empresa;
+    
+    let response = await axios.post(`http://${DB_HOST}:${RUN_PORT}/empresa/crear`, {  
+      rutEmpresa, 
+      razonSocial, 
+      ciudad, 
+      region, 
+      direccion, 
+      rubro
+    });
+    
+    const { estudiante } = req.body;
+    const { token, numeroPractica } = estudiante;
+    
+    let response2 = await axios.post(`http://${DB_HOST}:${RUN_PORT}/solicitud/crear`, {
+      token, 
+      datos: { rutEmpresa, numeroPractica }
+    });
+    
+    res.status(200).json(response2.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error interno del servidor", 
+      error: error
+    });
+  }
 });
+
 
 
 function solicitarAutomaticamente() {

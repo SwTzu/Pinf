@@ -510,8 +510,8 @@ const readyAlumno = async (req, res) => {
 
 // aplicar solo usarios con el token de admin pueden usar esta funcion.
 const actualizarFase = async (req, res) => {
-    const {token}=req.body;
-    const usuario = await jwt.verify(token, key);
+    const {Token}=req.body;
+    const usuario = await jwt.verify(Token, key);
     if (usuario.tipoUsuario === 1 || usuario.tipoUsuario === 0) {
       return res.status(401).json({
         message: 'No tienes permisos para actualizar la fase',
@@ -650,58 +650,68 @@ const sendMail = async (to, subject, text) => {
 };
 
 const processSolicitud = async (element) => {
-  const usuario = await db.usuario.findOne({ where: { rut: element.rut } });
-  const empresa = await db.empresa.findOne({
-    where: { rutEmpresa: element.rutEmpresa },
-  });
-  const carta = await db.carta.findOne({
-    where: { idSolicitud: element.idSolicitud },
-  });
+  try {
+    const [usuario, empresa, carta] = await Promise.all([
+      db.usuario.findOne({ where: { rut: element.rut } }),
+      db.empresa.findOne({ where: { rutEmpresa: element.rutEmpresa } }),
+      db.carta.findOne({ where: { idSolicitud: element.idSolicitud } }),
+    ]);
 
-  const fechahoy = new Date();
-  const fechahoy2 = new Date(fechahoy.getTime() + 1000 * 60 * 60 * 24 * 20);
+    const fechaHoy = new Date();
+    const fechaLimite = new Date(fechaHoy.getTime() + 20 * 24 * 60 * 60 * 1000);
 
-  if (element.fase === 7 && fechahoy2 >= carta.fechaTermino) {
-    const memoria = await db.memoria.findOne({
-      where: { idSolicitud: element.idSolicitud },
-    });
-    if (!memoria || !memoria.documento) {
+    if (element.fase === 7 && fechaLimite >= carta.fechaTermino) {
+      const memoria = await db.memoria.findOne({
+        where: { idSolicitud: element.idSolicitud },
+      });
+
+      if (!memoria || !memoria.documento) {
+        await sendMail(
+          usuario.correo,
+          `Tu práctica en ${empresa.razonSocial} fue rechazada`,
+          'No se envió memoria'
+        );
+        element.fase = 0;
+        await element.save();
+      }
+
+    } else if (
+      fechaLimite.toDateString() === carta.fechaTermino.toDateString()
+    ) {
       await sendMail(
         usuario.correo,
-        `Tu práctica en ${empresa.razonSocial} fue rechazada`,
-        'No se envió memoria'
+        `Tu práctica en ${empresa.razonSocial} termina hoy`,
+        'recordatorio enviar memoria en 20 días hábiles'
       );
-      element.fase = 0;
+      await sendMail(
+        carta.correoSupervisor,
+        `La práctica de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} termina hoy`,
+        'recordatorio enviar evaluación en 20 días hábiles'
+      );
+      element.fase = 7;
+      await element.save();
+
+    } else if (fechaHoy >= carta.fechaInicio) {
+      await sendMail(
+        usuario.correo,
+        `Tu práctica profesional en ${empresa.razonSocial} comienza hoy`,
+        'recordatorio empieza práctica'
+      );
+      await sendMail(
+        carta.correoSupervisor,
+        `La práctica de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} comienza hoy`,
+        'recordatorio empieza práctica de alumno'
+      );
+      element.fase = 6;
       await element.save();
     }
-  } else if (fechahoy2.toDateString() === carta.fechaTermino.toDateString()) {
-    await sendMail(
-      usuario.correo,
-      `Tu práctica en ${empresa.razonSocial} termina hoy`,
-      'recordatorio enviar memoria en 20 días hábiles'
-    );
-    await sendMail(
-      carta.correoSupervisor,
-      `La práctica de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} termina hoy`,
-      'recordatorio enviar evaluación en 20 días hábiles'
-    );
-    element.fase = 7;
-    await element.save();
-  } else if (fechahoy >= carta.fechaInicio) {
-    await sendMail(
-      usuario.correo,
-      `Tu práctica profesional en ${empresa.razonSocial} comienza hoy`,
-      'recordatorio empieza práctica'
-    );
-    await sendMail(
-      carta.correoSupervisor,
-      `La práctica de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} comienza hoy`,
-      'recordatorio empieza práctica de alumno'
-    );
-    element.fase = 6;
-    await element.save();
+
+  } catch (error) {
+    console.error('Error al procesar la solicitud:', error);
+
   }
 };
+
 
 const fechaauto = async (req, res) => {
   try {

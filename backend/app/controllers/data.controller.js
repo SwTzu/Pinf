@@ -5,34 +5,53 @@ const { conversion } = require('./conversion.controller.js');
 
 
 exports.unirDatos = async (req,res) => {
-    const { token, rutEmpresa, asignatura} = req.body;
-
+    const { token, rutEmpresa, numeroPractica} = req.body;
+    const decoded = jwt.verify(token, key);
     try { 
         // Remove the declaration of rutUsuario and directly use the value in the query
-        const usuario = await db.usuario.findOne({where:{rut: jwt.verify(token, key).rut}});
+        const usuario = await db.usuario.findOne({where:{rut: decoded.rut}});
     
         const empresa = await db.empresa.findOne({where:{rutEmpresa:rutEmpresa}});
-        
+        const solicitud = await db.solicitud.findOne({
+            where: {
+            rutEmpresa: rutEmpresa,
+            rut: decoded.rut,
+            fase: {
+                [db.Sequelize.Op.ne]: 0
+            }
+            }
+        });
         let numeroP;
-        switch (asignatura) {
-            case "1":
+        let horass;
+        switch (numeroPractica) {
+            case 1:
                 numeroP= "primera";
+                horass=270;
                 break;
-            case "2":
+            case 2:
                 numeroP= "segunda";
+                horass=324;
                 break;
             default:
                 numeroP= "desconocida";
+                horass=0;
                 break;
         }
+        const currentYear = new Date().getFullYear();
+        const solicitudes = await db.solicitud.findAll({
+            where: db.Sequelize.where(db.Sequelize.fn('YEAR', db.Sequelize.col('createdAt')), currentYear)
+        });
+        const cont = solicitudes.length;
+        const mesSolicitud = new Date(solicitud.fechaSolicitud).getMonth() + 1;
+        const semestre = mesSolicitud >= 1 && mesSolicitud <= 6 ? 1 : 2;
         const datosFormatoJSON = {
-              count: 3,
+              count: cont,
               razonSocial: empresa.razonSocial,
               direccion: empresa.direccion,
               region : empresa.region,
               rut: usuario.rut,
-              semestre: 2,
-              horas: 320,
+              semestre: semestre,
+              horas: horass,
               numeroPractica: numeroP,
               nombre1: usuario.nombre1,
               nombre2: usuario.nombre2,

@@ -51,7 +51,7 @@ const actualizarFaseSolicitud = async (
 ) => {
   try {
     const response = await fetch(
-      `${backendUrl}/solicitud/actualizar/${idSolicitud}`,
+      `${backendUrl}/solicitud/actualizar`,
       {
         method: "POST",
         headers: {

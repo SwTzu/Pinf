@@ -232,7 +232,7 @@ export default function HomeCoo() {
           </div>
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
-            Ponderación de empresas verificadas por región
+            Ponderación de áreas en prácticas
           </div>
           <div className={styles.stats_btn}>
             <BarChart2 className="h-5 w-5 mr-2" />
@@ -244,6 +244,7 @@ export default function HomeCoo() {
               chartId="chartFases"
               showEmphasis={true}
               legendOrientation="vertical"
+              legendPosition={{ left: "0" }}
             />
           </Card>
 

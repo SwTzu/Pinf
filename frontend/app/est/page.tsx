@@ -22,6 +22,7 @@ import TablaAcp from "@/components/Tablas/ACP/TablaAcp";
 import { Home, User, Mail, UserX, Plus } from "lucide-react";
 import { crearSolicitud, newEmpresaCreate } from "@/api/est/solicitudes";
 import { funcionLogOut } from "@/api/standar";
+import { useRut } from "react-rut-formatter";
 type estudiante = {
   rut: string;
   nombre1: string;
@@ -77,6 +78,7 @@ export default function HomeEst() {
     telefono: "",
     ingreso: "",
   });
+  const { rut, updateRut, isValid } = useRut();
   const [datos_emp, setDatos_emp] = useState<empresa[]>([]);
   const [mod_est, setMod_est] = useState(false);
   const [value, setValue] = React.useState("");
@@ -145,10 +147,7 @@ export default function HomeEst() {
           className={styles.btn_nav}
           onClick={() => redireccion(resumenRef, setA_resumen)}
         >
-          <Home
-            className="mr-2 flex-shrink-0"
-            size={24}
-          />
+          <Home className="mr-2 flex-shrink-0" size={24} />
           <span className={styles.nav_text}>Inicio</span>
         </a>
         <a
@@ -207,7 +206,7 @@ export default function HomeEst() {
 
               <Checkbox
                 defaultSelected
-                icon={<Plus size={23}/>}
+                icon={<Plus size={23} />}
                 color="warning"
                 style={{
                   justifySelf: "end",
@@ -262,15 +261,17 @@ export default function HomeEst() {
                   variant="faded"
                   placeholder="Rut empresa"
                   isDisabled={!new_empresa}
-                  value={emp_selected?.rutEmpresa}
-                  onChange={(e) =>
-                    setNew_empresa_data({
-                      ...new_empresa_data,
-                      rutEmpresa: e.target.value,
-                    })
-                  }
+                  value={emp_selected?.rutEmpresa || rut.formatted}
+                  onChange={(e) =>{
+                    updateRut(e.target.value);
+                  setNew_empresa_data({
+                    ...new_empresa_data,
+                    rutEmpresa: e.target.value,
+                  });
+                  }}
+                  isInvalid={!isValid}
+                  maxLength={12}
                 />
-
                 <Input
                   variant="faded"
                   placeholder="Razón social"

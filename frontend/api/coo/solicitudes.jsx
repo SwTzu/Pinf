@@ -214,7 +214,7 @@ export const updateFase = async (token, idSolicitud, nroFase, motivoRechazo) => 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        token: token,
+        Token: token,
         idSolicitud: idSolicitud,
         nroFase: nroFase,
         motivoRechazo: motivoRechazo,
