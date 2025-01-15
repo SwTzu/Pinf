@@ -69,10 +69,10 @@ async function hacerSolicitud() {
 
 async function hacerSolicitud() {
   try {
-    const respuesta = await axios.get(`${DB_HOST}/solicitud/fechaauto`);
+    const respuesta = await axios.get(`http://localhost:5000/api/solicitud/fechaauto`);
     console.log('\n\n\nRespuesta:', respuesta.data,"\n\n\n");
   } catch (error) {
-    console.error('\n\n\ Segundo error al hacer solicitud:', error.message,"\n\n\n");
+    console.error('\n\n\ Segundo error al hacer solicitud:', error.message,`http://localhost:5000/api/solicitud/fechaauto`,"\n\n\n");
   }
 }
 const intervalo = 12*60*60*1000;

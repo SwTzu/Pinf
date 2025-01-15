@@ -3,13 +3,15 @@ FROM node:20-slim
 WORKDIR /app
 
 # Copiar el archivo de entorno
-COPY .env.local .env.local
+COPY package*.json ./
 
-# Copiar todo el código del frontend
+RUN npm install
+
 COPY . .
 
-# Exponer el puerto para el frontend
+# RUN npm run build
+
 EXPOSE 3000
 
-# Comando para instalar dependencias, construir y servir la aplicación
-CMD ["sh", "-c", "npm install && npm run build && npm start"]
+# CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

@@ -22,15 +22,15 @@ const coordinadorRouter = require('./coordinador.router.js');
 
 module.exports = app => {
 
-    app.use('/utils', utilsRouter);
-    app.use('/usuario', usuarioRouter);
-    app.use('/empresa', empresaRouter);
-    app.use('/solicitud',solicitudRouter);
-    app.use('/supervisor',supervisorRouter);
-    app.use('/memoria',memoriaRouter);
-    app.use('/informe',informeRouter);
-    app.use('/stats', statsRouter);
-    app.use('/area', areaRouter);
-    app.use('/carta', cartaRouter);
-    app.use('/coordinador', coordinadorRouter);
+    app.use('/api/utils', utilsRouter);
+    app.use('/api/usuario', usuarioRouter);
+    app.use('/api/empresa', empresaRouter);
+    app.use('/api/solicitud',solicitudRouter);
+    app.use('/api/supervisor',supervisorRouter);
+    app.use('/api/memoria',memoriaRouter);
+    app.use('/api/informe',informeRouter);
+    app.use('/api/stats', statsRouter);
+    app.use('/api/area', areaRouter);
+    app.use('/api/carta', cartaRouter);
+    app.use('/api/coordinador', coordinadorRouter);
 }

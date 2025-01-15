@@ -1,7 +1,11 @@
 const puppeteer = require("puppeteer");
 async function convertHTMLtoPDF(html, datos) {
 
-    const browser = await puppeteer.launch({headless:'new'});
+  const browser = await puppeteer.launch({
+    executablePath: '/usr/bin/chromium', // Cambiar según la ubicación del ejecutable
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  
     const page = await browser.newPage();
     const htmlvar = html
       .replace('{{count}}', datos.count)

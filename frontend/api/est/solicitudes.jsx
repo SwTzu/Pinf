@@ -332,6 +332,7 @@ export const uploadMemoria = async (token,idSolicitud, file) => {
     const response = await fetch(`${backendUrl}/memoria/uploadMemoria`, {
       method: 'POST',
       body: formData,
+      file: file,
     });
 
     if (response.ok) {
