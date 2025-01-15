@@ -22,16 +22,16 @@ const upload = multer({
 
 const uploadPdf = async (req, res) => {
     try {
-        const {token}=req.body
-        if(!token){
+        const { token } = req.body;
+        if (!token) {
             return res.status(400).json({
-                message: "Token no recibido."
+                message: "Token no recibido.",
             });
         }
         const decoded = tokenfunc.decode(token);
         if (!decoded) {
             return res.status(401).json({
-                message: "Token inválido."
+                message: "Token inválido.",
             });
         }
         const { idSolicitud } = req.body;
@@ -40,52 +40,58 @@ const uploadPdf = async (req, res) => {
 
         if (!carta || !solicitud) {
             return res.status(404).json({
-                message: "No se encontró la solicitud o la carta."
+                message: "No se encontró la solicitud o la carta.",
             });
         }
         const archivo = req.file;
-        const formatosPermitido='application/pdf'
+        const formatosPermitido = 'application/pdf';
 
-        if(archivo.mimetype!==formatosPermitido){
+        if (archivo.mimetype !== formatosPermitido) {
             return res.status(400).json({
-                message: "Formato de archivo no permitido."
+                message: "Formato de archivo no permitido.",
             });
         }
-        const uploadPath = path.join(__dirname, '../../uploads');
+
+        // Valida y asigna una ruta de subida
+        const uploadPath = path.join(
+            __dirname,
+            process.env.UPLOAD_PATH || '../../uploads'
+        );
+
         if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath);
+            fs.mkdirSync(uploadPath, { recursive: true });
         }
-        let finalPath ;
+
         const fileName = `memoria_${idSolicitud}.pdf`;
-        finalPath = path.join(uploadPath, fileName);
+        const finalPath = path.join(uploadPath, fileName);
+
         fs.writeFileSync(finalPath, archivo.buffer);
 
-        const memoria= await db.memoria.create({
+        const memoria = await db.memoria.create({
             idSolicitud: solicitud.idSolicitud,
-            documento:finalPath,
-            fechaEnvio: new Date()
+            documento: finalPath,
+            fechaEnvio: new Date(),
         });
 
         carta.memoria = memoria.idMemoria;
         solicitud.memoria = true;
-        if(solicitud.informe){
+        if (solicitud.informe) {
             solicitud.fase = 8;
         }
         await carta.save();
         await solicitud.save();
         return res.status(200).json({
             message: "Memoria creada correctamente.",
-            memoria
+            memoria,
         });
-
     } catch (err) {
         console.error('Error al crear memoria:', err);
         return res.status(500).json({
             message: "Error al crear memoria.",
-            err
+            err,
         });
     }
-}
+};
 
 const descargarPDF = async (req, res) => {
     try {
@@ -96,7 +102,7 @@ const descargarPDF = async (req, res) => {
                 message: "Memoria no encontrada."
             });
         }
-        const uploadPath = path.join(__dirname, '../../uploads');
+        const uploadPath = path.join(__dirname,process.env.UPLOAD_PATH )|| path.join(__dirname, '../../uploads');
         const filePath = path.join(uploadPath, path.basename(memoria.documento));
         return res.download(filePath);
     } catch (err) {

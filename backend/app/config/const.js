@@ -1,6 +1,6 @@
-require('dotenv').config();
+require('dotenv').config({ path: '/app/env/.env' });
 
-const RUN_PORT = process.env.RUN_PORT || 8080;
+const RUN_PORT = process.env.RUN_PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV;
 
 const DB_HOST = process.env.DB_HOST;
