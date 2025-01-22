@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useCallback,
   useRef,
-  useEffect,
 } from "react";
 import {
   Table,
@@ -19,7 +18,6 @@ import {
   Card,
   Checkbox,
   DateRangePicker,
-  Button,
   Chip,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
@@ -31,13 +29,13 @@ import {
   CircleAlert,
   ContactRound,
   BadgeCheck,
+  Hourglass
 } from "lucide-react";
 import styles from "@/styles/est.module.css";
 import TaskForm from "./TaskForm";
 import { crearCarta } from "@/api/supp/solicitudes";
 import DrawerInforme from "./DrawerInforme";
 import toast, { Toaster } from "react-hot-toast";
-import { number } from "echarts";
 interface Solicitud {
   idSolicitud: number;
   rut: string;
@@ -406,7 +404,7 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                   item.supervisorCheck &&
                   !item.alumnoCheck ? (
                   <Chip
-                    startContent={<Spinner size="sm" color="secondary" />}
+                    startContent={<Hourglass size={14} color="secondary" />}
                     color="secondary"
                     variant="flat"
                   >
@@ -414,7 +412,7 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                   </Chip>
                 ) : item.fase === 5 ? (
                   <Chip
-                    startContent={<Spinner color="warning" size="sm" />}
+                    startContent={<Hourglass size={14} />}
                     color="default"
                     variant="flat"
                   >
@@ -438,7 +436,7 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                   </Chip>
                 ) : item.fase === 7 && item.informe ? (
                   <Chip
-                    startContent={<Spinner color="success" size="sm" />}
+                    startContent={<Hourglass size={14}/>}
                     color="default"
                     variant="flat"
                   >
@@ -446,7 +444,7 @@ export default function TablaSuppAcp({ token }: { token: string }) {
                   </Chip>
                 ) : item.fase === 8 ? (
                   <Chip
-                    startContent={<Spinner color="danger" size="sm" />}
+                    startContent={<Hourglass size={14}/>}
                     color="default"
                     variant="flat"
                   >

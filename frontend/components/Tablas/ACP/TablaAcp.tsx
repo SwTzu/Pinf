@@ -19,16 +19,14 @@ import {
   ModalFooter,
   useDisclosure,
   Checkbox,
-  CardBody,
   Chip,
   Accordion,
   AccordionItem,
   Divider,
-  card,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 import { backendUrl } from "@/config/config";
-import { Mail, Search, CircleHelp, Plus, Check } from "lucide-react";
+import { Mail, Search, CircleHelp, Plus, Hourglass} from "lucide-react";
 import styles from "@/styles/est.module.css";
 import { addSup, obtenerCarta, aceptarCarta } from "@/api/est/solicitudes";
 interface Solicitud {
@@ -312,7 +310,7 @@ export default function TablaAcp({ token }: { token: string }) {
                     content="El Supervisor debe llenar la carta de aceptación para continuar"
                   >
                     <Chip
-                    startContent={<Spinner size="sm" color="secondary" />}
+                    startContent={<Hourglass size={14}/>}
                       color="warning"
                       variant="flat"
                       className="p-2"

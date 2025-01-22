@@ -1006,21 +1006,27 @@ export default function Workspace() {
               <div className="border-r-2 flex flex-col justify-center items-center text-center">
                 <h4 className="font-semibold text-center">Informe</h4>
                 {selectedPractica.informe === null || false ? (
-                  <FileX />
+                  <Tooltip content="Informe no disponible" color="warning">
+                    <FileX />
+                  </Tooltip>
                 ) : (
-                  <FileCheck
-                    className="hover:cursor-pointer hover:text-green-500"
-                    onClick={() => {
-                      handleInforme(selectedPractica.id);
-                    }}
-                  />
+                  <Tooltip content="Ver informe" color="success">
+                    <FileCheck
+                      className="hover:cursor-pointer hover:text-green-500"
+                      onClick={() => {
+                        handleInforme(selectedPractica.id);
+                      }}
+                    />
+                  </Tooltip>
                 )}
               </div>
               <div className="flex flex-col justify-center items-center text-center">
                 <h4 className="font-semibold text-center">Memoria</h4>
                 {selectedPractica.memoria === null ||
                 selectedPractica.memoria === false ? (
-                  <FileX />
+                  <Tooltip content="Memoria no disponible" color="warning">
+                    <FileX />
+                  </Tooltip>
                 ) : (
                   <FileCheck
                     className="hover:cursor-pointer hover:text-green-500"

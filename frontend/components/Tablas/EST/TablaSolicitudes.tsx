@@ -38,6 +38,7 @@ import {
   MonitorCog,
   FileUp,
   CircleCheck,
+  Hourglass
 } from "lucide-react";
 import { deleteSolicitud, PDF, uploadMemoria} from "@/api/est/solicitudes";
 interface Solicitud {
@@ -126,7 +127,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
             <DropdownMenu
             style={{ width: "100%", textAlign: "center" }}
             disabledKeys={
-              (item.fase !== 3 ? ["PDF"] : []).concat(item.fase !== 7 ? ["Memoria"] : [])
+              (item.fase !== 3 ? ["PDF"] : []).concat(item.fase !== 7 ? ["Memoria"] : []).concat(item.fase > 4 ? ["Delete"] : [])
             }
             >
             <DropdownItem
@@ -136,7 +137,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
               PDF(token, item.rutEmpresa, item.numeroPractica);
               }}
             >
-              PDF
+              Carta de Presentación
             </DropdownItem>
             <DropdownItem
               key={"Memoria"}
@@ -179,7 +180,9 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
               Delete(item.idSolicitud);
               }}
             >
-              Delete
+              <Tooltip content="Eliminar solicitud" color="danger">
+                Eliminar
+              </Tooltip>
             </DropdownItem>
             </DropdownMenu>
         </Dropdown>
@@ -298,7 +301,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
         <TableBody
           items={filteredItems}
           isLoading={isLoading}
-          loadingContent={<Spinner label="Cargando solicitudes..." />}
+          loadingContent={<Spinner size="lg" label="Cargando solicitudes..." />}
           emptyContent={
             <div className="text-center p-4">
               <p className="text-gray-500 font-bold">
@@ -371,7 +374,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                 </Chip></Tooltip></>
                   : item.fase === 4
                   ? <Tooltip color="warning" content="El Supervisor debe llenar la carta de aceptación para continuar"><Chip
-                  startContent={<Spinner size="sm" color="secondary" />}
+                  startContent={<Hourglass size={14}/>}
                   color="warning"
                   variant="flat"
                   className="p-2"
@@ -381,7 +384,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                 </Chip></Tooltip>
                   : item.fase === 5
                   ? <Tooltip color="primary" content="El Coordinador debe aprobar la carta de aceptación para continuar"><Chip
-                  startContent={<Spinner size="sm" color="secondary" />}
+                  startContent={<Hourglass size={14} />}
                   color="primary"
                   variant="flat"
                   className="p-2"
@@ -411,7 +414,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
                 </Chip></Tooltip>
                 : item.fase === 7 && item.memoria
                 ? <Tooltip color="warning" content="Hace falta la evaluación del Supervisor"><Chip
-                startContent={<Spinner size="sm" color="success" />}
+                startContent={<Hourglass size={14}/>}
                 color="warning"
                 variant="flat"
                 className="p-2"
@@ -421,7 +424,7 @@ const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
               </Chip></Tooltip>
                   : item.fase === 8
                   ? <Tooltip color="primary" content="El Coordinador esta revisando la documentación"><Chip
-                  startContent={<Spinner size="sm" color="secondary" />}
+                  startContent={<Hourglass size={14}/>}
                   color="primary"
                   variant="flat"
                   className="p-2"
