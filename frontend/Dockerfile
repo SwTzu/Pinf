@@ -2,14 +2,16 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Copiar los archivos package.json y package-lock.json
+# Copiar el archivo de entorno
 COPY package*.json ./
 
-# Copiar el resto del código fuente
+RUN npm install
+
 COPY . .
 
-# Exponer el puerto del frontend
+RUN npm run build
+
 EXPOSE 3000
 
-# Verificar si node_modules existe antes de instalar dependencias
-CMD ["sh", "-c", "[ ! -d node_modules ] && npm install && npm run build; npm start"]
+CMD ["npm", "start"]
+# CMD ["npm", "run", "dev"]

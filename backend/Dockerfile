@@ -4,13 +4,10 @@ FROM node:20
 # Configura el directorio de trabajo
 WORKDIR /app
 
-# Copia el archivo de dependencias
+# Copiar los archivos necesarios
 COPY package*.json ./
 
-# Instala las dependencias necesarias de producción
-RUN npm install --production
-
-# Instala paquetes adicionales necesarios para tu sistema
+RUN npm install
 RUN apt-get update && apt-get install -y \
     chromium \
     ca-certificates \
@@ -44,11 +41,8 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copia el resto del código fuente
 COPY . .
 
-# Exponer el puerto definido en la aplicación
 EXPOSE 5000
 
-# Comando para iniciar la aplicación
 CMD ["npm", "run", "start"]
