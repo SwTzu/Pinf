@@ -100,9 +100,21 @@ const crearUsuario = async (req, res) => {
 
   try {
 
-    const pass = await bcrypt.hash(password, 10);
+    const verToken= await jwt.sign({rut},key,{expiresIn: '1d'});
+    console.log(nombre1);
 
-    const verToken= await tokenfunc.generateToken({ rut:rut, tipoUsuario:tipoUsuario});
+    const verURL= `http://localhost:3002/usuario/verificar/${verToken}`
+
+    const mailOptions = {
+      from: MAIL_USER,
+      to: correo,
+      subject: `Practica profesional de ${nombre1} ${apellido1} ${apellido2} `,
+      html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
+              <a href="${verURL}" >Link de Verificación</a>
+  
+                `
+    };
+    console.log(nombre1);
 
     const usuario = await db.usuario.create({
       rut: rut,
@@ -120,15 +132,6 @@ const crearUsuario = async (req, res) => {
       tokenVerificacion: verToken,
     });
 
-    const verURL= `http://localhost:3000/verify/${verToken}`
-
-    const mailOptions = {
-      from: MAIL_USER,
-      to: correoSupervisor,
-      subject: `Practica profesional de ${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2} `,
-      html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
-              <a href="${verURL}">Link de Verificación</a>`
-    };
     transporter.sendMail(mailOptions);
     return res.status(200).json({
       message: "Usuario creado exitosamente.",
@@ -152,6 +155,7 @@ const verificarUsuario = async (req, res) => {
         message: "Usuario no encontrado.",
       });
     }
+    usuario.tokenVerificacion=null;
     usuario.verificado = true;
 
     await usuario.save();
