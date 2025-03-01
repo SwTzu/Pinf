@@ -1,49 +1,86 @@
 "use client"
-
 import { usePathname } from "next/navigation"
-import { Home, UserX, BarChartIcon as ChartColumn, Building2, LayoutPanelLeft } from "lucide-react"
-import { funcionLogOut } from "@/api/standar"
-import styles from "@/styles/body.module.css"
-export default function CooLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+import Link from "next/link"
+import { useState } from "react"
+import {
+  LayoutDashboard,
+  Users,
+  Map,
+  MapPinned,
+  BellPlus,
+  LogOut,
+  UserRoundSearch,
+  MessageSquare,
+  Menu,
+  X,
+} from "lucide-react"
+import { Tooltip } from "@nextui-org/tooltip"
+import type React from "react" // Added import for React
 
+const navItems = [
+  { href: "/adm", icon: LayoutDashboard, label: "Panel de administración" },
+  { href: "/adm/workers", icon: Users, label: "Trabajadores" },
+  { href: "/adm/followup", icon: UserRoundSearch, label: "Seguimiento" },
+  { href: "/adm/notification", icon: BellPlus, label: "Notificaciones" },
+  { href: "/adm/novedades", icon: MessageSquare, label: "Novedades" },
+  { href: "/adm/rutas", icon: Map, label: "Rutas" },
+  { href: "/adm/direcciones", icon: MapPinned, label: "Direcciones" },
+]
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
   const isActive = (path: string) => pathname === path
 
-  const navItems = [
-    { href: "/coo", icon: Home, text: "Inicio" },
-    { href: "/coo/stats", icon: ChartColumn, text: "Estadísticas" },
-    { href: "/coo/emp", icon: Building2, text: "Empresas" },
-    { href: "/coo/workspace", icon: LayoutPanelLeft, text: "Workspace" },
-  ]
-
   return (
-    <div className={styles.body}>
-      <nav className="flex flex-col justify-between bg-white shadow-md w-16 sm:w-64 transition-all duration-300 ease-in-out">
-        <div className="flex flex-col space-y-2 p-2">
+    <div className="flex h-screen bg-gray-100">
+      {/* Mobile menu button */}
+      <button
+        className="lg:hidden fixed top-4 left-4 z-20 p-2 rounded-md bg-white shadow-md"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:relative lg:translate-x-0 transition duration-200 ease-in-out z-10 w-16 bg-white shadow-md flex flex-col`}
+      >
+        <nav className="flex flex-col h-full">
           {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`flex items-center p-2 rounded-lg transition-colors duration-200 ease-in-out
-                ${isActive(item.href) ? "bg-blue-500 text-white" : "text-gray-600 hover:bg-gray-100"}`}
-            >
-              <item.icon className="flex-shrink-0" size={24} />
-              <span className="ml-3 hidden sm:inline">{item.text}</span>
-            </a>
+            <Tooltip key={item.href} content={item.label} placement="right">
+              <Link
+                href={item.href}
+                className={`p-4 hover:bg-gray-100 transition-colors duration-200 ${
+                  isActive(item.href) ? "bg-gray-200" : ""
+                }`}
+              >
+                <item.icon className="w-6 h-6 mx-auto" />
+              </Link>
+            </Tooltip>
           ))}
-        </div>
-        <a
-          href="/"
-          className="flex items-center p-2 mt-auto text-black hover:bg-red-100 rounded-lg transition-colors duration-200 ease-in-out"
-          onClick={funcionLogOut}
-        >
-          <UserX className="flex-shrink-0" size={24} />
-          <span className="ml-3 hidden sm:inline">Cerrar Sesión</span>
-        </a>
-      </nav>
-      <main className="flex-grow">
-        <section id="secctioncoo">{children}</section>
-      </main>
+          <Tooltip content="Cerrar sesión" placement="right">
+            <button
+              onClick={() => {
+                localStorage.removeItem("token")
+                window.location.href = "/"
+              }}
+              className="p-4 hover:bg-gray-100 transition-colors duration-200 mt-auto"
+            >
+              <LogOut className="w-6 h-6 mx-auto" />
+            </button>
+          </Tooltip>
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">{children}</main>
     </div>
   )
 }
