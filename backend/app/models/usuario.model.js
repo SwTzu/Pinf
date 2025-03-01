@@ -54,6 +54,15 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true
       },
+      tokenVerificacion:{
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
+      verificado:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+        allowNull: true
+      }
   }, {
     // Opciones adicionales
     tableName: 'usuario',

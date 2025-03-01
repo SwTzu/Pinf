@@ -1,8 +1,23 @@
 const db = require("../models");
-
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
 const tokenfunc = require('../helpers/token.helpers.js');
 const key = require('../config/const.js').JWT_SECRET;
 const jwt = require('jsonwebtoken');
+const MAIL_USER = require('../config/const.js').MAIL_USER;
+const PASS_USER = require('../config/const.js').PASS_USER;
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: MAIL_USER,
+    pass: PASS_USER,
+  },
+});
+exports.transporter = transporter;
 
 // TO-DO: Implementar seguridad de passwords, requiere implementacion en front y back. (Hashing, salting, etc.)
 
@@ -40,7 +55,7 @@ const login = async (req, res) => {
         break;
       }
 
-      const usuario = await db.usuario.findOne({ where: { rut: rut } });
+      const usuario = await db.usuario.findOne({ where: { rut: rut ,verificado:true} });
       if (!usuario || usuario.password !== password || usuario.tipoUsuario !== userType) {
         return res.status(404).json({ message: "Credenciales incorrectas." });
       }
@@ -84,6 +99,23 @@ const crearUsuario = async (req, res) => {
   }
 
   try {
+
+    const verToken= await jwt.sign({rut},key,{expiresIn: '1d'});
+    console.log(nombre1);
+
+    const verURL= `http://localhost:3002/usuario/verificar/${verToken}`
+
+    const mailOptions = {
+      from: MAIL_USER,
+      to: correo,
+      subject: `Practica profesional de ${nombre1} ${apellido1} ${apellido2} `,
+      html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
+              <a href="${verURL}" >Link de Verificación</a>
+  
+                `
+    };
+    console.log(nombre1);
+
     const usuario = await db.usuario.create({
       rut: rut,
       password: password,
@@ -97,8 +129,10 @@ const crearUsuario = async (req, res) => {
       nombre2: nombre2,
       apellido1: apellido1,
       apellido2: apellido2,
+      tokenVerificacion: verToken,
     });
 
+    transporter.sendMail(mailOptions);
     return res.status(200).json({
       message: "Usuario creado exitosamente.",
       usuario: usuario,
@@ -110,6 +144,36 @@ const crearUsuario = async (req, res) => {
     });
   }
 };
+
+const verificarUsuario = async (req, res) => {
+  const { token } = req.params;
+  try {
+    const decoded = jwt.verify(token, key);
+    const usuario = await db.usuario.findOne({ where: { rut: decoded.rut } });
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado.",
+      });
+    }
+    usuario.tokenVerificacion=null;
+    usuario.verificado = true;
+
+    await usuario.save();
+    
+    return res.status(200).json({
+      message: "Usuario verificado exitosamente.",
+      usuario: usuario,
+    });
+
+  } catch (error) {
+    
+    return res.status(500).json({
+      message: "Error al verificar usuario.",
+      error: error,
+    });
+  }
+}
+
 const validarUsuario = async (req,res) => {             // Para que se usara a comparacion del login?
     const {token,tipoUsuario} = req.body;
     if (token){
@@ -217,7 +281,15 @@ const updateUsuario = async (req, res) => {
 };
 
 
-
+const sendMail = async (to, subject, text) => {
+  const mailOptions = {
+    from: MAIL_USER,
+    to,
+    subject,
+    text,
+  };
+  return transporter.sendMail(mailOptions);
+}
 
 module.exports = {
     validarUsuario,
@@ -225,5 +297,6 @@ module.exports = {
     verDatosUsuario,
     updateUsuario,
     login,
-    logout
+    logout,
+    verificarUsuario
 };
