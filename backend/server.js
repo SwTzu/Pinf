@@ -4,7 +4,11 @@ const db = require("./app/models/index.js");
 const app = express();
 const values = require('./app/config/const.js');
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:80', // Cambia según sea necesario
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 app.use(express.json());
 

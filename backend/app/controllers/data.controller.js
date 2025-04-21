@@ -6,6 +6,7 @@ const { conversion } = require('./conversion.controller.js');
 
 exports.unirDatos = async (req,res) => {
     const { token, rutEmpresa, numeroPractica} = req.body;
+    console.log(rutEmpresa);
     const decoded = jwt.verify(token, key);
     try { 
         // Remove the declaration of rutUsuario and directly use the value in the query
