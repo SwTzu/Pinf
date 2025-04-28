@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, User, Lock, LogIn } from "lucide-react";
-import { Input, Button, Spinner} from "@nextui-org/react";
+import { Eye, EyeOff, User, Lock, LogIn, ArrowLeftToLine, Mail, UserPlus, KeyRound } from 'lucide-react';
+import { Input, Button, Spinner, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/react";
 import { useRut } from "react-rut-formatter";
-import { useRouter } from "next/navigation"; // Importa el router de Next.js
+import { useRouter } from "next/navigation";
 import { funcionlogin, funcionloginSup } from "../../api/standar";
+import RegisterForm from "@/components/FormsLogIn/register-form";
+import ForgotPasswordForm from "@/components/FormsLogIn/forgot-password-form";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,8 +14,12 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState<string | null>(null); // Estado local para userType
+  const [userType, setUserType] = useState<string | null>(null);
   const router = useRouter();
+  
+  // Modal states
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   // useEffect para sincronizar userType con localStorage solo en el cliente
   useEffect(() => {
@@ -48,6 +54,14 @@ export default function Login() {
     }
   };
 
+  const openRegisterModal = () => {
+    setIsRegisterOpen(true);
+  };
+
+  const openForgotPasswordModal = () => {
+    setIsForgotPasswordOpen(true);
+  };
+
   if (!userType) {
     return null; // Evitar renderizar hasta que el userType esté definido
   }
@@ -59,6 +73,7 @@ export default function Login() {
         className="text-center backdrop-blur-md bg-white bg-opacity-70 rounded-xl shadow-2xl p-8 space-y-6 transition-all duration-500 ease-in-out w-[500px]"
         onKeyDown={handleKeyDown}
       >
+        <ArrowLeftToLine size={24} onClick={() => router.back()} className="absolute top-4 left-4 cursor-pointer hover:text-blue-500 transition-colors duration-300"/>
         <div className="text-center">
           <h1 className="text-4xl font-bold text-black mb-2">Bienvenido</h1>
           <p className="text-black">Inicia sesión en tu cuenta</p>
@@ -130,14 +145,56 @@ export default function Login() {
         </Button>
 
         <div className="text-center flex flex-col gap-1">
-          <a href="#" className="text-sm text-black hover:text-blue-100 transition-colors duration-300">
+          <a 
+            href="#" 
+            className="text-sm text-black hover:text-blue-500 transition-colors duration-300"
+            onClick={(e) => {
+              e.preventDefault();
+              openForgotPasswordModal();
+            }}
+          >
             ¿Olvidaste tu contraseña?
           </a>
-          <a href="#" className="text-sm text-black hover:text-blue-100 transition-colors duration-300">
+          <a 
+            href="#" 
+            className="text-sm text-black hover:text-blue-500 transition-colors duration-300"
+            onClick={(e) => {
+              e.preventDefault();
+              openRegisterModal();
+            }}
+          >
             Registrarse
           </a>
         </div>
       </form>
+
+      {/* Modal para Registro */}
+      <Modal 
+        isOpen={isRegisterOpen} 
+        onOpenChange={setIsRegisterOpen}
+        size="2xl"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <RegisterForm onClose={onClose} userType={userType} />
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Modal para Recuperar Contraseña */}
+      <Modal 
+        isOpen={isForgotPasswordOpen} 
+        onOpenChange={setIsForgotPasswordOpen}
+        size="lg"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <ForgotPasswordForm onClose={onClose} userType={userType} />
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
