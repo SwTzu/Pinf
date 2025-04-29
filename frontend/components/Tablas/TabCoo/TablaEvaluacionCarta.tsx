@@ -43,42 +43,7 @@ import { obtenerCarta } from "@/api/est/solicitudes";
 import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
 import toast, { Toaster } from "react-hot-toast";
 import ContentModal from "./ContentModal";
-interface Solicitud {
-  idSolicitud: number;
-  rut: string;
-  rutEmpresa: string;
-  fechaSolicitud: string;
-  extension: string | null;
-  numeroPractica: number;
-  descripcionRechazo: string | null;
-  fase: number;
-  calificacion: number | null;
-  correoSupervisor: string;
-  notasCOO: string | null;
-  supervisorCheck: boolean;
-  informe: boolean;
-  memoria: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-interface carta {
-  idSolicitud: number;
-  correoSupervisor: string;
-  tareas: [];
-  fechaInicio: string;
-  fechaTermino: string;
-  alumnoCheck: boolean;
-  supervisorCheck: boolean;
-}
-interface Tarea {
-  name: string;
-  description: string;
-  areas: [];
-}
-interface area {
-  idArea: string;
-  nombre: string;
-}
+import { Solicitud, Tarea, carta, area} from "@/types/interfaces";
 export default function TablaEvaluacionCarta({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda

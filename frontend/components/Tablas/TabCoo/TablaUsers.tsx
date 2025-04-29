@@ -41,18 +41,7 @@ import {
   editarUsuarioAdm,
   eliminarUsuarioAdm,
 } from "@/api/coo/solicitudes";
-interface Usuario {
-  rut: string;
-  tipoUsuario: number;
-  nombre1: string;
-  nombre2: string;
-  apellido1: string;
-  apellido2: string;
-  telefono: string;
-  correo: string;
-  direccion: string;
-}
-
+import { Usuario } from "@/types/interfaces";
 export default function TablaUsers({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
@@ -411,7 +400,7 @@ export default function TablaUsers({ token }: { token: string }) {
                   color="success"
                   onPress={() => {
                     if (newUser) {
-                        if (
+                      if (
                         !isValid ||
                         !userSelected.nombre1 ||
                         !userSelected.apellido1 ||
@@ -419,7 +408,7 @@ export default function TablaUsers({ token }: { token: string }) {
                         !isEmailValid(userSelected.correo) ||
                         !userSelected.telefono ||
                         !userSelected.direccion
-                        ) {
+                      ) {
                         toast.error(
                           "Por favor complete todos los campos requeridos"
                         );
@@ -534,9 +523,7 @@ export default function TablaUsers({ token }: { token: string }) {
         >
           {(user) => (
             <TableRow key={user.rut}>
-              <TableCell style={{ textAlign: "center" }}>
-              {user.rut}
-              </TableCell>
+              <TableCell style={{ textAlign: "center" }}>{user.rut}</TableCell>
               <TableCell style={{ textAlign: "center" }}>
                 {user.nombre1} {user.nombre2}
               </TableCell>

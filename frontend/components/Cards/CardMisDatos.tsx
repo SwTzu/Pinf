@@ -2,19 +2,7 @@
 import React from "react";
 import { Button, Input, Card, Checkbox } from "@nextui-org/react";
 import { PlusIcon } from "@/public/icons/PlusIcon";
-
-type estudiante = {
-  rut: string;
-  nombre1: string;
-  nombre2: string;
-  apellido1: string;
-  apellido2: string;
-  planEstudio: string;
-  correo: string;
-  telefono: string;
-  ingreso: string;
-};
-
+import { estudiante } from "@/types/interfaces";
 interface CardMisDatosProps {
   datos_est: estudiante;
   setDatos_est: (datos_est: estudiante) => void;

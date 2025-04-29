@@ -41,24 +41,7 @@ import {
   Hourglass
 } from "lucide-react";
 import { deleteSolicitud, PDF, uploadMemoria} from "@/api/est/solicitudes";
-interface Solicitud {
-  idSolicitud: number;
-  rut: string;
-  rutEmpresa: string;
-  fechaSolicitud: string;
-  extension: string | null;
-  numeroPractica: number;
-  descripcionRechazo: string | null;
-  fase: number;
-  supervisorCheck: boolean;
-  alumnoCheck: boolean;
-  calificacion: number | null;
-  correoSupervisor: string;
-  notasCOO: string | null;
-  memoria: boolean | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Solicitud } from "@/types/interfaces";
 const TablaSolicitudes = forwardRef(({ token }: { token: string }, ref) => {
   TablaSolicitudes.displayName = "TablaSolicitudes";
   const [isLoading, setIsLoading] = useState(true);

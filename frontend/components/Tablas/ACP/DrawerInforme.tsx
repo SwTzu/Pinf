@@ -17,6 +17,7 @@ import { useState } from "react";
 import { Send } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { crearInforme } from "@/api/supp/solicitudes";
+import { Informe, Pregunta } from "@/types/interfaces";
 interface DrawerInformeProps {
   useDisclosure: () => {
     isOpen: boolean;
@@ -25,36 +26,7 @@ interface DrawerInformeProps {
     selectSolicitud: number;
   };
 }
-interface AspectosGenerales {
-  capacidad: string;
-  responzabilidad: string;
-  asistencia: string;
-  comportamiento: string;
-  adaptabilidad: string;
-  iniciativa: string;
-}
-interface AspectosTecnicos {
-  solucion: string;
-  conocimientos: string;
-  organizacion: string;
-  decision: string;
-}
-interface AspectosComunicacionales {
-  comunicacion_escrita: string;
-  comunicacion_oral: string;
-}
-interface Pregunta {
-  id: number;
-  respuesta: string;
-  comentario: string;
-}
-interface Informe {
-  aspectos_generales: AspectosGenerales;
-  aspectos_tecnicos: AspectosTecnicos;
-  aspectos_comunicacionales: AspectosComunicacionales;
-  preguntas: Pregunta[];
-  opinion: string;
-}
+
 export default function DrawerInforme(useDisclosure: DrawerInformeProps) {
   const { isOpen, onClose, onOpenChange, selectSolicitud } =
     useDisclosure.useDisclosure();

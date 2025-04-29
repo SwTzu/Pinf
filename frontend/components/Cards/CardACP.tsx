@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Card,} from "@nextui-org/react";
-import styles from "@/styles/est.module.css";
 import TablaAcp from "@/components/Tablas/ACP/TablaAcp";
 import TablaSuppAcp from "@/components/Tablas/ACP/TablaSuppACP";
 interface CardACPProps {

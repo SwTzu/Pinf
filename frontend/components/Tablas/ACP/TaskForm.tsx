@@ -18,18 +18,7 @@ import {
 } from "@nextui-org/react";
 import { listarArea } from "@/api/coo/solicitudes";
 import {HelpCircle, Trash} from "lucide-react";
-
-interface area {
-  idArea: string;
-  nombre: string;
-}
-
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  areas: area[];
-}
+import { area, Task } from "@/types/interfaces";
 interface TaskFormProps {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;

@@ -29,20 +29,19 @@ import {
   Eye,
   EyeOff,
   Trash,
-  Plus,
   FileCheck,
   FileX,
-  CheckCircle2,
   CircleX,
   CircleCheckBig,
   FilePlus2,
-  Save,
   Send,
 } from "lucide-react";
 import { Solicitudes, updateNotas } from "../../../api/coo/solicitudes";
 import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
 import toast, { Toaster } from "react-hot-toast";
 import ContentModal from "@/components/Tablas/TabCoo/ContentModal";
+import {Task, notaCoo, area} from "@/types/interfaces";
+import { Practica } from "@/types/Practica";
 // Clave para almacenar en localStorage
 const STORAGE_KEY = "notes_positions";
 
@@ -238,39 +237,6 @@ const DraggableNote = ({
     </div>
   );
 };
-type Practica = {
-  id: number;
-  nombreEstudiante: string;
-  rutEstudiante: string;
-  razonSocial: string;
-  empresa: string;
-  fase: number;
-  estado: string;
-  fechaSolicitud: string;
-  fechaInicio: string;
-  fechaTermino: string;
-  comentarios: string[];
-  notasCOO: { id: number; title: string; content: string }[] | null;
-  correoSupervisor: string;
-  tareas: Task[];
-  informe: boolean | null;
-  memoria: boolean | null;
-};
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  areas: area[];
-}
-interface area {
-  idArea: number;
-  nombre: string;
-}
-interface notaCoo {
-  id: number;
-  title: string;
-  content: string;
-}
 export default function Workspace() {
   const [notes, setNotes] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);

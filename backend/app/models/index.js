@@ -33,19 +33,12 @@ const sequelize = new Sequelize(values.DB_NAME, values.DB_USER, values.DB_PASSWO
     max: Infinity, // Número máximo de reintentos
     backoffBase: 5000, // Tiempo inicial de espera en ms (5 segundos)
     backoffExponent: 1.5 // Factor de crecimiento exponencial para el backoff
-  },
-  dialectOptions: {
-    connectTimeout: 30000 // 30 segundos de timeout para la conexión inicial
   }
 });
 
 // Manejador de eventos de conexión
 sequelize.addHook('afterConnect', (connection) => {
   console.log('Conexión establecida con la base de datos');
-});
-
-sequelize.addHook('afterDisconnect', (connection) => {
-  console.log('Conexión perdida con la base de datos. Intentando reconectar...');
 });
 const db = {};
 db.Sequelize = Sequelize;

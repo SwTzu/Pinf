@@ -1,11 +1,4 @@
-import React, { useState } from "react";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  Button,
-  Tooltip,
   Card,
   CardHeader,
   CardBody,
@@ -14,37 +7,7 @@ import {
   Divider,
   Textarea,
 } from "@nextui-org/react";
-import { Send } from "lucide-react";
-interface AspectosGenerales {
-  capacidad: string;
-  responzabilidad: string;
-  asistencia: string;
-  comportamiento: string;
-  adaptabilidad: string;
-  iniciativa: string;
-}
-interface AspectosTecnicos {
-  solucion: string;
-  conocimientos: string;
-  organizacion: string;
-  decision: string;
-}
-interface AspectosComunicacionales {
-  comunicacion_escrita: string;
-  comunicacion_oral: string;
-}
-interface Pregunta {
-  id: number;
-  respuesta: string;
-  comentario: string;
-}
-interface Informe {
-  aspectos_generales: AspectosGenerales;
-  aspectos_tecnicos: AspectosTecnicos;
-  aspectos_comunicacionales: AspectosComunicacionales;
-  preguntas: Pregunta[];
-  opinion: string;
-}
+import { Informe} from "@/types/interfaces";
 const ContentModal = ({ informe }: { informe:Informe }) => {
   return (
     <div className="w-full overflow-y-auto">

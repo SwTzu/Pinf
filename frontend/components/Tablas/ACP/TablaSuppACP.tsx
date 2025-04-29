@@ -36,43 +36,7 @@ import TaskForm from "./TaskForm";
 import { crearCarta } from "@/api/supp/solicitudes";
 import DrawerInforme from "./DrawerInforme";
 import toast, { Toaster } from "react-hot-toast";
-interface Solicitud {
-  idSolicitud: number;
-  rut: string;
-  nombre: string;
-  rutEmpresa: string;
-  fechaSolicitud: string;
-  extension: string | null;
-  numeroPractica: number;
-  descripcionRechazo: string | null;
-  fase: number;
-  calificacion: number | null;
-  correoSupervisor: string;
-  supervisorCheck: boolean;
-  alumnoCheck: boolean;
-  informe: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-interface carta {
-  idSolicitud: number;
-  correoSupervisor: string;
-  tareas: Task[];
-  fechaInicio: string;
-  fechaTermino: string;
-  supervisorCheck: boolean;
-  alumnoCheck: boolean;
-}
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  areas: area[];
-}
-interface area {
-  idArea: string;
-  nombre: string;
-}
+import { Solicitud, carta, Task} from "@/types/interfaces";
 export default function TablaSuppAcp({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda

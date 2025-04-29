@@ -1,1 +1,1 @@
-export const backendUrl = `${process.env.NEXT_PUBLIC_HOST}:${process.env.NEXT_PUBLIC_PORT}`;
+export const backendUrl = `${process.env.NEXT_PUBLIC_HOST}`;

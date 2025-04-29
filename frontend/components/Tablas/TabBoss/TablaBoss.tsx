@@ -25,23 +25,7 @@ import {
 import { UserCheck, UserX , EllipsisVertical, Search,Copy} from "lucide-react";
 import { backendUrl } from "@/config/config";
 import toast, { Toaster } from 'react-hot-toast';
-interface Solicitud {
-  idSolicitud: number;
-  rut: string;
-  rutEmpresa: string;
-  fechaSolicitud: string;
-  extension: string | null;
-  numeroPractica: number;
-  descripcionRechazo: string | null;
-  fase: number;
-  supervisorCheck: boolean;
-  alumnoCheck: boolean;
-  calificacion: number | null;
-  correoSupervisor: string;
-  notasCOO: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import {Solicitud} from "@/types/interfaces";
 
 const actualizarFaseSolicitud = async (
   Token:string,

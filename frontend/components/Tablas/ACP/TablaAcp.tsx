@@ -29,40 +29,7 @@ import { backendUrl } from "@/config/config";
 import { Mail, Search, CircleHelp, Plus, Hourglass} from "lucide-react";
 import styles from "@/styles/est.module.css";
 import { addSup, obtenerCarta, aceptarCarta } from "@/api/est/solicitudes";
-interface Solicitud {
-  idSolicitud: number;
-  rut: string;
-  rutEmpresa: string;
-  fechaSolicitud: string;
-  extension: string | null;
-  numeroPractica: number;
-  descripcionRechazo: string | null;
-  fase: number;
-  calificacion: number | null;
-  correoSupervisor: string;
-  notasCOO: string | null;
-  supervisorCheck: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-interface carta {
-  idSolicitud: number;
-  correoSupervisor: string;
-  tareas: [];
-  fechaInicio: string;
-  fechaTermino: string;
-  alumnoCheck: boolean;
-  supervisorCheck: boolean;
-}
-interface Tarea {
-  name: string;
-  description: string;
-  areas: [];
-}
-interface area {
-  idArea: string;
-  nombre: string;
-}
+import { Solicitud, carta, Task, area} from "@/types/interfaces";
 export default function TablaAcp({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
@@ -407,7 +374,7 @@ export default function TablaAcp({ token }: { token: string }) {
               </div>
             </div>
             <Accordion variant="shadow">
-              {carta?.tareas?.map((tarea: Tarea, index) => (
+              {carta?.tareas?.map((tarea: Task, index) => (
                 <AccordionItem
                   key={index}
                   aria-label={tarea.name}
