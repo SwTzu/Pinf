@@ -23,7 +23,6 @@ export const obtenerStatsAreas = async () => {
       });
         if (response.ok) {
             const data = await response.json();
-            console.log('areas',data);
             return data;
         } else {
             throw new Error("Error al actualizar datos del usuario");

@@ -168,7 +168,6 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
     return filtered;
   }, [list.items, filterValue]);
   const handleRowClick = (item: Solicitud) => {
-    console.log(item);
     if (item.fase === 5) {
       obtenerCarta(item.idSolicitud).then((res) => {
         // Convertir la fecha de YYYY-MM-DD a DD-MM-YYYY
