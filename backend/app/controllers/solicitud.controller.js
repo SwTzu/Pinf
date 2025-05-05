@@ -1,7 +1,6 @@
 const db = require('../models');
 const key = require('../config/const.js').JWT_SECRET;
-const MAIL_USER = require('../config/const.js').MAIL_USER;
-const PASS_USER = require('../config/const.js').PASS_USER;
+const { MAIL_USER, PASS_USER, MAIL_PORT} = require('../config/const.js');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const Op = db.Sequelize.Op;
@@ -10,7 +9,7 @@ const TOKEN = require('../helpers/token.helpers.js');
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   host: 'smtp.gmail.com',
-  port: 465,
+  port: MAIL_PORT,
   secure: true,
   auth: {
     user: MAIL_USER,

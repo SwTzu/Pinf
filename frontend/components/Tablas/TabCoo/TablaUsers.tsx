@@ -289,6 +289,7 @@ export default function TablaUsers({ token }: { token: string }) {
                       }
                       variant="bordered"
                       size="md"
+                      isRequired={true}
                     />
                     <Input
                       label="Segundo Apellido"
@@ -314,6 +315,7 @@ export default function TablaUsers({ token }: { token: string }) {
                         })
                       }
                       variant="bordered"
+                      isRequired={true}
                       size="md"
                       maxLength={45}
                       isInvalid={!isEmailValid(userSelected.correo)}
@@ -322,6 +324,7 @@ export default function TablaUsers({ token }: { token: string }) {
                       label="Teléfono"
                       placeholder="Ingrese numero de Teléfono/Celular"
                       value={userSelected.telefono}
+                      isRequired={true}
                       onChange={(e) =>
                         setUserSelected({
                           ...userSelected,
@@ -403,11 +406,9 @@ export default function TablaUsers({ token }: { token: string }) {
                       if (
                         !isValid ||
                         !userSelected.nombre1 ||
-                        !userSelected.apellido1 ||
                         !userSelected.correo ||
                         !isEmailValid(userSelected.correo) ||
-                        !userSelected.telefono ||
-                        !userSelected.direccion
+                        !userSelected.telefono
                       ) {
                         toast.error(
                           "Por favor complete todos los campos requeridos"

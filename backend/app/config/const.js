@@ -16,7 +16,7 @@ const DB_POOL_IDLE = parseInt(process.env.DB_POOL_IDLE, 10);
 const JWT_SECRET = process.env.JWT_SECRET;
 const MAIL_USER = process.env.MAIL_USER;
 const PASS_USER = process.env.PASS_USER;
-
+const MAIL_PORT = process.env.MAIL_PORT;
 
 
 module.exports = {
@@ -33,5 +33,6 @@ module.exports = {
     DB_POOL_IDLE,
     JWT_SECRET,
     MAIL_USER,
-    PASS_USER
+    PASS_USER,
+    MAIL_PORT
 }

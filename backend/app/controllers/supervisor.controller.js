@@ -5,15 +5,14 @@ const key = require('../config/const.js').JWT_SECRET;
 const bcrypt = require('bcrypt');                       //    TO-DO: Implementar.
 
 const nodemailer = require("nodemailer");
-const { MAIL_USER, PASS_USER } = require('../config/const.js');
-
+const { MAIL_USER, PASS_USER, MAIL_PORT} = require('../config/const.js');
 const supervisorCodes = new Map(); // correo -> { code, timeoutId }
 const verifiedSupervisors = new Set(); // correos verificados
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   host: 'smtp.gmail.com',
-  port: 465,
+  port: MAIL_PORT,
   secure: true,
   auth: {
     user: MAIL_USER,

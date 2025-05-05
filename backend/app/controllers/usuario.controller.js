@@ -4,16 +4,14 @@ const bcrypt = require('bcrypt');
 const tokenfunc = require('../helpers/token.helpers.js');
 const key = require('../config/const.js').JWT_SECRET;
 const jwt = require('jsonwebtoken');
-const MAIL_USER = require('../config/const.js').MAIL_USER;
-const PASS_USER = require('../config/const.js').PASS_USER;
-
+const { MAIL_USER, PASS_USER, MAIL_PORT} = require('../config/const.js');
 const verificationCodes = new Map(); // rut -> { code, timeoutId }
 const verifiedRuts = new Set(); // rut ya verificado
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   host: 'smtp.gmail.com',
-  port: 465,
+  port: MAIL_PORT,
   secure: true,
   auth: {
     user: MAIL_USER,

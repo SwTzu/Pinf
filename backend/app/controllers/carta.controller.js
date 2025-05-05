@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 const db = require("../models");
-const MAIL_USER = require('../config/const.js').MAIL_USER;
-const PASS_USER = require('../config/const.js').PASS_USER;
+const { MAIL_USER, PASS_USER, MAIL_PORT} = require('../config/const.js');
 const Op = db.Sequelize.Op;
 
 const crearCarta = async (req, res) => {
@@ -59,7 +58,7 @@ const crearCarta = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             host: 'smtp.gmail.com',
-            port: 465,
+            port: MAIL_PORT,
             secure: true,
             auth: {
                 user: MAIL_USER,
