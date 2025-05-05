@@ -33,11 +33,6 @@ export interface carta {
   alumnoCheck: boolean;
   supervisorCheck: boolean;
 }
-export interface Tarea {
-  name: string;
-  description: string;
-  areas: [];
-}
 export interface area {
   idArea: string;
   nombre: string;

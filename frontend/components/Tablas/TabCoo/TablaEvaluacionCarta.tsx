@@ -43,7 +43,7 @@ import { obtenerCarta } from "@/api/est/solicitudes";
 import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
 import toast, { Toaster } from "react-hot-toast";
 import ContentModal from "./ContentModal";
-import { Solicitud, Tarea, carta, area} from "@/types/interfaces";
+import { Solicitud, Task, carta, area} from "@/types/interfaces";
 export default function TablaEvaluacionCarta({ token }: { token: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [filterValue, setFilterValue] = useState(""); // Valor de búsqueda
@@ -602,7 +602,7 @@ export default function TablaEvaluacionCarta({ token }: { token: string }) {
               </div>
             </div>
             <Accordion variant="splitted" aria-label="Tareas de la carta">
-              {carta?.tareas?.map((tarea: Tarea, index) => (
+              {carta?.tareas?.map((tarea: Task, index) => (
                 <AccordionItem
                   key={index}
                   aria-label={tarea.name}
