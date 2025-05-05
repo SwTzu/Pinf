@@ -17,3 +17,7 @@ export type Practica = {
   informe: boolean | null;
   memoria: boolean | null;
 };
+export type empresa = {
+  verificadas: number;
+  total: number;
+};

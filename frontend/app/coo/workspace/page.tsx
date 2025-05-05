@@ -41,7 +41,7 @@ import { updateFase, getInforme, dowload } from "@/api/coo/solicitudes";
 import toast, { Toaster } from "react-hot-toast";
 import ContentModal from "@/components/Tablas/TabCoo/ContentModal";
 import {Task, notaCoo, area} from "@/types/interfaces";
-import { Practica } from "@/types/Practica";
+import { Practica } from "@/types/types";
 // Clave para almacenar en localStorage
 const STORAGE_KEY = "notes_positions";
 

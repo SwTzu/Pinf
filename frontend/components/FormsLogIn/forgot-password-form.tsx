@@ -1,33 +1,50 @@
 "use client"
 import { useState } from "react"
-import { Input, Button, ModalHeader, ModalBody, ModalFooter } from "@nextui-org/react"
-import { Mail, Lock, Eye, EyeOff, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react"
+import {
+  Input,
+  Button,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@nextui-org/react"
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react"
 import { useRut } from "react-rut-formatter"
+import { backendUrl } from "@/config/config"
+import { useRouter } from "next/navigation"
 
 interface ForgotPasswordFormProps {
   onClose: () => void
   userType: string | null
 }
 
-export default function ForgotPasswordForm({ onClose, userType }: ForgotPasswordFormProps) {
+export default function ForgotPasswordForm({
+  onClose,
+  userType,
+}: ForgotPasswordFormProps) {
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const { rut, updateRut, isValid: isRutValid } = useRut()
+  const router = useRouter()
 
-  // Step 1 - Email Input
   const [email, setEmail] = useState("")
-
-  // Step 2 - Verification Code
   const [verificationCode, setVerificationCode] = useState("")
   const [sentCode, setSentCode] = useState(false)
+  const [canResend, setCanResend] = useState(false)
+  const [resendSeconds, setResendSeconds] = useState(0)
 
-  // Step 3 - New Password
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // Validation states
   const [errors, setErrors] = useState<{
     email?: string
     rut?: string
@@ -84,56 +101,126 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
     return Object.keys(newErrors).length === 0
   }
 
-  const handleNextStep = () => {
+  const startResendCooldown = () => {
+    setCanResend(false)
+    setResendSeconds(120)
+
+    const interval = setInterval(() => {
+      setResendSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          setCanResend(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const requestVerificationCode = async () => {
+    setIsLoading(true)
+
+    try {
+      const url = userType === "sup"
+        ? `${backendUrl}/supervisor/verificarCorreo`
+        : `${backendUrl}/usuario/verificarRut`
+
+      const body = userType === "sup"
+        ? { correoSupervisor: email }
+        : { rut: rut.raw }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (!response.ok) throw new Error("Error al enviar código de verificación")
+
+      setSentCode(true)
+      startResendCooldown()
+    } catch (err) {
+      setErrors({
+        ...(userType === "sup"
+          ? { email: "Error al verificar correo" }
+          : { rut: "Error al verificar RUT" }),
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleNextStep = async () => {
     if (step === 1 && validateStep1()) {
-      // Simulate sending verification code
-      setIsLoading(true)
-      setTimeout(() => {
-        setIsLoading(false)
-        setSentCode(true)
-        setStep(2)
-      }, 1500)
+      await requestVerificationCode()
+      setStep(2)
     } else if (step === 2 && validateStep2()) {
-      setStep(3)
+      try {
+        setIsLoading(true)
+
+        const url = userType === "sup"
+          ? `${backendUrl}/supervisor/verificarCodigo`
+          : `${backendUrl}/usuario/verificarCodigo`
+
+        const body = userType === "sup"
+          ? { correoSupervisor: email, codigo: verificationCode }
+          : { rut: rut.raw, codigo: verificationCode }
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        })
+
+        if (!response.ok) throw new Error("Código inválido")
+
+        setStep(3)
+      } catch (err) {
+        setErrors({ code: "Código de verificación inválido o expirado" })
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
-  const handlePrevStep = () => {
-    if (step > 1) {
-      setStep(step - 1)
-    }
-  }
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateStep3()) {
       setIsLoading(true)
 
-      // Simulate API call for password reset
-      setTimeout(() => {
-        setIsLoading(false)
-        // Here you would call your password reset API
-        // funcionResetPassword(userType === "sup" ? email : rut.formatted, newPassword);
+      try {
+        const url = userType === "sup"
+          ? `${backendUrl}/supervisor/reestablecerPassword`
+          : `${backendUrl}/usuario/reestablecerPassword`
+
+        const body = userType === "sup"
+          ? { correoSupervisor: email, nuevaPassword: newPassword }
+          : { rut: rut.raw, nuevaPassword: newPassword }
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        })
+
+        if (!response.ok) throw new Error("No se pudo cambiar la contraseña")
+
         onClose()
-      }, 2000)
+        alert("Contraseña reestablecida con éxito")
+        router.push("/login")
+      } catch (err) {
+        setErrors({ newPassword: "Error al reestablecer la contraseña" })
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
   const sendVerificationCode = () => {
-    setIsLoading(true)
-
-    // Simulate sending verification code
-    setTimeout(() => {
-      setIsLoading(false)
-      setSentCode(true)
-    }, 1500)
-  }
-
-  const toggleNewPasswordVisibility = () => {
-    setShowNewPassword(!showNewPassword)
-  }
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword)
+    if (step === 1) {
+      handleNextStep()
+    } else if (step === 2) {
+      requestVerificationCode()
+    }
   }
 
   return (
@@ -190,18 +277,22 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
               errorMessage={errors.code}
             />
 
-            {!sentCode ? (
-              <Button color="primary" onClick={sendVerificationCode} isLoading={isLoading}>
-                Enviar Código
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-2">¿No recibiste el código?</p>
+              <Button
+                color="primary"
+                variant="light"
+                onPress={sendVerificationCode}
+                isLoading={isLoading}
+                isDisabled={!canResend}
+              >
+                {canResend
+                  ? "Reenviar Código"
+                  : `Reenviar en ${Math.floor(resendSeconds / 60)
+                      .toString()
+                      .padStart(1, "0")}:${(resendSeconds % 60).toString().padStart(2, "0")}`}
               </Button>
-            ) : (
-              <div className="text-center">
-                <p className="text-sm text-gray-500 mb-2">¿No recibiste el código?</p>
-                <Button color="primary" variant="light" onClick={sendVerificationCode} isLoading={isLoading}>
-                  Reenviar Código
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -217,16 +308,11 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
               errorMessage={errors.newPassword}
               startContent={<Lock className="text-blue-200" size={18} />}
               endContent={
-                <button type="button" onClick={toggleNewPasswordVisibility} className="focus:outline-none">
-                  {showNewPassword ? (
-                    <EyeOff size={18} className="text-blue-200" />
-                  ) : (
-                    <Eye size={18} className="text-blue-200" />
-                  )}
+                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)}>
+                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               }
             />
-
             <Input
               label="Confirmar Contraseña"
               placeholder="Confirme su nueva contraseña"
@@ -237,23 +323,16 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
               errorMessage={errors.confirmPassword}
               startContent={<Lock className="text-blue-200" size={18} />}
               endContent={
-                <button type="button" onClick={toggleConfirmPasswordVisibility} className="focus:outline-none">
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} className="text-blue-200" />
-                  ) : (
-                    <Eye size={18} className="text-blue-200" />
-                  )}
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               }
             />
-
             <div className="text-sm">
               <p>La contraseña debe:</p>
               <ul className="list-disc pl-5 mt-1">
                 <li className={newPassword.length >= 8 ? "text-green-500" : ""}>Tener al menos 8 caracteres</li>
-                <li className={/[A-Z]/.test(newPassword) ? "text-green-500" : ""}>
-                  Incluir al menos una letra mayúscula
-                </li>
+                <li className={/[A-Z]/.test(newPassword) ? "text-green-500" : ""}>Incluir al menos una letra mayúscula</li>
                 <li className={/[0-9]/.test(newPassword) ? "text-green-500" : ""}>Incluir al menos un número</li>
               </ul>
             </div>
@@ -263,26 +342,21 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
       <ModalFooter>
         <div className="w-full flex justify-between">
           {step > 1 ? (
-            <Button color="default" variant="light" onClick={handlePrevStep} startContent={<ArrowLeft size={16} />}>
+            <Button color="default" variant="light" onPress={() => setStep(step - 1)} startContent={<ArrowLeft size={16} />}>
               Atrás
             </Button>
           ) : (
-            <Button color="danger" variant="light" onClick={onClose}>
+            <Button color="danger" variant="light" onPress={onClose}>
               Cancelar
             </Button>
           )}
 
           {step < 3 ? (
-            <Button
-              color="primary"
-              onClick={handleNextStep}
-              isLoading={isLoading}
-              endContent={<ArrowRight size={16} />}
-            >
+            <Button color="primary" onPress={handleNextStep} isLoading={isLoading} endContent={<ArrowRight size={16} />}>
               Siguiente
             </Button>
           ) : (
-            <Button color="success" onClick={handleSubmit} isLoading={isLoading} endContent={<CheckCircle size={16} />}>
+            <Button color="success" onPress={handleSubmit} isLoading={isLoading} endContent={<CheckCircle size={16} />}>
               Cambiar Contraseña
             </Button>
           )}
@@ -291,4 +365,3 @@ export default function ForgotPasswordForm({ onClose, userType }: ForgotPassword
     </>
   )
 }
-

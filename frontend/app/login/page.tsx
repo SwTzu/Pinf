@@ -155,16 +155,18 @@ export default function Login() {
           >
             ¿Olvidaste tu contraseña?
           </a>
-          <a 
-            href="#" 
-            className="text-sm text-black hover:text-blue-500 transition-colors duration-300"
-            onClick={(e) => {
+            {userType === "est" && (
+            <a 
+              href="#" 
+              className="text-sm text-black hover:text-blue-500 transition-colors duration-300"
+              onClick={(e) => {
               e.preventDefault();
               openRegisterModal();
-            }}
-          >
-            Registrarse
-          </a>
+              }}
+            >
+              Registrarse
+            </a>
+            )}
         </div>
       </form>
 

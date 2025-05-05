@@ -21,14 +21,8 @@ import {
 import PieChartComponent from "@/components/Stats/PieChartComponente";
 import VisualPieChartComponent from "@/components/Stats/VisualPieChartComponente";
 import BarChartComponent from "@/components/Stats/BarChartComponente";
-type empresa = {
-  verificadas: number;
-  total: number;
-};
-interface DataCharts {
-  value: number;
-  name: string;
-}
+import {DataCharts } from "@/types/interfaces";
+import { empresa } from "@/types/types";
 export default function HomeCoo() {
   const chartRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);

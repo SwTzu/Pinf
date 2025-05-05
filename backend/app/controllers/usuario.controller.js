@@ -7,6 +7,9 @@ const jwt = require('jsonwebtoken');
 const MAIL_USER = require('../config/const.js').MAIL_USER;
 const PASS_USER = require('../config/const.js').PASS_USER;
 
+const verificationCodes = new Map(); // rut -> { code, timeoutId }
+const verifiedRuts = new Set(); // rut ya verificado
+
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   host: 'smtp.gmail.com',
@@ -78,20 +81,12 @@ const crearUsuario = async (req, res) => {
   const {
     rut,
     password,
-    telefono,
     correo,
-    direccion,
-    planEstudio,
-    ingreso,
-    tipoUsuario,
-    nombre1,
-    nombre2,
-    apellido1,
-    apellido2,
+    nombre
   } = req.body;
 
   const usuarioCheck = await db.usuario.findOne({ where: { rut: rut } });
-
+  const [nombre1, nombre2, apellido1, apellido2] = nombre.split(" ");
   if (usuarioCheck) {
     return res.status(400).json({
       message: "El usuario ya existe.",
@@ -100,39 +95,17 @@ const crearUsuario = async (req, res) => {
 
   try {
 
-    const verToken= await jwt.sign({rut},key,{expiresIn: '1d'});
-    console.log(nombre1);
-
-    const verURL= `http://localhost:3002/usuario/verificar/${verToken}`
-
-    const mailOptions = {
-      from: MAIL_USER,
-      to: correo,
-      subject: `Practica profesional de ${nombre1} ${apellido1} ${apellido2} `,
-      html: `<p>Haz clic en el siguiente enlace para verificar tu cuenta:</p>
-              <a href="${verURL}" >Link de Verificación</a>
-  
-                `
-    };
-    console.log(nombre1);
-
     const usuario = await db.usuario.create({
       rut: rut,
       password: password,
-      telefono: telefono,
       correo: correo,
-      direccion: direccion,
-      planEstudio: planEstudio,
-      ingreso: ingreso,
-      tipoUsuario: tipoUsuario,
+      tipoUsuario: 1,
       nombre1: nombre1,
       nombre2: nombre2,
       apellido1: apellido1,
       apellido2: apellido2,
-      tokenVerificacion: verToken,
     });
 
-    transporter.sendMail(mailOptions);
     return res.status(200).json({
       message: "Usuario creado exitosamente.",
       usuario: usuario,
@@ -186,6 +159,7 @@ const validarUsuario = async (req,res) => {             // Para que se usara a c
 
     }
 };
+
 const getdata = async (req, res) => {
   const { token } = req.body;
   try {
@@ -210,7 +184,6 @@ const getdata = async (req, res) => {
     });
   }
 };
-
 
 const verDatosUsuario = async (req, res) => {
   const { token } = req.body;
@@ -280,7 +253,6 @@ const updateUsuario = async (req, res) => {
   }
 };
 
-
 const sendMail = async (to, subject, text) => {
   const mailOptions = {
     from: MAIL_USER,
@@ -291,6 +263,88 @@ const sendMail = async (to, subject, text) => {
   return transporter.sendMail(mailOptions);
 }
 
+const verificarRutYEnviarCodigo = async (req, res) => {
+  const { rut } = req.body;
+
+  try {
+    let usuario = await db.usuario.findOne({ where: { rut } });
+
+    if (!usuario && !req.body.correo) {
+      return res.status(404).json({ message: "No existe usuario con ese rut." });
+    }else{
+
+      usuario = {correo: req.body.correo};
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Limpiar código anterior si existe
+    if (verificationCodes.has(rut)) {
+      clearTimeout(verificationCodes.get(rut).timeoutId);
+      verificationCodes.delete(rut);
+    }
+    const timeoutId = setTimeout(() => verificationCodes.delete(rut), 10 * 60 * 1000); // 10 min
+    verificationCodes.set(rut, { code, timeoutId });
+    const mailOptions = {
+      from: MAIL_USER,
+      to: usuario.correo,
+      subject: "Código de recuperación de contraseña",
+      text: `Tu código es: ${code}. Válido por 10 minutos.`,
+    };
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({
+      message: "Usuario encontrado. Código de recuperación enviado exitosamente al correo."
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error al procesar la solicitud.", error });
+  }
+};
+
+const verificarCodigoRecuperacion = async (req, res) => {
+  const { rut, codigo } = req.body;
+
+  const data = verificationCodes.get(rut);
+  if (!data) {
+    return res.status(400).json({ message: "No se encontró un código para este rut o ya expiró." });
+  }
+
+  if (data.code !== codigo) {
+    return res.status(400).json({ message: "Código incorrecto." });
+  }
+
+  clearTimeout(data.timeoutId);
+  verificationCodes.delete(rut);
+  verifiedRuts.add(rut);
+
+  setTimeout(() => verifiedRuts.delete(rut), 10 * 60 * 1000); // limpiar permiso a los 10 min
+
+  return res.status(200).json({ message: "Código verificado. Puedes reestablecer tu contraseña." });
+};
+
+const reestablecerPassword = async (req, res) => {
+  const { rut, nuevaPassword } = req.body;
+
+  if (!verifiedRuts.has(rut)) {
+    return res.status(403).json({ message: "No autorizado. Verifica primero el código." });
+  }
+
+  try {
+    const usuario = await db.usuario.findOne({ where: { rut } });
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+
+    usuario.password = nuevaPassword;
+    await usuario.save();
+
+    verifiedRuts.delete(rut);
+
+    return res.status(200).json({ message: "Contraseña actualizada exitosamente." });
+  } catch (error) {
+    return res.status(500).json({ message: "Error al actualizar contraseña.", error });
+  }
+};
+
 module.exports = {
     validarUsuario,
     crearUsuario,
@@ -298,5 +352,8 @@ module.exports = {
     updateUsuario,
     login,
     logout,
-    verificarUsuario
+    verificarUsuario,
+    verificarRutYEnviarCodigo,
+    verificarCodigoRecuperacion,
+    reestablecerPassword,
 };

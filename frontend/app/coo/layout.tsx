@@ -4,27 +4,20 @@ import Link from "next/link"
 import { useState } from "react"
 import {
   LayoutDashboard,
-  Users,
-  Map,
-  MapPinned,
-  BellPlus,
   LogOut,
   UserRoundSearch,
-  MessageSquare,
   Menu,
   X,
+  BriefcaseBusiness,
+  ChartNoAxesCombined,
 } from "lucide-react"
 import { Tooltip } from "@nextui-org/tooltip"
 import type React from "react" // Added import for React
 
 const navItems = [
-  { href: "/adm", icon: LayoutDashboard, label: "Panel de administración" },
-  { href: "/adm/workers", icon: Users, label: "Trabajadores" },
-  { href: "/adm/followup", icon: UserRoundSearch, label: "Seguimiento" },
-  { href: "/adm/notification", icon: BellPlus, label: "Notificaciones" },
-  { href: "/adm/novedades", icon: MessageSquare, label: "Novedades" },
-  { href: "/adm/rutas", icon: Map, label: "Rutas" },
-  { href: "/adm/direcciones", icon: MapPinned, label: "Direcciones" },
+  { href: "/coo", icon: LayoutDashboard, label: "Panel de administración" },
+  { href: "/coo/workspace", icon: BriefcaseBusiness, label: "Espacio de trabajo" },
+  { href: "/coo/stats", icon: ChartNoAxesCombined, label: "Estadisticas" },
 ]
 
 export default function AdminLayout({
@@ -52,7 +45,7 @@ export default function AdminLayout({
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:relative lg:translate-x-0 transition duration-200 ease-in-out z-10 w-16 bg-white shadow-md flex flex-col`}
       >
-        <nav className="flex flex-col h-full">
+        <nav className="flex flex-col h-full mt-16">
           {navItems.map((item) => (
             <Tooltip key={item.href} content={item.label} placement="right">
               <Link

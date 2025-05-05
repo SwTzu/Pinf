@@ -50,7 +50,10 @@ const todasPracticas = async (req, res) => {
       solicitudes.map(async (solicitud) => {
         const usuario = await db.usuario.findOne({ where: { rut: solicitud.rut } });
         const carta = await db.carta.findOne({ where: { idSolicitud: solicitud.idSolicitud } });
+        console.log(solicitud.idSolicitud,carta!=null)
+
         const empresa = await db.empresa.findOne({ where: { rutEmpresa: solicitud.rutEmpresa } });
+
         return {
           id: solicitud.idSolicitud,
           nombreEstudiante: `${usuario.nombre1} ${usuario.apellido1} ${usuario.apellido2}`,
@@ -69,6 +72,8 @@ const todasPracticas = async (req, res) => {
         };
       })
     );
+    console.log("5");
+
     return res.status(200).json({
       message: 'Solicitudes encontradas exitosamente',
       solicitudes: solicitudesWithDetails,

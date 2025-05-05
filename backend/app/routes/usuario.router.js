@@ -1,7 +1,18 @@
 const router = require('express').Router();
 
 
-const { validarUsuario, crearUsuario, verDatosUsuario,login,logout, updateUsuario,verificarUsuario} = require('../controllers/usuario.controller.js');
+const {
+    validarUsuario,
+    crearUsuario,
+    verDatosUsuario,
+    login,
+    logout,
+    updateUsuario,
+    verificarUsuario,
+    verificarRutYEnviarCodigo,
+    verificarCodigoRecuperacion,
+    reestablecerPassword
+} = require('../controllers/usuario.controller.js');
 
 
 //Ruta de prueba
@@ -17,4 +28,7 @@ router.post("/verDatos",verDatosUsuario);           // {rut}
 router.post("/login",login);                        // {rut, password, "userType"} ('est','coo','adm','boss')
 router.post("/logout",logout);                      // {token}
 router.get("/verificar/:token",verificarUsuario)
+router.post("/verificarRut", verificarRutYEnviarCodigo); // {rut}
+router.post("/verificarCodigo", verificarCodigoRecuperacion); // {rut, codigo}
+router.post("/reestablecerPassword", reestablecerPassword); // {rut, password}
 module.exports = router;

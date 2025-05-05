@@ -114,7 +114,7 @@ export default function TablaUsers({ token }: { token: string }) {
     <div className="relative flex justify-center items-center">
       <Dropdown>
         <DropdownTrigger>
-          <Button isIconOnly size="lg" variant="light" onPress={() => {}}>
+          <Button isIconOnly size="lg" variant="light">
             <EllipsisVertical />
           </Button>
         </DropdownTrigger>

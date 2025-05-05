@@ -100,3 +100,17 @@ export interface notaCoo {
   title: string;
   content: string;
 }
+export interface DataCharts {
+  value: number
+  name: string
+}
+
+export interface PracticaAnual {
+  año: number
+  cantidad_terminadas: string
+  cantidad_solicitadas: string
+}
+export interface RegionData {
+  name: string
+  value: number
+}

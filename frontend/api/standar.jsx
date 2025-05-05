@@ -85,3 +85,21 @@ export const funcionLogOut = async () => {
     alert("Error al cerrar sesión");
   }
 };
+export const forgetPassword = async (rut) => {
+  try {
+    const response = await fetch(`${backendUrl}/usuario/verificarRut`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify( { rut }),
+    });
+    if (response.ok) {
+      alert("Correo de recuperación enviado");
+    } else {
+      alert("Error al enviar el correo de recuperación");
+    }
+  } catch (error) {
+    console.error("Error al recuperar la contraseña:", error);
+  }
+}
