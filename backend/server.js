@@ -24,8 +24,6 @@ async function connectToDatabase() {
       return;
     } catch (error) {
       console.error(`❌ Error al conectar a la base de datos (Intento ${attempt}):`, error.message);
-      
-      // Esperar 5 segundos antes del próximo intento
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
