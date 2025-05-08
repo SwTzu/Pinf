@@ -285,7 +285,7 @@ const verificarRutYEnviarCodigo = async (req, res) => {
 
     const mailOptions = {
       from: MAIL_USER,
-      to: correoSupervisor,
+      to: usuario.correo,
       subject: "Código de recuperación de contraseña - Supervisor",
       text: `Tu código es: ${code}. Válido por 10 minutos.`,
     };
@@ -303,6 +303,7 @@ const verificarRutYEnviarCodigo = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Error al procesar solicitud:", error);
     return res.status(500).json({ message: "Error al procesar la solicitud.", error });
   }
 };
