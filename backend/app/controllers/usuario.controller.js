@@ -267,12 +267,12 @@ const verificarRutYEnviarCodigo = async (req, res) => {
   try {
     let usuario = await db.usuario.findOne({ where: { rut } });
 
-    if (!usuario && !req.body.correo) {
+    if (!usuario) {
       return res.status(404).json({ message: "No existe usuario con ese rut." });
-    }else{
-
-      usuario = {correo: req.body.correo};
+    }else if (!usuario.correo) {
+      return res.status(400).json({ message: "El usuario no tiene un correo asociado." });
     }
+
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Limpiar código anterior si existe
@@ -286,7 +286,7 @@ const verificarRutYEnviarCodigo = async (req, res) => {
     const mailOptions = {
       from: MAIL_USER,
       to: usuario.correo,
-      subject: "Código de recuperación de contraseña - Supervisor",
+      subject: "Código de recuperación de contraseña",
       text: `Tu código es: ${code}. Válido por 10 minutos.`,
     };
 
