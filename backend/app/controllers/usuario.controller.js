@@ -282,17 +282,26 @@ const verificarRutYEnviarCodigo = async (req, res) => {
     }
     const timeoutId = setTimeout(() => verificationCodes.delete(rut), 10 * 60 * 1000); // 10 min
     verificationCodes.set(rut, { code, timeoutId });
+
     const mailOptions = {
       from: MAIL_USER,
-      to: usuario.correo,
-      subject: "Código de recuperación de contraseña",
+      to: correoSupervisor,
+      subject: "Código de recuperación de contraseña - Supervisor",
       text: `Tu código es: ${code}. Válido por 10 minutos.`,
     };
-    await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({
-      message: "Usuario encontrado. Código de recuperación enviado exitosamente al correo."
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error enviando correo:', error);
+        return res.status(500).json({ message: "Error al enviar el correo.", error });
+      } else {
+        console.log('Correo enviado correctamente:', info.response);
+        return res.status(200).json({
+          message: "Supervisor encontrado. Código enviado al correo."
+        });
+      }
     });
+
   } catch (error) {
     return res.status(500).json({ message: "Error al procesar la solicitud.", error });
   }
