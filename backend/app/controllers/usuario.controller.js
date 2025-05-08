@@ -251,15 +251,6 @@ const updateUsuario = async (req, res) => {
   }
 };
 
-const sendMail = async (to, subject, text) => {
-  const mailOptions = {
-    from: MAIL_USER,
-    to,
-    subject,
-    text,
-  };
-  return transporter.sendMail(mailOptions);
-}
 
 const verificarRutYEnviarCodigo = async (req, res) => {
   const { rut } = req.body;
