@@ -1,5 +1,3 @@
-const { supervisor } = require(".");
-
 module.exports = (sequelize, Sequelize) => {
   const solicitud = sequelize.define(
     'solicitud de practica',

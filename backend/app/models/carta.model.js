@@ -1,5 +1,3 @@
-const { informe, memoria } = require(".");
-
 module.exports = (sequelize, Sequelize) =>{
 
     const carta = sequelize.define('carta', {
