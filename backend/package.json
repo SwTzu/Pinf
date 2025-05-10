@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "tracer": "node --trace-warnings server.js",
+    "migrate":"node ./app/helpers/migrarPasswords.js",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
