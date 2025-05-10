@@ -64,9 +64,6 @@ const login = async (req, res) => {
 
       const validPassword = await bcrypt.compare(password, usuario.password);
 
-      console.log("Usuario: ", usuario);
-      console.log("Tipo de usuario: ", usuario.tipoUsuario);
-      console.log("Contraseña válida: ", validPassword);
 
       if (!validPassword || usuario.tipoUsuario !== userType) {
         return res.status(404).json({ message: "Credenciales incorrectas." });
