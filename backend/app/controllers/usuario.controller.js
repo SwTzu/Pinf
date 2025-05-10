@@ -158,31 +158,8 @@ const validarUsuario = async (req,res) => {             // Para que se usara a c
     }
 };
 
-const getdata = async (req, res) => {
-  const { token } = req.body;
-  try {
-    const { rut } = jwt.verify(token, key);
-    const usuario = await db.usuario.findOne({ where: { rut: rut } ,attributes: { exclude: ['password'] },});
-
-    if (!usuario) {
-      return res.status(404).json({
-        message: "No se encontró el usuario.",
-      });
-    }
-
-    return res.status(200).json({
-      message: "Datos del usuario obtenidos exitosamente.",
-      usuario: usuario,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Error al obtener datos del usuario.",
-      error: err,
-    });
-  }
-};
-
+// Verifica si el usuario existe y devuelve sus datos sin la contraseña
+// (para el perfil del usuario)
 const verDatosUsuario = async (req, res) => {
   const { token } = req.body;
   const { rut } = await jwt.verify(token, key);
@@ -194,7 +171,7 @@ const verDatosUsuario = async (req, res) => {
       });
   }
 
-  // Destructure the user object and exclude the password field
+  // Destructura el objeto para eliminar la contraseña
   const { password, ...usuarioSinPassword } = usuario.dataValues;
 
   return res.status(200).json({
@@ -203,6 +180,7 @@ const verDatosUsuario = async (req, res) => {
   });
 };
 
+// Actualiza los datos del usuario
 const updateUsuario = async (req, res) => {
   const { token, datos } = req.body;
 
@@ -251,7 +229,7 @@ const updateUsuario = async (req, res) => {
   }
 };
 
-
+// Flujo de reestablecimiento de contraseña
 const verificarRutYEnviarCodigo = async (req, res) => {
   const { rut } = req.body;
 

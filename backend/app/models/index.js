@@ -36,10 +36,7 @@ const sequelize = new Sequelize(values.DB_NAME, values.DB_USER, values.DB_PASSWO
   }
 });
 
-// Manejador de eventos de conexión
-sequelize.addHook('afterConnect', (connection) => {
-  console.log('Conexión establecida con la base de datos');
-});
+
 const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
