@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const axios = require('axios');
+const { response } = require('express');
 
 const { DB_HOST,RUN_PORT } = require('../config/const.js');
 
@@ -24,7 +25,6 @@ const {
   todasPracticas,
   check
 } = require('../controllers/solicitud.controller.js');
-const { response } = require('express');
 
 //Ruta de prueba
 router.get('/', (req, res) => {
@@ -54,26 +54,7 @@ router.post('/check', check); // {token}
 // Rutas de Notas de Coordinador
 router.post('/notasCoo', mostrarNotasCoo); // {*token,idSolicitud}
 router.post('/ModNotas', modificarNotasCoo); // {*token,idSolicitud,notas}
-// Revisar
-async function hacerSolicitud() {
-  try {
-    console.log('Haciendo solicitud');
-    const respuesta = await axios.get(
-      `${DB_HOST}/solicitud/fechaauto`
-    );
-    console.log('Respuesta:', respuesta.data);
-  } catch (error) {
-    console.error('Error al hacer la solicitud:', error.message);
-  }
-}
 
-/*async function hacerSolicitud() {
-  try {
-    const respuesta = await axios.get(`${DB_HOST}/solicitud/fechaauto`);
-  } catch (error) {
-    console.error('\n\n\ Segundo error al hacer solicitud:', error.message,"\n\n\n");
-  }
-}*/
 const intervalo = 12*60*60*1000;
 
 router.post('/SolicitudyEmpresa', async (req, res) => {
@@ -108,11 +89,4 @@ router.post('/SolicitudyEmpresa', async (req, res) => {
   }
 });
 
-
-
-function solicitarAutomaticamente() {
-  hacerSolicitud();
-  setTimeout(solicitarAutomaticamente, intervalo);
-}
-solicitarAutomaticamente();
 module.exports = router;

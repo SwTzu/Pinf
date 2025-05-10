@@ -16,13 +16,13 @@ async function migrarPasswords() {
       usuario.password = hashedPassword;
       await usuario.save();
 
-      console.log(`✅ Contraseña hasheada para usuario: ${usuario.rut}`);
+      console.log(`Contraseña hasheada para usuario: ${usuario.rut}`);
     }
 
-    console.log("🎉 Todas las contraseñas han sido migradas correctamente.");
+    console.log("Todas las contraseñas han sido migradas correctamente.");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error durante la migración:", error);
+    console.error("Error durante la migración:", error);
     process.exit(1);
   }
 }
