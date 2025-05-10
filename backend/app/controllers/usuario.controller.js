@@ -57,7 +57,18 @@ const login = async (req, res) => {
       }
 
       const usuario = await db.usuario.findOne({ where: { rut: rut ,verificado:true} });
-      if (!usuario || usuario.password !== password || usuario.tipoUsuario !== userType) {
+
+      if (!usuario) {
+      return res.status(404).json({ message: "Credenciales incorrectas." });
+      }
+
+      const validPassword = await bcrypt.compare(password, usuario.password);
+
+      console.log("Usuario: ", usuario);
+      console.log("Tipo de usuario: ", usuario.tipoUsuario);
+      console.log("Contraseña válida: ", validPassword);
+
+      if (!validPassword || usuario.tipoUsuario !== userType) {
         return res.status(404).json({ message: "Credenciales incorrectas." });
       }
 
@@ -71,7 +82,7 @@ const login = async (req, res) => {
     }
     catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Error interno del servidor",error:error});
+      return res.status(500).json({ message: "Error interno del servidor", error: error});
     }
 };
 
@@ -93,9 +104,13 @@ const crearUsuario = async (req, res) => {
 
   try {
 
+    // Generar hash seguro
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const usuario = await db.usuario.create({
       rut: rut,
-      password: password,
+      password: hashedPassword,
       correo: correo,
       tipoUsuario: 1,
       nombre1: nombre1,
@@ -311,7 +326,11 @@ const reestablecerPassword = async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    usuario.password = nuevaPassword;
+    // Generar hash seguro
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(nuevaPassword, salt);
+
+    usuario.password = hashedPassword;
     await usuario.save();
 
     verifiedRuts.delete(rut);
